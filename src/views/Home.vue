@@ -1,11 +1,12 @@
 <template>
-  <div id="app">
-    <router-view></router-view>
+  <div class="home">
   </div>
 </template>
+
 <script>
+// @ is an alias to /src
 
 export default {
-  name: 'app',
+  name: 'home',
 }
 </script>
