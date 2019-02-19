@@ -5,11 +5,13 @@ import ElementUI from "element-ui"
 import 'element-ui/lib/theme-chalk/index.css'
 import "./assets/styles/reset.css"
 import './plugins/element.js'
+import store from './store'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')
