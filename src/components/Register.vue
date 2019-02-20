@@ -82,7 +82,6 @@ export default {
     addRules() {
       // 读取所有的帐号名
       let myStorage = new WebStorage();
-      console.log(myStorage);
       let userNum = this.$store.state.userNum;
       let userNames = [];
       for (let i = 0; i < userNum; i++) {
@@ -90,12 +89,11 @@ export default {
       }
       // 增加账号名是否重复验证
       this.rules.name.push({
-        validator(rule, value, callback, source, options) {
+        validator(rule, value, callback) {
           let errors = [];
           let userNameError = userNames.find(item => {
             return item == value;
           });
-          console.log(userNameError);
           if (userNameError) {
             errors.push("该账号已存在");
           }
