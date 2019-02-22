@@ -7,7 +7,8 @@
       </div>
       <div class="home-header-right">
         <el-dropdown>
-          <span class="el-dropdown-link">User
+          <span class="el-dropdown-link">
+            User
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
@@ -32,12 +33,28 @@
 // @ is an alias to /src
 import HomeSide from "@/components/HomeSide.vue";
 import StaffInformation from "@/components/staffInformation.vue";
+import utils from "@/common/index.js";
+import WebStorage from "web-storage-cache";
 
 export default {
   name: "home",
   components: {
     HomeSide,
     StaffInformation
+  },
+  methods: {
+
+    /**
+     * 获取员工数据
+     */
+    getStaffData() {
+      let myStorage = new WebStorage;
+      let data = utils.getStaffData(myStorage);
+      let staffData = data.staffData;
+    }
+  },
+  mounted() {
+    this.getStaffData();
   }
 };
 </script>
@@ -60,7 +77,7 @@ export default {
     }
     .home-header-right {
       position: absolute;
-      top: .4rem;
+      top: 0.4rem;
       right: 1rem;
       .el-dropdown {
         color: #e1e1e1;
@@ -79,11 +96,11 @@ export default {
       height: 100%;
     }
     .home-content {
-      padding: .5rem;
+      padding: 0.5rem;
       box-sizing: border-box;
       margin-left: 5rem;
-      background-color: #f1f1f1;
-      height: 100%;
+      background-color: #fbfbfb;
+      min-height: calc(100vh - 1.2rem);
     }
   }
 </style>

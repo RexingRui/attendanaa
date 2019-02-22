@@ -59,7 +59,8 @@ export default {
           }
         ]
       },
-      inputStyle: "password"
+      inputStyle: "password",
+      userStorage: {}
     };
   },
   methods: {
@@ -72,18 +73,30 @@ export default {
           let flag = false;
           for (let i = 0; i < userNum; i++) {
             let user = myStorage.get("user" + i);
+            console.log(user);
             if (
               user.name == this.form.name &&
               user.password == this.form.password &&
               user.region == this.form.region
             ) {
-              alert("登陆成功");
+              // 登陆成功message框
+              this.$message({
+                showClose: true,
+                message: "登陆账号成功",
+                type: "success",
+                duration: 1500
+              });
               flag = true;
+              this.$router.push({name: 'home'});
               break;
             }
           }
           if (!flag) {
-            alert("账号/密码输入错误，级别选择错误");
+            // 验证错误Notification框
+            this.$notify.error({
+              title: "登陆出错",
+              message: "账号、密码或等级选择错误"
+            });
           }
         } else {
           return false;
@@ -96,14 +109,6 @@ export default {
     handleToRegister() {
       this.$emit("change", "register");
     }
-  },
-  mounted() {
-    // 将用户用数量存入vuex
-    let myStorage = new WebStorage();
-    if (myStorage.storage.length > 0) {
-      this.$store.commit("changeUserNum", {userNum: myStorage.storage.length-1});
-    }
-
   }
 };
 </script>
@@ -116,6 +121,9 @@ export default {
       height: 6.8rem;
       background-color: #ebe6e6;
       border-radius: 0.32rem;
+      /deep/ .el-form-item {
+        margin-bottom: 0;
+      }
       /deep/ input {
         width: 6rem;
       }

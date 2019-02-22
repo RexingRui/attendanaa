@@ -8,22 +8,27 @@
 <script>
 import Login from "@/components/Login.vue";
 import Register from "@/components/Register.vue";
+import utils from "@/common/index.js";
 
 export default {
   name: "user",
   components: {
-    'login': Login,
-    'register': Register
+    login: Login,
+    register: Register
   },
   data() {
     return {
-      view: 'login'
+      view: "login"
     };
   },
   methods: {
     handleChange(comName) {
       this.view = comName;
     }
+  },
+  mounted() {
+    // 获取账号数量
+    utils.getUserNum("userNum", this);
   }
 };
 </script>
@@ -40,7 +45,7 @@ export default {
       transition: opacity 0.3s ease;
     }
     .component-fade-enter, .component-fade-leave-to
-  /* .component-fade-leave-active for below version 2.1.8 */ {
+    /* .component-fade-leave-active for below version 2.1.8 */ {
       opacity: 0;
     }
   }

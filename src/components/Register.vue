@@ -53,24 +53,33 @@ export default {
           }
         ]
       },
-      userNames: []
+      userStorage: {}
     };
   },
   methods: {
     onSubmit(form) {
       this.$refs[form].validate(vaild => {
         if (vaild) {
-          let myStorage = new WebStorage();
           let userNum = this.$store.state.userNum;
-          myStorage.set("user" + userNum, {
+          this.userStorage.set("user" + userNum, {
             name: this.form.name,
             password: this.form.password,
             id: userNum,
             region: this.form.region
           });
-          this.$store.commit("changeUserNum", { userNum: userNum + 1 });
-          alert("注册成功");
-          this.$emit("change", "login");
+          this.userStorage.replace("userNum", userNum + 1);
+          this.$store.commit("changeUserNum", { name: userNum + 1 });
+          // 弹出消息框
+          this.$message({
+            showClose: true,
+            message: "恭喜你，账号注册成功",
+            type: "success",
+            duration: 1000
+          });
+          // 延时1.2s自动切换到登陆页面
+          setTimeout(() => {
+            this.$emit("change", "login");
+          }, 1200);
         } else {
           return false;
         }
@@ -79,15 +88,17 @@ export default {
     handleResetRegister(form) {
       this.$refs[form].resetFields();
     },
+    /**
+     * 添加表单验证规则
+     */
     addRules() {
       // 读取所有的帐号名
-      let myStorage = new WebStorage();
       let userNum = this.$store.state.userNum;
       let userNames = [];
       for (let i = 0; i < userNum; i++) {
-        userNames.push(myStorage.get("user" + i).name);
+        userNames.push(this.userStorage.get("user" + i).name);
       }
-      // 增加账号名是否重复验证
+      // 账号名重复验证规则
       this.rules.name.push({
         validator(rule, value, callback) {
           let errors = [];
@@ -104,6 +115,8 @@ export default {
     }
   },
   mounted() {
+    // 从localStorage中获取用户数据
+    this.userStorage = new WebStorage();
     this.addRules();
   }
 };
