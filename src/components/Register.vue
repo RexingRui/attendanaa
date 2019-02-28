@@ -24,6 +24,7 @@
 </template>
 <script>
 import WebStorage from "web-storage-cache";
+import { resolve } from "q";
 
 export default {
   name: "register",
@@ -61,25 +62,26 @@ export default {
       this.$refs[form].validate(vaild => {
         if (vaild) {
           let userNum = this.$store.state.userNum;
-          this.userStorage.set("user" + userNum, {
-            name: this.form.name,
-            password: this.form.password,
-            id: userNum,
-            region: this.form.region
+          this.$store.dispatch("changeUserNum", {
+            userNum: userNum,
+            userData: {
+              id: userNum,
+              name: this.form.name,
+              password: this.form.password,
+              region: this.form.region
+            }
           });
-          this.userStorage.replace("userNum", userNum + 1);
-          this.$store.commit("changeUserNum", { name: userNum + 1 });
-          // 弹出消息框
+          // 显示注册成功消息
           this.$message({
             showClose: true,
             message: "恭喜你，账号注册成功",
             type: "success",
             duration: 1000
           });
-          // 延时1.2s自动切换到登陆页面
+          //  切换到登陆页面
           setTimeout(() => {
             this.$emit("change", "login");
-          }, 1200);
+          }, 1000);
         } else {
           return false;
         }

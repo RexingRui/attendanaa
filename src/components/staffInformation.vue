@@ -1,6 +1,13 @@
 <template>
   <div class="staff-infomation">
-    <vuetable ref="vuetable" :fields="fields" :api-mode="false" :data="localData" :css="css.table" @vuetable:cell-clicked="handleTableClick">
+    <vuetable
+      ref="vuetable"
+      :fields="fields"
+      :api-mode="false"
+      :data="localData"
+      :css="css.table"
+      @vuetable:cell-clicked="handleTableClick"
+    >
       <template slot="tableHeader">
         <template>
           <tr>
@@ -47,7 +54,7 @@ export default {
         },
         {
           name: "select",
-          title: '<input type="checkbox"> 全选',
+          title: '<input type="checkbox" > 全选',
           width: "1.9rem",
           formatter: value =>
             value == false
@@ -84,39 +91,50 @@ export default {
       ],
       css: VuetableCss,
       addStaffVisible: false,
-      checked: []
+      checked: [],
+      localData: []
     };
-  },
-  computed: {
-    localData() {
-      // 获取已注册员工信息
-      let staffData = [];
-      let staffDataStorage = new WebStorage();
-      for (let i = 0; i < this.staffNum; i++) {
-        staffData.push(staffDataStorage.get("staff" + i));
-      }
-      return staffData;
-    },
-    staffNum() {
-      return this.$store.state.staffNum;
-    }
   },
   methods: {
     handleClickAddStaff() {
       this.addStaffVisible = true;
     },
     handleClickRemoveStaff() {
-      console.log("remove");
+      let deleteIndex = [];
+      this.localData.forEach((value, index, array) => {
+        if (value.select == true) {
+          this.localData = this.localData.filter(item => {
+            return item.id != value.id;
+          });
+          deleteIndex.push(value.id);
+        }
+      });
+      let myStorage = new WebStorage();
+      let deleteNum = myStorage.get("deleteNum")
+        ? myStorage.get("deleteNum")
+        : 0;
+      myStorage.set(
+        "deleteNum",
+        deleteIndex.length + myStorage.get("deleteNum")
+      );
+      let currentStaffNum = this.$store.state.staffNum - deleteIndex.length;
+      console.log(currentStaffNum);
+      this.$store.dispatch("changeStaffNum", { staffNum: currentStaffNum });
+      this.$store.dispatch("initialStaffData", {
+        staffDatas: this.localData,
+        deleteIndex: deleteIndex
+      });
     },
-    handleTableClick(dataItem, field) {
-      console.log(dataItem, field);
-    },
-    handleTestClick() {
-      console.log(1);
+    handleTableClick(item) {
+      if (item.field.name == "select") {
+        item.data.select = !item.data.select;
+      }
     }
   },
   mounted() {
-
+    setTimeout(() => {
+      this.localData = this.$store.state.staffDatas;
+    }, 100);
   }
 };
 </script>

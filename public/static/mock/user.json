@@ -1,0 +1,5 @@
+[
+  { "id": 0, "name": "wq", "password": "12345", "region": "manager" },
+  { "id": 1, "name": "rjj", "password": "12345", "region": "manager" },
+  { "id": 2, "name": "wqq", "password": "wqq", "region": "manager" }
+]

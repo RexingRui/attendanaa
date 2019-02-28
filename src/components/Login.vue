@@ -30,14 +30,21 @@
           <el-button @click="handleToRegister">注册</el-button>
         </el-form-item>
       </el-form>
+      <div class="file-upload">
+        <read-data @readdata="handleReadData">读取信息</read-data>
+      </div>
     </div>
   </div>
 </template>
 <script>
 import WebStorage from "web-storage-cache";
+import readData from "@/components/readData.vue";
 
 export default {
   name: "login",
+  components: {
+    readData
+  },
   data() {
     return {
       form: {
@@ -73,7 +80,6 @@ export default {
           let flag = false;
           for (let i = 0; i < userNum; i++) {
             let user = myStorage.get("user" + i);
-            console.log(user);
             if (
               user.name == this.form.name &&
               user.password == this.form.password &&
@@ -87,7 +93,7 @@ export default {
                 duration: 1500
               });
               flag = true;
-              this.$router.push({name: 'home'});
+              this.$router.push({ name: "home" });
               break;
             }
           }
@@ -108,6 +114,58 @@ export default {
     },
     handleToRegister() {
       this.$emit("change", "register");
+    },
+    handleReadData(file) {
+      if (file) {
+        let reader = new FileReader();
+        reader.readAsText(file);
+        // 读取成功后
+        let _this = this;
+        reader.onload = function() {
+          // 提示读取成功
+          _this.$notify({
+            title: "成功",
+            message: "数据读取成功！",
+            position: "top-left",
+            type: "success",
+            duration: 1500
+          });
+
+          // 数据存储至localStorage并dispatch到vuex
+          let jsonData = JSON.parse(this.result);
+          _this.$store.dispatch("initialUserNum", {
+            userNum: jsonData.length,
+            userData: jsonData
+          });
+        };
+        // 读取失败
+        reader.onerror = function() {
+          _this.$notify.error({
+            title: "失败",
+            message: "数据读取成功！",
+            position: "top-left",
+            duration: 1500
+          });
+        };
+      }
+    }
+  },
+  mounted() {
+    // 获取账号数量
+    let myStorage = new WebStorage();
+    let userNumFromStorage = myStorage.get("userNum")
+      ? myStorage.get("userNum")
+      : 0;
+    // 如果从本地localStorage中没有读取到用户账号信息则从user.json文件中读取
+    if (userNumFromStorage == 0) {
+      this.$notify.info({
+        title: "提示",
+        message: "请单击右上角按钮读取账号信息",
+        position: "top-left",
+        duration: 2000
+      });
+    } else {
+      this.$store.dispatch("initialUserNum", { userNum: userNumFromStorage });
     }
   }
 };
@@ -123,14 +181,22 @@ export default {
       border-radius: 0.32rem;
       /deep/ .el-form-item {
         margin-bottom: 0;
+        .el-form-item__error {
+          top: 60%;
+        }
       }
-      /deep/ input {
+      /deep/ .el-input {
         width: 6rem;
       }
       .el-icon-view {
         color: #161414;
         cursor: pointer;
         margin-left: 0.05rem;
+      }
+      .file-upload {
+        position: fixed;
+        top: 0.68rem;
+        right: 1rem;
       }
     }
   }

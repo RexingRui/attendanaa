@@ -23,7 +23,9 @@
         <home-side></home-side>
       </div>
       <div class="home-content">
-        <staff-information></staff-information>
+        <keep-alive>
+          <component :is="currentPage"></component>
+        </keep-alive>
       </div>
     </div>
   </div>
@@ -33,34 +35,56 @@
 // @ is an alias to /src
 import HomeSide from "@/components/HomeSide.vue";
 import StaffInformation from "@/components/staffInformation.vue";
-import utils from "@/common/index.js";
 import WebStorage from "web-storage-cache";
+import staffAttendance from "@/components/staffAttendance.vue";
 
 export default {
   name: "home",
   components: {
     HomeSide,
-    StaffInformation
+    StaffInformation,
+    staffAttendance
+  },
+  computed: {
+    currentPage() {
+      return this.$store.state.pageIndex;
+    }
   },
   methods: {
-
     /**
-     * 获取员工数据
+     * 获取员工数据，并将数据存入至vuex
      */
     getStaffData() {
-      let myStorage = new WebStorage;
-      let data = utils.getStaffData(myStorage);
-      let staffData = data.staffData;
+      // 获取员工数量，初始化
+      let myStorage = new WebStorage();
+      let staffNum = myStorage.get("staffNum") ? myStorage.get("staffNum") : 0;
+      this.$store.dispatch("initialStaffNum", { staffNum: staffNum });
+      // 获取员工信息,初始化
+      let staffDatas = [];
+      // 已经删除的员工数量
+      let deletNum = myStorage.get("deleteNum")
+        ? myStorage.get("deleteNum")
+        : 0;
+      let num = staffNum + deletNum;
+      for (let i = 0; i < num; i++) {
+        let staff = myStorage.get("staff" + i);
+        if (staff) {
+          staffDatas.push(staff);
+        }
+      }
+      this.$store.dispatch("initialStaffData", { staffDatas: staffDatas });
     }
   },
   mounted() {
     this.getStaffData();
+
   }
 };
 </script>
 <style lang="less" scoped>
   .home-header {
     position: fixed;
+    z-index: 10;
     height: 1.2rem;
     width: 100%;
     background-color: #4a648b;
@@ -85,6 +109,7 @@ export default {
     }
   }
   .home-main {
+    z-index: 1;
     width: 100%;
     padding-top: 1.2rem;
     min-height: 100vh;

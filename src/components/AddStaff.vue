@@ -46,7 +46,7 @@ export default {
         date: "",
         gender: "",
         email: "",
-        phone: ""
+        phone: "",
       },
       rules: {
         name: [
@@ -96,20 +96,24 @@ export default {
       this.$refs["form"].validate(vaild => {
         if (vaild) {
           // 获取员工数量
-          let staffNum = this.$store.state.staffNum;
           let myStorage = new WebStorage();
+          let deleteNum = myStorage.get('deleteNum') ? myStorage.get('deleteNum') : 0;
+          let staffNum = this.$store.state.staffNum + deleteNum;
           // 添加员工信息
-          myStorage.set("staff" + staffNum, {
-            id: staffNum,
-            name: this.form.name,
-            gender: this.form.gender,
-            phone: this.form.phone,
-            email: this.form.email,
-            date: this.form.date,
-            select: false
-          }),
-            this.$store.commit("changeStaffNum", { userNum: staffNum + 1 });
-          myStorage.replace("staffNum", staffNum + 1);
+          this.$store.dispatch("changeStaffData", {
+            staffData: {
+              id: staffNum,
+              name: this.form.name,
+              gender: this.form.gender,
+              phone: this.form.phone,
+              email: this.form.email,
+              date: this.form.date.toLocaleDateString(),
+              select: false,
+              attendance: [{year: 2019, month: 2, day: 1, attendance: 1}]
+            }, flag: 'add'
+          });
+          // 分发员工信息
+          this.$store.dispatch("changeStaffNum", { staffNum: this.$store.state.staffNum + 1 });
           // 注册成功消息提示框
           this.$message({
             type: "success",
