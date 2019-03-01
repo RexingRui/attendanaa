@@ -32,32 +32,41 @@
         v-for="item in dateData"
         :key="item.id"
         :label="item.name"
-        width="80"
+        width="100"
         :prop="item.name"
       >
         <template slot-scope="scope">
+          <span class="edit-attendance">
+            <el-button type="info" icon="el-icon-edit" size="mini" @click="handleAttendanceClick"></el-button>
+          </span>
           <span>{{scope.row.attendance[item.name]}}</span>
         </template>
       </el-table-column>
       <el-table-column label="总计" width="100"></el-table-column>
     </el-table>
+    <attendance-dialog v-model="dialogFormVisible"></attendance-dialog>
   </div>
 </template>
 <script>
+import attendanceDialog from "@/components/attendanceDialog";
+
 export default {
   name: "staffAttendance",
+  components: {
+    attendanceDialog
+  },
   data() {
     return {
       date: {},
       currentPage: 1,
       currentRecordStaff: {},
       currentRecordDay: "",
-      tableData: []
+      tableData: [],
+      dialogFormVisible: false
     };
   },
   computed: {
-    dateData() {
-      let dateNum = [];
+    monthMatchDays() {
       let monthMatchDays = {
         1: 31,
         2: 28,
@@ -72,8 +81,14 @@ export default {
         11: 30,
         12: 31
       };
-
-      for (let i = 1; i < monthMatchDays[this.currentPage] + 1; i++) {
+      if (!this.date.year % 4) {
+        monthMatchDays["2"] = 29;
+      }
+      return monthMatchDays;
+    },
+    dateData() {
+      let dateNum = [];
+      for (let i = 1; i < this.monthMatchDays[this.currentPage] + 1; i++) {
         let dateObj = {
           id: i,
           name: String(i)
@@ -87,7 +102,6 @@ export default {
     }
   },
   methods: {
-
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
     },
@@ -111,21 +125,6 @@ export default {
     handleStaffData() {
       // 获取当前月份，对应的当前的分页的当前页
       let currentMonth = this.currentPage;
-      // 每个月对应的天数
-      let monthMatchDays = {
-        1: 31,
-        2: 28,
-        3: 31,
-        4: 30,
-        5: 31,
-        6: 30,
-        7: 31,
-        8: 31,
-        9: 30,
-        10: 31,
-        11: 30,
-        12: 31
-      };
       // 考勤匹配值
       let valueMatchAttendance = {
         0: "未考勤",
@@ -150,7 +149,7 @@ export default {
         });
         // 其他列填入考勤数据
         staffObj.attendance = [];
-        for (let i = 1; i < monthMatchDays[currentMonth] + 1; i++) {
+        for (let i = 1; i < this.monthMatchDays[currentMonth] + 1; i++) {
           let currentAttendance = {};
           currentMonthData.forEach(value => {
             if (value.day == i) {
@@ -180,6 +179,12 @@ export default {
           flag: change
         });
       }
+    },
+    /**
+     * 打开对话框执行考勤操作
+     */
+    handleAttendanceClick() {
+      this.dialogFormVisible = true;
     }
   },
   mounted() {
@@ -195,34 +200,40 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-  /deep/ .cell {
-    text-align: center;
-  }
-  .table-select {
-    select {
-      background-color: #fefefe;
-      width: 60px;
-      height: 30px;
-      appearance: none;
-      padding-left: 15px;
-    }
-  }
-  .attendance-title {
-    position: relative;
-    height: 48px;
-    .words-title {
-      font-size: 18px;
-      .words-title-year {
-        color: #141ea1;
-      }
-      .words-title-month {
-        color: #f70a59;
+  .staff-attendance {
+    /deep/ .cell {
+      overflow: none;
+      text-align: center;
+      .edit-attendance {
+        position: absolute;
+        top: -3px;
+        right: 0;
+        .el-button {
+          padding: 2px 5px;
+          border-top: none;
+          border-top-left-radius: 0;
+          border-top-right-radius: 0;
+          border-bottom-right-radius: 0;
+        }
       }
     }
-    .attendance-pages {
-      position: absolute;
-      right: 20px;
-      top: 15px;
+    .attendance-title {
+      position: relative;
+      height: 48px;
+      .words-title {
+        font-size: 18px;
+        .words-title-year {
+          color: #141ea1;
+        }
+        .words-title-month {
+          color: #f70a59;
+        }
+      }
+      .attendance-pages {
+        position: absolute;
+        right: 20px;
+        top: 15px;
+      }
     }
   }
 </style>
