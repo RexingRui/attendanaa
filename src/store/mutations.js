@@ -5,7 +5,8 @@ import {
   CHANGE_STAFF_NUM,
   INITIAL_STAFF_DATA,
   CHANGE_STAFF_DATA,
-  CHANGE_CURRENT_PAGE
+  CHANGE_CURRENT_PAGE,
+  DOATTENDANCE
 } from "@/common/mutation-types.js";
 
 export default {
@@ -36,5 +37,9 @@ export default {
 
   [CHANGE_CURRENT_PAGE] (state, pageIndex) {
     state.pageIndex = pageIndex;
+  },
+
+  [DOATTENDANCE] (state, payload) {
+    state.currentStaffAttend = payload;
   }
 };

@@ -55,7 +55,7 @@ export default {
         {
           name: "select",
           title: '<input type="checkbox" > 全选',
-          width: "1.9rem",
+          width: "2.4rem",
           formatter: value =>
             value == false
               ? '<input type="checkbox" v-model="checked">'

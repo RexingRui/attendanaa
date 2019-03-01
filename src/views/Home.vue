@@ -3,7 +3,7 @@
     <div class="home-header">
       <div class="home-header-left">
         <i class="el-icon-edit-outline"></i>
-        <div class="home-title">Schuduler</div>
+        <div class="home-title">Scheduler</div>
       </div>
       <div class="home-header-right">
         <el-dropdown>

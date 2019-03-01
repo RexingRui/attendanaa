@@ -74,7 +74,7 @@ export default {
         ],
         email: { type: "email", message: "邮箱格式错误", trigger: "blur" }
       },
-      dialogFormVisible: this.value,
+      dialogFormVisible: false,
       formLabelWidth: "1rem",
       enterDate: ""
     };
@@ -90,7 +90,6 @@ export default {
   methods: {
     handleCancleDialog() {
       this.dialogFormVisible = false;
-      this.$emit("input", this.dialogFormVisible);
     },
     handleSureDialog() {
       this.$refs["form"].validate(vaild => {
@@ -123,7 +122,6 @@ export default {
           });
           // 关闭注册框
           this.dialogFormVisible = false;
-          this.$emit("input", this.dialogFormVisible);
           return false;
         }
       });

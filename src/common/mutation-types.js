@@ -6,6 +6,7 @@ const INITIAL_STAFF_DATA = 'initialStaffData';
 const CHANGE_STAFF_DATA = 'changeStaffData';
 const SAVE_DELETE_ID = 'saveDeleteId';
 const CHANGE_CURRENT_PAGE = 'changeCurrentPage';
+const DOATTENDANCE = 'doAttendance';
 
 
 
@@ -17,5 +18,6 @@ export {
   INITIAL_STAFF_DATA,
   CHANGE_STAFF_DATA,
   SAVE_DELETE_ID,
-  CHANGE_CURRENT_PAGE
+  CHANGE_CURRENT_PAGE,
+  DOATTENDANCE
 }

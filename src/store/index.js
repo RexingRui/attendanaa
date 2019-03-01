@@ -12,7 +12,12 @@ export default new Vuex.Store({
     staffNum: 0,
     staffDatas: [],
     deleteId: 0,
-    pageIndex: 'staffAttendance'
+    pageIndex: 'staffAttendance',
+    currentStaffAttend: {
+      state: '',
+      date: [],
+      reason: ''
+    }
   },
   getters: {
 

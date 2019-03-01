@@ -95,5 +95,10 @@ export default {
   // 更改当前显示的页面
   changeCurrentPage({ commit }, payload) {
     commit("changeCurrentPage", payload.pageIndex);
+  },
+
+  // 更新当前员工考勤数据
+  doAttendance( { commit }, payload) {
+    commit('doAttendance', payload);
   }
 };
