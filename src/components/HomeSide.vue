@@ -11,15 +11,15 @@
           <span>人员管理</span>
         </template>
         <el-menu-item index="staffInformation">人员信息</el-menu-item>
-        <el-menu-item index="1-2">人员管理</el-menu-item>
+        <el-menu-item index="staffManager">人员管理</el-menu-item>
       </el-submenu>
       <el-submenu index="2">
         <template slot="title">
           <i class="el-icon-menu"></i>
           <span>排班管理</span>
         </template>
-        <el-menu-item index="2-1">班次设置</el-menu-item>
-        <el-menu-item index="2-2" disabled>排班分类</el-menu-item>
+        <el-menu-item index="attendanceSet">班次设置</el-menu-item>
+        <el-menu-item index="attendanceCategory" disabled>排班分类</el-menu-item>
       </el-submenu>
       <el-menu-item index="staffAttendance">
         <i class="el-icon-document"></i>
@@ -30,14 +30,14 @@
           <i class="el-icon-setting"></i>
           <span>统计报表</span>
         </template>
-        <el-menu-item index="4-1">数据分析</el-menu-item>
-        <el-menu-item index="4-2" disabled>导出报表</el-menu-item>
+        <el-menu-item index="dataAnalysis">数据分析</el-menu-item>
+        <el-menu-item index="exportReport" disabled>导出报表</el-menu-item>
       </el-submenu>
-      <el-menu-item index="5">
+      <el-menu-item index="help">
         <i class="el-icon-question"></i>
         <span slot="title">帮助</span>
       </el-menu-item>
-      <el-menu-item index="5">
+      <el-menu-item index="contact">
         <i class="el-icon-phone"></i>
         <span slot="title">联系</span>
       </el-menu-item>
