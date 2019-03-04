@@ -27,7 +27,7 @@
         <vuetable-row-header></vuetable-row-header>
       </template>
     </vuetable>
-    <add-staff v-model="addStaffVisible"></add-staff>
+    <add-staff v-model="addStaffVisible" @record="handleRecordStaff"></add-staff>
   </div>
 </template>
 <script>
@@ -129,7 +129,11 @@ export default {
       if (item.field.name == "select") {
         item.data.select = !item.data.select;
       }
-    }
+    },
+    handleRecordStaff() {
+    setTimeout(() => {
+      this.localData = this.$store.state.staffDatas;
+    }, 100);}
   },
   mounted() {
     setTimeout(() => {

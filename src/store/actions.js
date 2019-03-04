@@ -82,12 +82,13 @@ export default {
     new Promise((resolve, reject) => {
       // 判断是添加员工信息还是更改
       if (payload.flag == 'add') {
+        console.log('add Staff')
         myStorage.set("staff" + payload.staffData.id, payload.staffData);
       } else {
         myStorage.replace("staff" + payload.staffData.id, payload.staffData);
       }
 
-      resolve(payload.staffData);
+      resolve(payload);
     }).then(value => {
       commit("changeStaffData", value);
     });

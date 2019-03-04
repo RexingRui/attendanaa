@@ -44,7 +44,7 @@
               @click="handleAttendanceClick"
             ></el-button>
           </span>
-          <span>{{scope.row.attendance[item.name]}}</span>
+          <span>12</span>
         </template>
       </el-table-column>
       <el-table-column label="总计" width="100"></el-table-column>
@@ -54,6 +54,7 @@
 </template>
 <script>
 import attendanceDialog from '@/components/attendanceDialog';
+import WebStorage from "web-storage-cache";
 
 export default {
   name: "staffAttendance",
@@ -113,6 +114,8 @@ export default {
     },
     handleCurrentChange (val) {
       this.handleStaffData();
+    console.log(this.tableData);
+
     },
     /**
      * 表格单元单机的事件处理函数
@@ -131,38 +134,35 @@ export default {
     handleStaffData () {
       // 获取当前月份，对应的当前的分页的当前页
       let currentMonth = this.currentPage;
-      //
-      let tableData = [];
       // 遍历所有员工数据
       this.staffDatas.forEach((value, index, array) => {
-        // 获取表单所需的数据
-        let staffObj = {};
-        // 第一列中填入姓名
-        staffObj.name = value.name;
-        // 拿出当前月的考勤数据
-        let currentMonthData = value.attendance.filter(el => {
-          if (el.month) {
-            return el.month == currentMonth;
+        // 拿出当前选中月考勤数据
+        // let currentMonthData = value.attendRecord.filter(el => {
+        //   if (el.month) {
+        //     return el.month == currentMonth;
+        //   }
+        // });
+        value.attendRecord.forEach(el => {
+          if (el.month == currentMonth) {
+            this.tableData.push(value);
           }
-        });
-        // 其他列填入考勤数据
-        staffObj.attendance = [];
-        for (let i = 1; i < this.monthMatchDays[currentMonth] + 1; i++) {
-          let currentAttendance = {};
-          currentMonthData.forEach(value => {
-            if (value.day == i) {
-              currentAttendance = value;
-              console.log(currentAttendance);
+        })
+
+        // // 写入默认的考勤值
+        // for (let i = 1; i < this.monthMatchDays[currentMonth] + 1; i++) {
+        //   let currentAttendance = {};
+        //   currentMonthData.forEach(value => {
+        //     if (value.day == i) {
+        //       currentAttendance = value;
+        //       console.log(currentAttendance);
               
-            }
-          });
-          console.log(currentAttendance);
-          staffObj.attendance[i] = currentAttendance.attendance ? currentAttendance.attendance.state : '未考勤';
-          
-        }
-        tableData.push(staffObj);
+        //     }
+        //   });
+        //   console.log(currentAttendance);
+        //   staffObj.attendance[i] = currentAttendance.attendance ? currentAttendance.attendance.state : '未考勤'; 
+        // }
+        
       });
-      this.tableData = tableData;
     },
     handleChange ($event) {
       let staffAttendance = {};
@@ -187,7 +187,10 @@ export default {
       this.dialogFormVisible = true;
     },
     handleAttendanceData(attendanceData) {
-      console.log('1');
+      this.$store.dispatch('changeStaffData', {flag: 'change', })
+      this.currentRecordStaff.attendance[this.currentRecordDay] = attendanceData.state;
+      console.log(this.tableData);
+      console.log('ok');
     }
   },
   mounted () {
@@ -199,6 +202,7 @@ export default {
     this.currentPage = parseInt(this.date.month);
     // 渲染表中的数据
     this.handleStaffData();
+    console.log(this.tableData);
   }
 };
 </script>
@@ -241,3 +245,4 @@ export default {
   }
 }
 </style>
+"{"c":1551699698818,"e":253402300799000,"v":"{\"id\":0,\"name\":\"rjj\",\"gender\":\"男\",\"phone\":\"15212351687\",\"email\":\"jko@asd.com\",\"date\":\"2019/3/12\",\"select\":false,\"attendance\":[{\"year\":2019,\"month\":2,\"day\":1,\"attendance\":{\"state\":\"\",\"date\":[],\"reason\":\"\"}}]}"}"

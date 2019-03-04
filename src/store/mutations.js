@@ -31,8 +31,15 @@ export default {
     state.staffDatas = staffDatas;
   },
 
-  [CHANGE_STAFF_DATA] (state, staffData) {
-    state.staffDatas.push(staffData);
+  [CHANGE_STAFF_DATA] (state, payload) {
+    if (payload.flag == "change") {
+      state.staffDatas.forEach((value, index) => {
+        if (value.id == payload.staffData.id) {
+          state.staffDatas.splice(index, 1)
+        }
+      });
+    }
+      state.staffDatas.push(payload.staffData);
   },
 
   [CHANGE_CURRENT_PAGE] (state, pageIndex) {

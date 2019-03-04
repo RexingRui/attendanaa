@@ -1,6 +1,6 @@
 <template>
   <div class="attendance-dialog">
-    <el-dialog title="填写考勤" :visible.sync="dialogFormVisible" width="35%" @open="handleDialogOpen" @close="handleDialogClose" ref="dialog">
+    <el-dialog title="填写考勤" :visible.sync="dialogFormVisible" width="45%" @open="handleDialogOpen" @close="handleDialogClose" ref="dialog">
       <div class="radios">
         <el-radio v-model="radioValue" label="工作" border>工作</el-radio>
         <el-radio v-model="radioValue" label="请假" border>请假</el-radio>
@@ -125,7 +125,11 @@ export default {
       this.dialogFormVisible = false;
     },
     handleDialogOpen () {
-      console.log('对话框已经打开');
+      // 对话框打开回调处理函数，每次打开后清空对话框的值
+      this.radioValue = '';
+      this.workTime = [];
+      this.valueCategory = '';
+
     },
     handleDialogClose() {
       console.log('对话框已经关闭');

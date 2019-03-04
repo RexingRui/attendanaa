@@ -1,6 +1,6 @@
 <template>
   <div class="add-staff">
-    <el-dialog title="新人员信息" :visible.sync="dialogFormVisible">
+    <el-dialog title="新人员信息" :visible.sync="dialogFormVisible" @close="handleCloseDialog">
       <el-form :model="form" size="mini" :rules="rules" ref="form" @submit.prevent>
         <el-form-item label="姓名" :label-width="formLabelWidth" prop="name">
           <el-input v-model="form.name" clearable></el-input>
@@ -108,7 +108,7 @@ export default {
               email: this.form.email,
               date: this.form.date.toLocaleDateString(),
               select: false,
-              attendance: [{year: 2019, month: 2, day: 1, attendance: { state: '', date: [], reason: '' }}]
+              attendRecord: [{year: 2019, month: 2, day: 1, attendance: { state: '', date: [], reason: '' }}]
             }, flag: 'add'
           });
           // 分发员工信息
@@ -125,6 +125,9 @@ export default {
           return false;
         }
       });
+    },
+    handleCloseDialog() {
+      this.$emit("record");
     }
   },
   mounted() {
