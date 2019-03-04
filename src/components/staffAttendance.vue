@@ -49,7 +49,7 @@
       </el-table-column>
       <el-table-column label="总计" width="100"></el-table-column>
     </el-table>
-    <attendance-dialog v-model='dialogFormVisible'></attendance-dialog>
+    <attendance-dialog v-model='dialogFormVisible' @record="handleAttendanceData"></attendance-dialog>
   </div>
 </template>
 <script>
@@ -62,7 +62,7 @@ export default {
   },
   data () {
     return {
-      date: {},
+      date: {year: '', month: '', day: ''},
       currentPage: 1,
       currentRecordStaff: {},
       currentRecordDay: "",
@@ -163,7 +163,7 @@ export default {
             }
           });
           staffObj.attendance[i] = currentAttendance
-            ? valueMatchAttendance[currentAttendance.attendance]
+            ? valueMatchAttendance[currentAttendance.attendance.state]
             : "未考勤";
         }
         tableData.push(staffObj);
@@ -191,6 +191,9 @@ export default {
      */
     handleAttendanceClick() {
       this.dialogFormVisible = true;
+    },
+    handleAttendanceData(attendanceData) {
+      console.log('1');
     }
   },
   mounted () {

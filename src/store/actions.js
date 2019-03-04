@@ -99,6 +99,11 @@ export default {
 
   // 更新当前员工考勤数据
   doAttendance( { commit }, payload) {
-    commit('doAttendance', payload);
+    new Promise(resolve => {
+      myStorage.set('currentStaffAttd', payload.staffAttendance);
+      resolve(payload.staffAttendance);
+    }).then(value =>{
+      commit('doAttendance', value);
+    })
   }
 };

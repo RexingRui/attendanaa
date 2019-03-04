@@ -39,7 +39,7 @@ export default {
     state.pageIndex = pageIndex;
   },
 
-  [DOATTENDANCE] (state, payload) {
-    state.currentStaffAttend = payload;
+  [DOATTENDANCE](state, staffAttendance) {
+    state.currentStaffAttend = staffAttendance;
   }
 };

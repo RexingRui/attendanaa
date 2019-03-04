@@ -1,6 +1,6 @@
 <template>
   <div class="attendance-dialog">
-    <el-dialog title="填写考勤" :visible.sync="dialogFormVisible" width="35%" @open="handleDialogOpen" ref="dialog">
+    <el-dialog title="填写考勤" :visible.sync="dialogFormVisible" width="35%" @open="handleDialogOpen" @close="handleDialogClose" ref="dialog">
       <div class="radios">
         <el-radio v-model="radioValue" label="工作" border>工作</el-radio>
         <el-radio v-model="radioValue" label="请假" border>请假</el-radio>
@@ -97,7 +97,7 @@ export default {
               value: '年假',
               label: '年假'
             },
-                        {
+            {
               value: '产假',
               label: '产假'
             },
@@ -121,10 +121,15 @@ export default {
       this.attendance.state = this.radioValue;
       this.attendance.date = this.workTime;
       this.attendance.reason = this.valueCategory;
+      this.$store.dispatch('doAttendance', { staffAttendance: this.attendance });
       this.dialogFormVisible = false;
     },
     handleDialogOpen () {
-      console.log(this.$refs['dialog']);
+      console.log('对话框已经打开');
+    },
+    handleDialogClose() {
+      console.log('对话框已经关闭');
+      this.$emit('record', this.attendance);
     }
   }
 }
