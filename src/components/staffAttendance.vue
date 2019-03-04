@@ -35,25 +35,20 @@
         width="100"
         :prop="item.name"
       >
-        <template slot-scope="scope">
+        <template>
           <span class="edit-attendance">
-            <el-button
-              type="info"
-              icon="el-icon-edit"
-              size="mini"
-              @click="handleAttendanceClick"
-            ></el-button>
+            <el-button type="info" icon="el-icon-edit" size="mini" @click="handleAttendanceClick"></el-button>
           </span>
           <span>12</span>
         </template>
       </el-table-column>
       <el-table-column label="总计" width="100"></el-table-column>
     </el-table>
-    <attendance-dialog v-model='dialogFormVisible' @record="handleAttendanceData"></attendance-dialog>
+    <attendance-dialog v-model="dialogFormVisible" @record="handleAttendanceData"></attendance-dialog>
   </div>
 </template>
 <script>
-import attendanceDialog from '@/components/attendanceDialog';
+import attendanceDialog from "@/components/attendanceDialog";
 import WebStorage from "web-storage-cache";
 
 export default {
@@ -61,9 +56,9 @@ export default {
   components: {
     attendanceDialog
   },
-  data () {
+  data() {
     return {
-      date: {year: '', month: '', day: ''},
+      date: { year: "", month: "", day: "" },
       currentPage: 1,
       currentRecordStaff: {},
       currentRecordDay: "",
@@ -87,12 +82,12 @@ export default {
         11: 30,
         12: 31
       };
-      if ( !this.date.year % 4) {
-        monthMatchDays['2'] = 29;
+      if (!this.date.year % 4) {
+        monthMatchDays["2"] = 29;
       }
-      return monthMatchDays
+      return monthMatchDays;
     },
-    dateData () {
+    dateData() {
       let dateNum = [];
       for (let i = 1; i < this.monthMatchDays[this.currentPage] + 1; i++) {
         let dateObj = {
@@ -103,19 +98,17 @@ export default {
       }
       return dateNum;
     },
-    staffDatas () {
+    staffDatas() {
       return this.$store.state.staffDatas;
     }
   },
   methods: {
-
-    handleSizeChange (val) {
+    handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
     },
-    handleCurrentChange (val) {
+    handleCurrentChange(val) {
       this.handleStaffData();
-    console.log(this.tableData);
-
+      console.log(this.tableData);
     },
     /**
      * 表格单元单机的事件处理函数
@@ -124,14 +117,14 @@ export default {
      * @param [object] cell 当前元素dom
      * @param [object] event 事件
      */
-    handleCellClick (row, column, cell, event) {
+    handleCellClick(row, column, cell, event) {
       this.currentRecordStaff = row;
       this.currentRecordDay = column.label;
     },
     /**
      * 将当前选择的月份考勤数据渲染到表格中
      */
-    handleStaffData () {
+    handleStaffData() {
       // 获取当前月份，对应的当前的分页的当前页
       let currentMonth = this.currentPage;
       // 遍历所有员工数据
@@ -142,11 +135,16 @@ export default {
         //     return el.month == currentMonth;
         //   }
         // });
-        value.attendRecord.forEach(el => {
-          if (el.month == currentMonth) {
-            this.tableData.push(value);
-          }
-        })
+        let existData = this.tableData.some(el => {
+          return el == existData;
+        });
+        if (existData) {
+          value.attendRecord.forEach(el => {
+            if (el.month == currentMonth) {
+              this.tableData.push(value);
+            }
+          });
+        }
 
         // // 写入默认的考勤值
         // for (let i = 1; i < this.monthMatchDays[currentMonth] + 1; i++) {
@@ -155,16 +153,15 @@ export default {
         //     if (value.day == i) {
         //       currentAttendance = value;
         //       console.log(currentAttendance);
-              
+
         //     }
         //   });
         //   console.log(currentAttendance);
-        //   staffObj.attendance[i] = currentAttendance.attendance ? currentAttendance.attendance.state : '未考勤'; 
+        //   staffObj.attendance[i] = currentAttendance.attendance ? currentAttendance.attendance.state : '未考勤';
         // }
-        
       });
     },
-    handleChange ($event) {
+    handleChange($event) {
       let staffAttendance = {};
       // 执行考勤操作
       if (this.currentRecordDay == this.date.day) {
@@ -187,13 +184,14 @@ export default {
       this.dialogFormVisible = true;
     },
     handleAttendanceData(attendanceData) {
-      this.$store.dispatch('changeStaffData', {flag: 'change', })
-      this.currentRecordStaff.attendance[this.currentRecordDay] = attendanceData.state;
+      this.$store.dispatch("changeStaffData", { flag: "change" });
+      this.currentRecordStaff.attendance[this.currentRecordDay] =
+        attendanceData.state;
       console.log(this.tableData);
-      console.log('ok');
+      console.log("ok");
     }
   },
-  mounted () {
+  mounted() {
     // 加载当前日期
     let currentDate = new Date().toLocaleDateString().split("/");
     this.date.year = currentDate[0];
@@ -207,8 +205,8 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-.staff-attendance {
-  .attendance-title {
+  .staff-attendance {
+    .attendance-title {
       position: relative;
       height: 48px;
       .words-title {
@@ -226,23 +224,22 @@ export default {
         top: 15px;
       }
     }
-  /deep/ .cell {
-    overflow: none;
-    text-align: center;
-    .edit-attendance {
-      position: absolute;
-      top: -3px;
-      right: 0;
-      .el-button {
-        padding: 2px 5px;
-        border-top: none;
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
+    /deep/ .cell {
+      overflow: none;
+      text-align: center;
+      .edit-attendance {
+        position: absolute;
+        top: -3px;
+        right: 0;
+        .el-button {
+          padding: 2px 5px;
+          border-top: none;
+          border-top-left-radius: 0;
+          border-top-right-radius: 0;
+          border-bottom-right-radius: 0;
+        }
       }
     }
-    
   }
-}
 </style>
 "{"c":1551699698818,"e":253402300799000,"v":"{\"id\":0,\"name\":\"rjj\",\"gender\":\"男\",\"phone\":\"15212351687\",\"email\":\"jko@asd.com\",\"date\":\"2019/3/12\",\"select\":false,\"attendance\":[{\"year\":2019,\"month\":2,\"day\":1,\"attendance\":{\"state\":\"\",\"date\":[],\"reason\":\"\"}}]}"}"

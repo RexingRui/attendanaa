@@ -1,11 +1,11 @@
 <template>
   <div class="menu-home-side">
     <el-menu
-      default-active="1"
+      default-active="one"
       class="el-menu-vertical-demo"
       @select= "handleMenuSelect"
     >
-      <el-submenu index="1">
+      <el-submenu index="one">
         <template slot="title">
           <i class="el-icon-location"></i>
           <span>人员管理</span>
@@ -13,7 +13,7 @@
         <el-menu-item index="staffInformation">人员信息</el-menu-item>
         <el-menu-item index="staffManager">人员管理</el-menu-item>
       </el-submenu>
-      <el-submenu index="2">
+      <el-submenu index="two">
         <template slot="title">
           <i class="el-icon-menu"></i>
           <span>排班管理</span>
@@ -25,7 +25,7 @@
         <i class="el-icon-document"></i>
         <span slot="title">考勤统计</span>
       </el-menu-item>
-      <el-submenu index="4">
+      <el-submenu index="four">
         <template slot="title">
           <i class="el-icon-setting"></i>
           <span>统计报表</span>
@@ -49,7 +49,6 @@ export default {
   name: "homeSide",
   methods: {
     handleMenuSelect(index) {
-      console.log(index);
       if (index) {
         this.$store.dispatch('changeCurrentPage', {pageIndex: index});
       }
