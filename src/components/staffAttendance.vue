@@ -37,30 +37,46 @@
       >
         <template slot-scope="scope">
           <span class="edit-attendance">
+<<<<<<< HEAD
             <el-button
               type="info"
               icon="el-icon-edit"
               size="mini"
               @click="handleAttendanceClick"
             ></el-button>
+=======
+            <el-button type="info" icon="el-icon-edit" size="mini" @click="handleAttendanceClick"></el-button>
+>>>>>>> c72359600886a96f15f623dc473055ba4431db21
           </span>
           <span>{{scope.row.attendance[item.name]}}</span>
         </template>
       </el-table-column>
       <el-table-column label="总计" width="100"></el-table-column>
     </el-table>
+<<<<<<< HEAD
     <attendance-dialog v-model='dialogFormVisible' @record="handleAttendanceData"></attendance-dialog>
   </div>
 </template>
 <script>
 import attendanceDialog from '@/components/attendanceDialog';
+=======
+    <attendance-dialog v-model="dialogFormVisible"></attendance-dialog>
+  </div>
+</template>
+<script>
+import attendanceDialog from "@/components/attendanceDialog";
+>>>>>>> c72359600886a96f15f623dc473055ba4431db21
 
 export default {
   name: "staffAttendance",
   components: {
     attendanceDialog
   },
+<<<<<<< HEAD
   data () {
+=======
+  data() {
+>>>>>>> c72359600886a96f15f623dc473055ba4431db21
     return {
       date: {year: '', month: '', day: ''},
       currentPage: 1,
@@ -86,12 +102,21 @@ export default {
         11: 30,
         12: 31
       };
+<<<<<<< HEAD
       if ( !this.date.year % 4) {
         monthMatchDays['2'] = 29;
       }
       return monthMatchDays
     },
     dateData () {
+=======
+      if (!this.date.year % 4) {
+        monthMatchDays["2"] = 29;
+      }
+      return monthMatchDays;
+    },
+    dateData() {
+>>>>>>> c72359600886a96f15f623dc473055ba4431db21
       let dateNum = [];
       for (let i = 1; i < this.monthMatchDays[this.currentPage] + 1; i++) {
         let dateObj = {
@@ -107,8 +132,12 @@ export default {
     }
   },
   methods: {
+<<<<<<< HEAD
 
     handleSizeChange (val) {
+=======
+    handleSizeChange(val) {
+>>>>>>> c72359600886a96f15f623dc473055ba4431db21
       console.log(`每页 ${val} 条`);
     },
     handleCurrentChange (val) {
@@ -191,9 +220,12 @@ export default {
      */
     handleAttendanceClick() {
       this.dialogFormVisible = true;
+<<<<<<< HEAD
     },
     handleAttendanceData(attendanceData) {
       console.log('1');
+=======
+>>>>>>> c72359600886a96f15f623dc473055ba4431db21
     }
   },
   mounted () {
@@ -209,6 +241,7 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+<<<<<<< HEAD
 .staff-attendance {
   /deep/ .cell {
     overflow: none;
@@ -223,25 +256,42 @@ export default {
         border-top-left-radius: 0;
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
+=======
+  .staff-attendance {
+    /deep/ .cell {
+      overflow: none;
+      text-align: center;
+      .edit-attendance {
+        position: absolute;
+        top: -3px;
+        right: 0;
+        .el-button {
+          padding: 2px 5px;
+          border-top: none;
+          border-top-left-radius: 0;
+          border-top-right-radius: 0;
+          border-bottom-right-radius: 0;
+        }
+>>>>>>> c72359600886a96f15f623dc473055ba4431db21
       }
     }
-  }
-  .attendance-title {
-    position: relative;
-    height: 48px;
-    .words-title {
-      font-size: 18px;
-      .words-title-year {
-        color: #141ea1;
+    .attendance-title {
+      position: relative;
+      height: 48px;
+      .words-title {
+        font-size: 18px;
+        .words-title-year {
+          color: #141ea1;
+        }
+        .words-title-month {
+          color: #f70a59;
+        }
       }
-      .words-title-month {
-        color: #f70a59;
+      .attendance-pages {
+        position: absolute;
+        right: 20px;
+        top: 15px;
       }
-    }
-    .attendance-pages {
-      position: absolute;
-      right: 20px;
-      top: 15px;
     }
   }
 }
