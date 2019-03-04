@@ -108,7 +108,7 @@ export default {
               email: this.form.email,
               date: this.form.date.toLocaleDateString(),
               select: false,
-              attendance: [{year: 2019, month: 2, day: 1, attendance: 1}]
+              attendance: [{year: 2019, month: 2, day: 1, attendance: { state: '', date: [], reason: '' }}]
             }, flag: 'add'
           });
           // 分发员工信息
@@ -146,5 +146,4 @@ export default {
     }
   }
 </style>
-
 

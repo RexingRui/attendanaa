@@ -37,46 +37,30 @@
       >
         <template slot-scope="scope">
           <span class="edit-attendance">
-<<<<<<< HEAD
             <el-button
               type="info"
               icon="el-icon-edit"
               size="mini"
               @click="handleAttendanceClick"
             ></el-button>
-=======
-            <el-button type="info" icon="el-icon-edit" size="mini" @click="handleAttendanceClick"></el-button>
->>>>>>> c72359600886a96f15f623dc473055ba4431db21
           </span>
           <span>{{scope.row.attendance[item.name]}}</span>
         </template>
       </el-table-column>
       <el-table-column label="总计" width="100"></el-table-column>
     </el-table>
-<<<<<<< HEAD
     <attendance-dialog v-model='dialogFormVisible' @record="handleAttendanceData"></attendance-dialog>
   </div>
 </template>
 <script>
 import attendanceDialog from '@/components/attendanceDialog';
-=======
-    <attendance-dialog v-model="dialogFormVisible"></attendance-dialog>
-  </div>
-</template>
-<script>
-import attendanceDialog from "@/components/attendanceDialog";
->>>>>>> c72359600886a96f15f623dc473055ba4431db21
 
 export default {
   name: "staffAttendance",
   components: {
     attendanceDialog
   },
-<<<<<<< HEAD
   data () {
-=======
-  data() {
->>>>>>> c72359600886a96f15f623dc473055ba4431db21
     return {
       date: {year: '', month: '', day: ''},
       currentPage: 1,
@@ -102,21 +86,12 @@ export default {
         11: 30,
         12: 31
       };
-<<<<<<< HEAD
       if ( !this.date.year % 4) {
         monthMatchDays['2'] = 29;
       }
       return monthMatchDays
     },
     dateData () {
-=======
-      if (!this.date.year % 4) {
-        monthMatchDays["2"] = 29;
-      }
-      return monthMatchDays;
-    },
-    dateData() {
->>>>>>> c72359600886a96f15f623dc473055ba4431db21
       let dateNum = [];
       for (let i = 1; i < this.monthMatchDays[this.currentPage] + 1; i++) {
         let dateObj = {
@@ -132,12 +107,8 @@ export default {
     }
   },
   methods: {
-<<<<<<< HEAD
 
     handleSizeChange (val) {
-=======
-    handleSizeChange(val) {
->>>>>>> c72359600886a96f15f623dc473055ba4431db21
       console.log(`每页 ${val} 条`);
     },
     handleCurrentChange (val) {
@@ -160,14 +131,6 @@ export default {
     handleStaffData () {
       // 获取当前月份，对应的当前的分页的当前页
       let currentMonth = this.currentPage;
-      // 考勤匹配值
-      let valueMatchAttendance = {
-        0: "未考勤",
-        1: "工作",
-        2: "病假",
-        3: "婚假",
-        4: "事假"
-      };
       //
       let tableData = [];
       // 遍历所有员工数据
@@ -189,11 +152,13 @@ export default {
           currentMonthData.forEach(value => {
             if (value.day == i) {
               currentAttendance = value;
+              console.log(currentAttendance);
+              
             }
           });
-          staffObj.attendance[i] = currentAttendance
-            ? valueMatchAttendance[currentAttendance.attendance.state]
-            : "未考勤";
+          console.log(currentAttendance);
+          staffObj.attendance[i] = currentAttendance.attendance ? currentAttendance.attendance.state : '未考勤';
+          
         }
         tableData.push(staffObj);
       });
@@ -220,12 +185,9 @@ export default {
      */
     handleAttendanceClick() {
       this.dialogFormVisible = true;
-<<<<<<< HEAD
     },
     handleAttendanceData(attendanceData) {
       console.log('1');
-=======
->>>>>>> c72359600886a96f15f623dc473055ba4431db21
     }
   },
   mounted () {
@@ -241,41 +203,8 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-<<<<<<< HEAD
 .staff-attendance {
-  /deep/ .cell {
-    overflow: none;
-    text-align: center;
-    .edit-attendance {
-      position: absolute;
-      top: -3px;
-      right: 0;
-      .el-button {
-        padding: 2px 5px;
-        border-top: none;
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-=======
-  .staff-attendance {
-    /deep/ .cell {
-      overflow: none;
-      text-align: center;
-      .edit-attendance {
-        position: absolute;
-        top: -3px;
-        right: 0;
-        .el-button {
-          padding: 2px 5px;
-          border-top: none;
-          border-top-left-radius: 0;
-          border-top-right-radius: 0;
-          border-bottom-right-radius: 0;
-        }
->>>>>>> c72359600886a96f15f623dc473055ba4431db21
-      }
-    }
-    .attendance-title {
+  .attendance-title {
       position: relative;
       height: 48px;
       .words-title {
@@ -293,6 +222,22 @@ export default {
         top: 15px;
       }
     }
+  /deep/ .cell {
+    overflow: none;
+    text-align: center;
+    .edit-attendance {
+      position: absolute;
+      top: -3px;
+      right: 0;
+      .el-button {
+        padding: 2px 5px;
+        border-top: none;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+    }
+    
   }
 }
 </style>
