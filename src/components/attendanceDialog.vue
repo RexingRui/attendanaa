@@ -1,6 +1,6 @@
 <template>
   <div class="attendance-dialog">
-    <el-dialog title="填写考勤" :visible.sync="dialogFormVisible" width="45%" @open="handleDialogOpen" @close="handleDialogClose" ref="dialog">
+    <el-dialog title="填写考勤" :visible.sync="dialogFormVisible" width="45%" @open="handleDialogOpen" ref="dialog">
       <div class="radios">
         <el-radio v-model="radioValue" label="工作" border>工作</el-radio>
         <el-radio v-model="radioValue" label="请假" border>请假</el-radio>
@@ -55,7 +55,7 @@ export default {
       dialogFormVisible: false,
       showSelectCategory: false,
       leaveCategory: '',
-      attendance: { 
+      attendance: {
         state: '',
         date: [],
         reason: ''
@@ -123,6 +123,7 @@ export default {
       this.attendance.reason = this.valueCategory;
       this.$store.dispatch('doAttendance', { staffAttendance: this.attendance });
       this.dialogFormVisible = false;
+      this.$emit('record', this.attendance);
     },
     handleDialogOpen () {
       // 对话框打开回调处理函数，每次打开后清空对话框的值
@@ -130,10 +131,6 @@ export default {
       this.workTime = [];
       this.valueCategory = '';
 
-    },
-    handleDialogClose() {
-      console.log('对话框已经关闭');
-      this.$emit('record', this.attendance);
     }
   }
 }

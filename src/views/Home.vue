@@ -23,9 +23,7 @@
         <home-side></home-side>
       </div>
       <div class="home-content">
-        <keep-alive>
           <component :is="currentPage"></component>
-        </keep-alive>
       </div>
     </div>
   </div>

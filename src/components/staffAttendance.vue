@@ -35,11 +35,17 @@
         width="100"
         :prop="item.name"
       >
+        <!-- 考勤图标 -->
         <template slot-scope="scope">
-          <span class="edit-attendance">
-            <el-button type="info" icon="el-icon-edit" size="mini" @click="handleAttendanceClick"></el-button>
-          </span>
-          <span>{{scope.row.attendance[item.name]}}</span>
+          <div
+            class="cell-bg"
+            :class="{holidbg: item.isHoliday, weekbg: item.isWeekend, weekdiebg: item.isWeekDie}"
+          >
+            <span class="edit-attendance">
+              <el-button type="info" icon="el-icon-edit" size="mini" @click="handleAttendanceClick"></el-button>
+            </span>
+            <span class="attendance-record">{{scope.row.attendance[item.name]}}</span>
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="总计" width="100"></el-table-column>
@@ -50,25 +56,28 @@
 <script>
 import attendanceDialog from "@/components/attendanceDialog";
 import WebStorage from "web-storage-cache";
+import adjustDays from "@/common/holiday.js";
 
 export default {
   name: "staffAttendance",
   components: {
     attendanceDialog
   },
-  data () {
+  data() {
     return {
+      isHoliday: false,
+      isWeekend: false,
+      isWeekDie: false,
       date: { year: "", month: "", day: "" },
       currentPage: 1,
       currentRecordStaff: {},
       currentRecordDay: "",
       tableData: [],
-      dialogFormVisible: false,
-
+      dialogFormVisible: false
     };
   },
   computed: {
-    monthMatchDays () {
+    monthMatchDays() {
       let monthMatchDays = {
         1: 31,
         2: 28,
@@ -88,26 +97,31 @@ export default {
       }
       return monthMatchDays;
     },
-    dateData () {
+    dateData() {
       let dateNum = [];
-      for (let i = 1; i < this.monthMatchDays[this.currentPage] + 1; i++) {
+      let currentSelectMonthNum = this.monthMatchDays[this.currentPage];
+
+      for (let i = 1; i < currentSelectMonthNum + 1; i++) {
         let dateObj = {
           id: i,
-          name: String(i)
+          name: String(i),
+          isHoliday: false,
+          isWeekend: false,
+          isWeekDie: false
         };
         dateNum.push(dateObj);
       }
       return dateNum;
     },
-    staffDatas () {
+    staffDatas() {
       return this.$store.state.staffDatas;
     }
   },
   methods: {
-    handleSizeChange (val) {
+    handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
     },
-    handleCurrentChange (val) {
+    handleCurrentChange(val) {
       this.handleTableData();
     },
     /**
@@ -117,14 +131,14 @@ export default {
      * @param [object] cell 当前元素dom
      * @param [object] event 事件
      */
-    handleCellClick (row, column, cell, event) {
+    handleCellClick(row, column, cell, event) {
       this.currentRecordStaff = row;
       this.currentRecordDay = column.label;
     },
     /**
      * 将当前选择的月份考勤数据渲染到表格中
      */
-    handleTableData () {
+    handleTableData() {
       // 获取当前月份，对应的当前的分页的当前页
       let currentMonth = this.currentPage;
       let tableData = [];
@@ -136,7 +150,8 @@ export default {
         staffObj.name = value.name;
         staffObj.id = value.id;
         // 将员工的信息放在staff属性
-        staffObj.staff = value;
+        let staffSelf = JSON.parse(JSON.stringify(value));
+        staffObj.staff = staffSelf;
         // 拿出当前月的考勤数据
         let currentMonthData = value.attendRecord.filter(el => {
           if (el.month) {
@@ -158,52 +173,64 @@ export default {
             ? currentAttendance.attendance.state
             : "";
         }
-        console.log(staffObj);
         tableData.push(staffObj);
-        console.log(tableData);
       });
       this.tableData = tableData;
     },
     /**
      * 打开对话框执行考勤操作
      */
-    handleAttendanceClick () {
+    handleAttendanceClick() {
       this.dialogFormVisible = true;
     },
-    handleAttendanceData (attendanceData) {
+    handleAttendanceData(attendanceData) {
       // 获取当前考勤人员的数据，并根据考勤结果更改
       let changeStaff = this.currentRecordStaff.staff;
+      console.log(changeStaff);
       // 修改考勤数据
       let changeAttendFlag = false;
       changeStaff.attendRecord.forEach((staffAttend, index) => {
-        if (staffAttend.year == this.date.year
-          && staffAttend.month == this.currentPage
-          && staffAttend.day == this.currentRecordDay) {
-            console.log(staffAttend.year, staffAttend.month, staffAttend.day);
+        if (
+          staffAttend.year == this.date.year &&
+          staffAttend.month == this.currentPage &&
+          staffAttend.day == this.currentRecordDay
+        ) {
+          console.log(staffAttend.year, staffAttend.month, staffAttend.day);
           changeStaff.attendRecord[index].attendance = attendanceData;
           changeStaff.attendRecord[index].year = this.date.year;
           changeStaff.attendRecord[index].month = this.currentPage;
           changeStaff.attendRecord[index].day = this.currentRecordDay;
           changeAttendFlag = true;
         }
-      })
+      });
       // 添加考勤数据
       if (!changeAttendFlag) {
-        changeStaff.attendRecord.push({ attendance: attendanceData, year: this.date.year, month: this.currentPage, day: this.currentRecordDay });
+        changeStaff.attendRecord.push({
+          attendance: attendanceData,
+          year: this.date.year,
+          month: this.currentPage,
+          day: this.currentRecordDay
+        });
       }
-      this.$store.dispatch("changeStaffData", { flag: "change", staffData: changeStaff });
+      this.$store.dispatch("changeStaffData", {
+        flag: "change",
+        staffData: changeStaff
+      });
       // 跟新table中的数据
       this.tableData.forEach((value, index) => {
         if (value.id == changeStaff.id) {
-          let tableAttendance = JSON.parse(JSON.stringify(this.tableData[index].attendance));
+          let tableAttendance = JSON.parse(
+            JSON.stringify(this.tableData[index].attendance)
+          );
           tableAttendance[this.currentRecordDay] = attendanceData.state;
           this.tableData[index].attendance = tableAttendance;
         }
       });
     }
   },
-  mounted () {
+  mounted() {
     // 加载当前日期
+    console.log(adjustDays);
     let currentDate = new Date().toLocaleDateString().split("/");
     this.date.year = currentDate[0];
     this.date.month = currentDate[1];
@@ -211,45 +238,62 @@ export default {
     this.currentPage = parseInt(this.date.month);
     // 渲染表中的数据
     this.handleTableData();
-    console.log(this.tableData);
   }
 };
 </script>
 <style lang="less" scoped>
-.staff-attendance {
-  .attendance-title {
-    position: relative;
-    height: 48px;
-    .words-title {
-      font-size: 18px;
-      .words-title-year {
-        color: #141ea1;
+  .staff-attendance {
+    .attendance-title {
+      position: relative;
+      height: 48px;
+      .words-title {
+        font-size: 18px;
+        .words-title-year {
+          color: #141ea1;
+        }
+        .words-title-month {
+          color: #f70a59;
+        }
       }
-      .words-title-month {
-        color: #f70a59;
+      .attendance-pages {
+        position: absolute;
+        right: 20px;
+        top: 15px;
       }
     }
-    .attendance-pages {
-      position: absolute;
-      right: 20px;
-      top: 15px;
+    /deep/ .cell {
+      overflow: none;
+      text-align: center;
+      .cell-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100px;
+        height: 48px;
+        // background-color: rgba(245, 245, 245, .8);
+        line-height: 48px;
+      }
+      .holidbg {
+        background-color: rgba(112, 168, 168, 0.6);
+      }
+      .weekbg {
+        background-color: rgba(163, 185, 81, 0.6);
+      }
+      .weekdiebg {
+        background-color: rgba(218, 77, 147, 0.6);
+      }
+      .edit-attendance {
+        position: absolute;
+        top: -16px;
+        right: 0;
+        .el-button {
+          padding: 2px 5px;
+          border-top: none;
+          border-top-left-radius: 0;
+          border-top-right-radius: 0;
+          border-bottom-right-radius: 0;
+        }
+      }
     }
   }
-  /deep/ .cell {
-    overflow: none;
-    text-align: center;
-    .edit-attendance {
-      position: absolute;
-      top: -3px;
-      right: 0;
-      .el-button {
-        padding: 2px 5px;
-        border-top: none;
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-      }
-    }
-  }
-}
 </style>
