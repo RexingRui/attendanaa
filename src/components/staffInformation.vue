@@ -44,7 +44,7 @@ export default {
     VuetableRowHeader,
     AddStaff
   },
-  data() {
+  data () {
     return {
       fields: [
         {
@@ -96,10 +96,10 @@ export default {
     };
   },
   methods: {
-    handleClickAddStaff() {
+    handleClickAddStaff () {
       this.addStaffVisible = true;
     },
-    handleClickRemoveStaff() {
+    handleClickRemoveStaff () {
       let deleteIndex = [];
       this.localData.forEach((value, index, array) => {
         if (value.select == true) {
@@ -125,17 +125,17 @@ export default {
         deleteIndex: deleteIndex
       });
     },
-    handleTableClick(item) {
+    handleTableClick (item) {
       if (item.field.name == "select") {
         item.data.select = !item.data.select;
       }
     },
-    handleRecordStaff() {
-    setTimeout(() => {
-      this.localData = this.$store.state.staffDatas;
-    }, 100);}
+    handleRecordStaff () {
+      setTimeout(() => {
+        this.localData = this.$store.state.staffDatas;
+      }, 100);    }
   },
-  mounted() {
+  mounted () {
     setTimeout(() => {
       this.localData = this.$store.state.staffDatas;
     }, 100);
@@ -143,21 +143,21 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-  .staff-infomation {
-    background-color: #f1f1f1;
-    /deep/ th,
-    /deep/ td {
-      padding: 0.18rem 0.5rem;
-    }
-    .table-header-title-one {
-      border-bottom: none;
-    }
-    .table-header-title-two {
-      span {
-        margin-right: 0.2rem;
-        cursor: pointer;
-        user-select: none;
-      }
+.staff-infomation {
+  background-color: #f1f1f1;
+  /deep/ th,
+  /deep/ td {
+    padding: 0.18rem 0.5rem;
+  }
+  .table-header-title-one {
+    border-bottom: none;
+  }
+  .table-header-title-two {
+    span {
+      margin-right: 0.2rem;
+      cursor: pointer;
+      user-select: none;
     }
   }
+}
 </style>

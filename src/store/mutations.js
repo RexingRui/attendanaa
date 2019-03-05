@@ -33,13 +33,16 @@ export default {
 
   [CHANGE_STAFF_DATA] (state, payload) {
     if (payload.flag == "change") {
+      console.log('change');
       state.staffDatas.forEach((value, index) => {
         if (value.id == payload.staffData.id) {
           state.staffDatas.splice(index, 1)
         }
       });
     }
-      state.staffDatas.push(payload.staffData);
+    console.log(payload.staffData);
+    state.staffDatas.push(payload.staffData);
+    console.log(state.staffDatas);
   },
 
   [CHANGE_CURRENT_PAGE] (state, pageIndex) {

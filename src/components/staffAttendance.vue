@@ -35,11 +35,11 @@
         width="100"
         :prop="item.name"
       >
-        <template>
+        <template slot-scope="scope">
           <span class="edit-attendance">
             <el-button type="info" icon="el-icon-edit" size="mini" @click="handleAttendanceClick"></el-button>
           </span>
-          <span>12</span>
+          <span>{{scope.row.attendance[item.name]}}</span>
         </template>
       </el-table-column>
       <el-table-column label="总计" width="100"></el-table-column>
@@ -56,18 +56,19 @@ export default {
   components: {
     attendanceDialog
   },
-  data() {
+  data () {
     return {
       date: { year: "", month: "", day: "" },
       currentPage: 1,
       currentRecordStaff: {},
       currentRecordDay: "",
       tableData: [],
-      dialogFormVisible: false
+      dialogFormVisible: false,
+
     };
   },
   computed: {
-    monthMatchDays() {
+    monthMatchDays () {
       let monthMatchDays = {
         1: 31,
         2: 28,
@@ -87,7 +88,7 @@ export default {
       }
       return monthMatchDays;
     },
-    dateData() {
+    dateData () {
       let dateNum = [];
       for (let i = 1; i < this.monthMatchDays[this.currentPage] + 1; i++) {
         let dateObj = {
@@ -98,17 +99,16 @@ export default {
       }
       return dateNum;
     },
-    staffDatas() {
+    staffDatas () {
       return this.$store.state.staffDatas;
     }
   },
   methods: {
-    handleSizeChange(val) {
+    handleSizeChange (val) {
       console.log(`每页 ${val} 条`);
     },
-    handleCurrentChange(val) {
-      this.handleStaffData();
-      console.log(this.tableData);
+    handleCurrentChange (val) {
+      this.handleTableData();
     },
     /**
      * 表格单元单机的事件处理函数
@@ -117,81 +117,92 @@ export default {
      * @param [object] cell 当前元素dom
      * @param [object] event 事件
      */
-    handleCellClick(row, column, cell, event) {
+    handleCellClick (row, column, cell, event) {
       this.currentRecordStaff = row;
       this.currentRecordDay = column.label;
     },
     /**
      * 将当前选择的月份考勤数据渲染到表格中
      */
-    handleStaffData() {
+    handleTableData () {
       // 获取当前月份，对应的当前的分页的当前页
       let currentMonth = this.currentPage;
+      let tableData = [];
       // 遍历所有员工数据
       this.staffDatas.forEach((value, index, array) => {
-        // 拿出当前选中月考勤数据
-        // let currentMonthData = value.attendRecord.filter(el => {
-        //   if (el.month) {
-        //     return el.month == currentMonth;
-        //   }
-        // });
-        let existData = this.tableData.some(el => {
-          return el == existData;
+        // 获取表单所需的数据
+        let staffObj = {};
+        // 第一列中填入姓名
+        staffObj.name = value.name;
+        staffObj.id = value.id;
+        // 将员工的信息放在staff属性
+        staffObj.staff = value;
+        // 拿出当前月的考勤数据
+        let currentMonthData = value.attendRecord.filter(el => {
+          if (el.month) {
+            return el.month == currentMonth;
+          }
         });
-        if (existData) {
-          value.attendRecord.forEach(el => {
-            if (el.month == currentMonth) {
-              this.tableData.push(value);
+        // 其他列填入考勤数据
+        staffObj.attendance = [];
+        for (let i = 1; i < this.monthMatchDays[currentMonth] + 1; i++) {
+          let currentAttendance = {};
+          currentMonthData.forEach(value => {
+            if (value.day == i) {
+              currentAttendance = value;
             }
           });
+          staffObj.attendance[0] = "";
+          // 存入考勤数据
+          staffObj.attendance[i] = currentAttendance.attendance
+            ? currentAttendance.attendance.state
+            : "";
         }
-
-        // // 写入默认的考勤值
-        // for (let i = 1; i < this.monthMatchDays[currentMonth] + 1; i++) {
-        //   let currentAttendance = {};
-        //   currentMonthData.forEach(value => {
-        //     if (value.day == i) {
-        //       currentAttendance = value;
-        //       console.log(currentAttendance);
-
-        //     }
-        //   });
-        //   console.log(currentAttendance);
-        //   staffObj.attendance[i] = currentAttendance.attendance ? currentAttendance.attendance.state : '未考勤';
-        // }
+        console.log(staffObj);
+        tableData.push(staffObj);
+        console.log(tableData);
       });
-    },
-    handleChange($event) {
-      let staffAttendance = {};
-      // 执行考勤操作
-      if (this.currentRecordDay == this.date.day) {
-        staffAttendance.year = this.date.year;
-        staffAttendance.month = this.date.month;
-        staffAttendance.day = this.date.day;
-        staffAttendance.attendance = $event.target.value;
-        console.log(this.currentRecordStaff.attendance);
-        this.currentRecordStaff.attendance.push(staffAttendance);
-        this.$store.dispatch("changeStaffData", {
-          staffData: this.currentRecordStaff,
-          flag: change
-        });
-      }
+      this.tableData = tableData;
     },
     /**
      * 打开对话框执行考勤操作
      */
-    handleAttendanceClick() {
+    handleAttendanceClick () {
       this.dialogFormVisible = true;
     },
-    handleAttendanceData(attendanceData) {
-      this.$store.dispatch("changeStaffData", { flag: "change" });
-      this.currentRecordStaff.attendance[this.currentRecordDay] =
-        attendanceData.state;
-      console.log(this.tableData);
-      console.log("ok");
+    handleAttendanceData (attendanceData) {
+      // 获取当前考勤人员的数据，并根据考勤结果更改
+      let changeStaff = this.currentRecordStaff.staff;
+      // 修改考勤数据
+      let changeAttendFlag = false;
+      changeStaff.attendRecord.forEach((staffAttend, index) => {
+        if (staffAttend.year == this.date.year
+          && staffAttend.month == this.currentPage
+          && staffAttend.day == this.currentRecordDay) {
+            console.log(staffAttend.year, staffAttend.month, staffAttend.day);
+          changeStaff.attendRecord[index].attendance = attendanceData;
+          changeStaff.attendRecord[index].year = this.date.year;
+          changeStaff.attendRecord[index].month = this.currentPage;
+          changeStaff.attendRecord[index].day = this.currentRecordDay;
+          changeAttendFlag = true;
+        }
+      })
+      // 添加考勤数据
+      if (!changeAttendFlag) {
+        changeStaff.attendRecord.push({ attendance: attendanceData, year: this.date.year, month: this.currentPage, day: this.currentRecordDay });
+      }
+      this.$store.dispatch("changeStaffData", { flag: "change", staffData: changeStaff });
+      // 跟新table中的数据
+      this.tableData.forEach((value, index) => {
+        if (value.id == changeStaff.id) {
+          let tableAttendance = JSON.parse(JSON.stringify(this.tableData[index].attendance));
+          tableAttendance[this.currentRecordDay] = attendanceData.state;
+          this.tableData[index].attendance = tableAttendance;
+        }
+      });
     }
   },
-  mounted() {
+  mounted () {
     // 加载当前日期
     let currentDate = new Date().toLocaleDateString().split("/");
     this.date.year = currentDate[0];
@@ -199,47 +210,46 @@ export default {
     this.date.day = currentDate[2];
     this.currentPage = parseInt(this.date.month);
     // 渲染表中的数据
-    this.handleStaffData();
+    this.handleTableData();
     console.log(this.tableData);
   }
 };
 </script>
 <style lang="less" scoped>
-  .staff-attendance {
-    .attendance-title {
-      position: relative;
-      height: 48px;
-      .words-title {
-        font-size: 18px;
-        .words-title-year {
-          color: #141ea1;
-        }
-        .words-title-month {
-          color: #f70a59;
-        }
+.staff-attendance {
+  .attendance-title {
+    position: relative;
+    height: 48px;
+    .words-title {
+      font-size: 18px;
+      .words-title-year {
+        color: #141ea1;
       }
-      .attendance-pages {
-        position: absolute;
-        right: 20px;
-        top: 15px;
+      .words-title-month {
+        color: #f70a59;
       }
     }
-    /deep/ .cell {
-      overflow: none;
-      text-align: center;
-      .edit-attendance {
-        position: absolute;
-        top: -3px;
-        right: 0;
-        .el-button {
-          padding: 2px 5px;
-          border-top: none;
-          border-top-left-radius: 0;
-          border-top-right-radius: 0;
-          border-bottom-right-radius: 0;
-        }
+    .attendance-pages {
+      position: absolute;
+      right: 20px;
+      top: 15px;
+    }
+  }
+  /deep/ .cell {
+    overflow: none;
+    text-align: center;
+    .edit-attendance {
+      position: absolute;
+      top: -3px;
+      right: 0;
+      .el-button {
+        padding: 2px 5px;
+        border-top: none;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
       }
     }
   }
+}
 </style>
-"{"c":1551699698818,"e":253402300799000,"v":"{\"id\":0,\"name\":\"rjj\",\"gender\":\"男\",\"phone\":\"15212351687\",\"email\":\"jko@asd.com\",\"date\":\"2019/3/12\",\"select\":false,\"attendance\":[{\"year\":2019,\"month\":2,\"day\":1,\"attendance\":{\"state\":\"\",\"date\":[],\"reason\":\"\"}}]}"}"
