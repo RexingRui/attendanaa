@@ -73,7 +73,8 @@ export default {
       currentRecordStaff: {},
       currentRecordDay: "",
       tableData: [],
-      dialogFormVisible: false
+      dialogFormVisible: false,
+      dateData: []
     };
   },
   computed: {
@@ -97,22 +98,51 @@ export default {
       }
       return monthMatchDays;
     },
-    dateData() {
-      let dateNum = [];
-      let currentSelectMonthNum = this.monthMatchDays[this.currentPage];
-
-      for (let i = 1; i < currentSelectMonthNum + 1; i++) {
-        let dateObj = {
-          id: i,
-          name: String(i),
-          isHoliday: false,
-          isWeekend: false,
-          isWeekDie: false
-        };
-        dateNum.push(dateObj);
-      }
-      return dateNum;
-    },
+    // dateData() {
+    //   let dateNum = [];
+    //   // 当前月的天数
+    //   let month = this.currentPage;
+    //   let currentSelectMonthNum = this.monthMatchDays[month];
+    //   // 当前月的假期、周末、调假
+    //   let currentMonthH = adjustDays.holidays[month];
+    //   let currentMontW = adjustDays.weekend[month];
+    //   let currentMonthWD = adjustDays.weekDie[month];
+    //   let holidayName = "";
+    //   for (let i = 1; i < currentSelectMonthNum + 1; i++) {
+    //     let dateObj = {
+    //       id: i,
+    //       name: String(i),
+    //       isHoliday: false,
+    //       isWeekend: false,
+    //       isWeekDie: false
+    //     };
+    //     // 判断今日是否是节假日
+    //     let isHolidays = false;
+    //     currentMonthH.forEach(value => {
+    //       isHolidays = value.days.some(day => {
+    //         if (i == day) {
+    //           holidayName = value.holiday;
+    //         }
+    //       });
+    //     });
+    //     if (isHolidays) {
+    //       dateObj.name = holidayName;
+    //       date.isHoliday = true;
+    //     }
+    //     // 判断今日是否周末
+    //     let isWeekends = currentMontW.some(day => {
+    //       return i == day;
+    //     });
+    //     dateObj.isWeekend = isWeekends ? true : false;
+    //     // 判断今日是否调假日
+    //     let isWeekendDie = currentMonthWD.some(day => {
+    //       return i == day;
+    //     });
+    //     dateObj.isWeekDie = isWeekendDie ? true : false;
+    //     dateNum.push(dateObj);
+    //   }
+    //   return dateNum;
+    // },
     staffDatas() {
       return this.$store.state.staffDatas;
     }
@@ -122,6 +152,49 @@ export default {
       console.log(`每页 ${val} 条`);
     },
     handleCurrentChange(val) {
+      let dateNum = [];
+      // 当前月的天数
+      let month = val;
+      let currentSelectMonthNum = this.monthMatchDays[month];
+      // 当前月的假期、周末、调假
+      let currentMonthH = adjustDays.holidays[month];
+      let currentMontW = adjustDays.weekend[month];
+      let currentMonthWD = adjustDays.weekDie[month];
+      let holidayName = "";
+      for (let i = 1; i < currentSelectMonthNum + 1; i++) {
+        let dateObj = {
+          id: i,
+          name: String(i),
+          isHoliday: false,
+          isWeekend: false,
+          isWeekDie: false
+        };
+        // 判断今日是否是节假日
+        let isHolidays = false;
+        currentMonthH.forEach(value => {
+          isHolidays = value.days.some(day => {
+            if (i == day) {
+              holidayName = value.holiday;
+            }
+          });
+        });
+        if (isHolidays) {
+          dateObj.name = holidayName;
+          date.isHoliday = true;
+        }
+        // 判断今日是否周末
+        let isWeekends = currentMontW.some(day => {
+          return i == day;
+        });
+        dateObj.isWeekend = isWeekends ? true : false;
+        // 判断今日是否调假日
+        let isWeekendDie = currentMonthWD.some(day => {
+          return i == day;
+        });
+        dateObj.isWeekDie = isWeekendDie ? true : false;
+        dateNum.push(dateObj);
+      }
+      this.dateData = dateNum;
       this.handleTableData();
     },
     /**
