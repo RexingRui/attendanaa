@@ -16,7 +16,8 @@
     "vue-along": "^1.0.0",
     "vue-router": "^3.0.1",
     "vuetable-2": "^2.0.0-beta.4",
-    "vuex": "^3.1.0"
+    "vuex": "^3.1.0",
+    "xlsx": "^0.14.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.4.0",

@@ -21,13 +21,26 @@
               <span @click="handleClickRemoveStaff">
                 <i class="fa fa-minus-circle fa-lg"></i> 删除
               </span>
+              <span @click="handleClickEditStaff">
+                <i class="fa fa-pencil" fa-lg></i> 修改
+              </span>
+              <div class="input-search">
+                <el-input
+                  placeholder="请输入姓名"
+                  v-model="inputValue"
+                  class="input-with-select"
+                  size="small"
+                >
+                  <el-button slot="append" icon="el-icon-search"></el-button>
+                </el-input>
+              </div>
             </th>
           </tr>
         </template>
         <vuetable-row-header></vuetable-row-header>
       </template>
     </vuetable>
-    <add-staff v-model="addStaffVisible" @record="handleRecordStaff"></add-staff>
+    <add-staff v-model="addStaffVisible" @record="handleRecordStaff" :staffInfo='currentStaffInfo' :openMode="openMode"></add-staff>
   </div>
 </template>
 <script>
@@ -92,40 +105,78 @@ export default {
       css: VuetableCss,
       addStaffVisible: false,
       checked: [],
-      localData: []
+      localData: [],
+      inputValue: '',
+      selectStaffIndex: [],
+      currentStaffInfo: {},
+      openMode: 'add'
     };
   },
   methods: {
-    handleClickAddStaff () {
-      this.addStaffVisible = true;
-    },
-    handleClickRemoveStaff () {
+    /**
+     * 获取所选择的staff
+     * @param [string] message 执行什么操作删除还是修改
+     */
+    getSelectStaff (message) {
       let deleteIndex = [];
       this.localData.forEach((value, index, array) => {
         if (value.select == true) {
-          this.localData = this.localData.filter(item => {
-            return item.id != value.id;
-          });
+          if (message == '删除') {
+            this.localData = this.localData.filter(item => {
+              return item.id != value.id;
+            });
+          }
           deleteIndex.push(value.id);
         }
       });
+      this.selectStaffIndex = deleteIndex;
+      // 如果没有选择用户，或者在修改的情况下多选,弹出提示
+      if (deleteIndex.length == 0) {
+        this.$alert(`请勾选需要${message}员工`, '提示', {
+          confirmButtonText: 'ok'
+        });
+      } else if (deleteIndex.length > 1 && message == '修改') {
+        this.$alert(`单次只能修改一个员工数据`, '提示', {
+          confirmButtonText: 'ok'
+        })
+      }
+    },
+    handleClickEditStaff () {
+      this.getSelectStaff('修改');
+      // 选择一个的状态下可修改
+      if (this.selectStaffIndex.length == 1 ) {
+        // 打开对话框为修改模式
+        this.openMode = 'edit';
+        this.addStaffVisible = true;
+      }
+      
+    },
+    handleClickAddStaff () {
+      // 打开对话框为修改模式
+      this.openMode = 'add';
+      this.addStaffVisible = true;
+    },
+    handleClickRemoveStaff () {
+      this.getSelectStaff('删除');
+      console.log('删除');
       let myStorage = new WebStorage();
       let deleteNum = myStorage.get("deleteNum")
         ? myStorage.get("deleteNum")
         : 0;
       myStorage.set(
         "deleteNum",
-        deleteIndex.length + myStorage.get("deleteNum")
+        this.selectStaffIndex.length + myStorage.get("deleteNum")
       );
-      let currentStaffNum = this.$store.state.staffNum - deleteIndex.length;
-      console.log(currentStaffNum);
+      let currentStaffNum = this.$store.state.staffNum - this.selectStaffIndex.length;
       this.$store.dispatch("changeStaffNum", { staffNum: currentStaffNum });
       this.$store.dispatch("initialStaffData", {
         staffDatas: this.localData,
-        deleteIndex: deleteIndex
+        deleteIndex: this.selectStaffIndex
       });
     },
     handleTableClick (item) {
+      this.currentStaffInfo = item.data;
+      // 处理是否选中复选框
       if (item.field.name == "select") {
         item.data.select = !item.data.select;
       }
@@ -157,6 +208,9 @@ export default {
       margin-right: 0.2rem;
       cursor: pointer;
       user-select: none;
+    }
+    .input-search {
+      display: inline-block;
     }
   }
 }

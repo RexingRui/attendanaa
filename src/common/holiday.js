@@ -8,7 +8,7 @@ let holidays = {
   7: [{ days: [], holiday: "" }],
   8: [{ days: [], holiday: "" }],
   9: [{ days: [13, 14, 15], holiday: "清明" }],
-  10: [{ days: [1, 2, 3, 4, 5, 6, 7], holiday: "" }],
+  10: [{ days: [1, 2, 3, 4, 5, 6, 7], holiday: "国庆" }],
   11: [{ days: [], holiday: "" }],
   12: [{ days: [], holiday: "" }]
 };

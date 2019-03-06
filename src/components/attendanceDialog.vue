@@ -2,11 +2,11 @@
   <div class="attendance-dialog">
     <el-dialog title="填写考勤" :visible.sync="dialogFormVisible" width="45%" @open="handleDialogOpen" ref="dialog">
       <div class="radios">
-        <el-radio v-model="radioValue" label="工作" border>工作</el-radio>
-        <el-radio v-model="radioValue" label="请假" border>请假</el-radio>
-        <el-radio v-model="radioValue" label="休假" border>休假</el-radio>
+        <el-radio v-model="radioValue" label="工作" border v-if="showRadio">工作</el-radio>
+        <el-radio v-model="radioValue" label="请假" border v-if="showRadio">请假</el-radio>
+        <el-radio v-model="radioValue" label="休假" border v-if="showRadio">休假</el-radio>
         <el-radio v-model="radioValue" label="加班" border>加班</el-radio>
-        <el-radio v-model="radioValue" label="旷工" border>旷工</el-radio>
+        <el-radio v-model="radioValue" label="旷工" border v-if="showRadio">旷工</el-radio>
       </div>
       <div class="select-date">
         <span class="select-date-title">日期/时间:</span>
@@ -44,6 +44,18 @@ export default {
     value: {
       type: Boolean,
       default: false
+    },
+    isWeekend: {
+      type: Boolean,
+      default: false
+    },
+    isHoliday: {
+      type: Boolean,
+      default: false
+    },
+    isWeekDie: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -60,6 +72,11 @@ export default {
         date: [],
         reason: ''
       }
+    }
+  },
+  computed: {
+    showRadio () {
+      return !this.isHoliday && !this.isWeekend;
     }
   },
   watch: {

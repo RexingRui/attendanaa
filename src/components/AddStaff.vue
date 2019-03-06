@@ -1,6 +1,6 @@
 <template>
   <div class="add-staff">
-    <el-dialog title="新人员信息" :visible.sync="dialogFormVisible">
+    <el-dialog title="新人员信息" :visible.sync="dialogFormVisible" @open="handleOpenDialog">
       <el-form :model="form" size="mini" :rules="rules" ref="form" @submit.prevent>
         <el-form-item label="姓名" :label-width="formLabelWidth" prop="name">
           <el-input v-model="form.name" clearable></el-input>
@@ -37,9 +37,17 @@ export default {
     value: {
       type: Boolean,
       default: false
+    },
+    staffInfo: {
+      type: Object,
+      default: {}
+    },
+    openMode: {
+      type: String,
+      default: 'add'
     }
   },
-  data() {
+  data () {
     return {
       form: {
         name: "",
@@ -61,7 +69,7 @@ export default {
         phone: [
           { required: true, message: "请输入电话号码", trigger: "blur" },
           {
-            validator(rule, value, callback) {
+            validator (rule, value, callback) {
               let errors = [];
               let phoneError = /^1[0-9]{10}$/.test(value);
               if (!phoneError) {
@@ -80,20 +88,28 @@ export default {
     };
   },
   watch: {
-    value(val) {
+    value (val) {
       this.dialogFormVisible = val;
     },
-    dialogFormVisible(val) {
+    dialogFormVisible (val) {
       this.$emit("input", val);
     }
   },
   methods: {
-    handleCancleDialog() {
+    handleCancleDialog () {
       this.dialogFormVisible = false;
     },
-    handleSureDialog() {
+    handleSureDialog () {
       this.$refs["form"].validate(vaild => {
         if (vaild) {
+          // if (this.openMode == 'edit') {
+          //   this.$store.dispatch("changeStaffData", {
+          //     staffData: {
+          //       id: this.staffInfo.id,
+          //       name: this.form.name,
+          //     }
+          //   })
+          // }
           // 获取员工数量
           let myStorage = new WebStorage();
           let deleteNum = myStorage.get('deleteNum') ? myStorage.get('deleteNum') : 0;
@@ -108,7 +124,7 @@ export default {
               email: this.form.email,
               date: this.form.date.toLocaleDateString(),
               select: false,
-              attendRecord: [{year: '', month: '', day: '', attendance: { state: '', date: [], reason: '' }}]
+              attendRecord: [{ year: '', month: '', day: '', attendance: { state: '', date: [], reason: '' } }]
             }, flag: 'add'
           });
           // 分发员工信息
@@ -126,25 +142,39 @@ export default {
           return false;
         }
       });
+    },
+    handleOpenDialog () {
+      // 判断时新增还是修改
+      if (this.openMode == 'add') {
+        this.form.name = '';
+        this.form.email = '';
+        this.form.date = '';
+        this.form.phone = '';
+        this.form.gender = 'm'
+      } else {
+        this.form.name = this.staffInfo.name;
+        this.form.email = this.staffInfo.email;
+        this.form.phone = this.staffInfo.phone;
+        this.form.gender = this.staffInfo.gender;
+      }
     }
   },
-  mounted() {
-    this.form.gender = "男";
+  mounted () {
   }
 };
 </script>
 <style lang="less" scoped>
-  .add-staff {
-    /deep/ .el-dialog {
-      width: 40%;
-      border-radius: 0.2rem;
-      .el-form-item {
-        height: 0.8rem;
-        .el-form-item__error {
-          top: 0.75rem;
-        }
+.add-staff {
+  /deep/ .el-dialog {
+    width: 40%;
+    border-radius: 0.2rem;
+    .el-form-item {
+      height: 0.8rem;
+      .el-form-item__error {
+        top: 0.75rem;
       }
     }
   }
+}
 </style>
 

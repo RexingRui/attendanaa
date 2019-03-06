@@ -13,6 +13,7 @@ export default new Vuex.Store({
     staffDatas: [],
     deleteId: 0,
     pageIndex: 'staffAttendance',
+    curentStaffInfo: {},
     currentStaffAttend: {
       state: '',
       date: [],

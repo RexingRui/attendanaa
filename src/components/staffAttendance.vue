@@ -22,6 +22,7 @@
       border
       :data="tableData"
       @cell-click="handleCellClick"
+      ref="table"
     >
       <el-table-column fixed label="姓名" width="100" height="20">
         <template slot-scope="scope">
@@ -44,26 +45,38 @@
             <span class="edit-attendance">
               <el-button type="info" icon="el-icon-edit" size="mini" @click="handleAttendanceClick"></el-button>
             </span>
-            <span class="attendance-record">{{scope.row.attendance[item.name]}}</span>
+            <span class="attendance-record">{{scope.row.attendance[item.id]}}</span>
           </div>
         </template>
       </el-table-column>
       <el-table-column label="总计" width="100"></el-table-column>
     </el-table>
-    <attendance-dialog v-model="dialogFormVisible" @record="handleAttendanceData"></attendance-dialog>
+    <div class="handle-table">
+      <input type="button" value="导出" class='export-button' @click="handleExportExcel">
+    </div>
+    <attendance-dialog
+      v-model="dialogFormVisible"
+      @record="handleAttendanceData"
+      :isHoliday="isHoliday"
+      :isWeekend="isWeekend"
+      :isWeekDie="isWeekDie"
+    ></attendance-dialog>
   </div>
 </template>
 <script>
 import attendanceDialog from "@/components/attendanceDialog";
 import WebStorage from "web-storage-cache";
 import adjustDays from "@/common/holiday.js";
+// 导出excle文件
+import FileSaver from 'file-saver'
+import XLSX from 'xlsx'
 
 export default {
   name: "staffAttendance",
   components: {
     attendanceDialog
   },
-  data() {
+  data () {
     return {
       isHoliday: false,
       isWeekend: false,
@@ -74,11 +87,10 @@ export default {
       currentRecordDay: "",
       tableData: [],
       dialogFormVisible: false,
-      dateData: []
     };
   },
   computed: {
-    monthMatchDays() {
+    monthMatchDays () {
       let monthMatchDays = {
         1: 31,
         2: 28,
@@ -98,63 +110,10 @@ export default {
       }
       return monthMatchDays;
     },
-    // dateData() {
-    //   let dateNum = [];
-    //   // 当前月的天数
-    //   let month = this.currentPage;
-    //   let currentSelectMonthNum = this.monthMatchDays[month];
-    //   // 当前月的假期、周末、调假
-    //   let currentMonthH = adjustDays.holidays[month];
-    //   let currentMontW = adjustDays.weekend[month];
-    //   let currentMonthWD = adjustDays.weekDie[month];
-    //   let holidayName = "";
-    //   for (let i = 1; i < currentSelectMonthNum + 1; i++) {
-    //     let dateObj = {
-    //       id: i,
-    //       name: String(i),
-    //       isHoliday: false,
-    //       isWeekend: false,
-    //       isWeekDie: false
-    //     };
-    //     // 判断今日是否是节假日
-    //     let isHolidays = false;
-    //     currentMonthH.forEach(value => {
-    //       isHolidays = value.days.some(day => {
-    //         if (i == day) {
-    //           holidayName = value.holiday;
-    //         }
-    //       });
-    //     });
-    //     if (isHolidays) {
-    //       dateObj.name = holidayName;
-    //       date.isHoliday = true;
-    //     }
-    //     // 判断今日是否周末
-    //     let isWeekends = currentMontW.some(day => {
-    //       return i == day;
-    //     });
-    //     dateObj.isWeekend = isWeekends ? true : false;
-    //     // 判断今日是否调假日
-    //     let isWeekendDie = currentMonthWD.some(day => {
-    //       return i == day;
-    //     });
-    //     dateObj.isWeekDie = isWeekendDie ? true : false;
-    //     dateNum.push(dateObj);
-    //   }
-    //   return dateNum;
-    // },
-    staffDatas() {
-      return this.$store.state.staffDatas;
-    }
-  },
-  methods: {
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
-    },
-    handleCurrentChange(val) {
+    dateData () {
       let dateNum = [];
       // 当前月的天数
-      let month = val;
+      let month = this.currentPage;
       let currentSelectMonthNum = this.monthMatchDays[month];
       // 当前月的假期、周末、调假
       let currentMonthH = adjustDays.holidays[month];
@@ -176,25 +135,39 @@ export default {
             if (i == day) {
               holidayName = value.holiday;
             }
+            return i == day;
           });
         });
         if (isHolidays) {
-          dateObj.name = holidayName;
-          date.isHoliday = true;
+          dateObj.name = i + holidayName;
+          dateObj.isHoliday = true;
         }
         // 判断今日是否周末
         let isWeekends = currentMontW.some(day => {
           return i == day;
         });
+        dateObj.name = isWeekends ? i + '周末' : dateObj.name;
         dateObj.isWeekend = isWeekends ? true : false;
         // 判断今日是否调假日
         let isWeekendDie = currentMonthWD.some(day => {
           return i == day;
         });
         dateObj.isWeekDie = isWeekendDie ? true : false;
+        dateObj.name = isWeekendDie ? i + '调班' : dateObj.name;
         dateNum.push(dateObj);
       }
-      this.dateData = dateNum;
+      return dateNum;
+    },
+    staffDatas () {
+      return this.$store.state.staffDatas;
+    }
+  },
+  methods: {
+    handleSizeChange (val) {
+      console.log(`每页 ${val} 条`);
+    },
+    handleCurrentChange (val) {
+      // 切换页码。即更改月份时的回调
       this.handleTableData();
     },
     /**
@@ -204,14 +177,28 @@ export default {
      * @param [object] cell 当前元素dom
      * @param [object] event 事件
      */
-    handleCellClick(row, column, cell, event) {
+    handleCellClick (row, column, cell, event) {
+      // 判断当前日期是不是节假期/周末/调班/工作日
+      this.isWeekend = false;
+      this.isHoliday = false;
+      this.weekDie = false;
+      let currentDateLabe = column.label;
+      if (currentDateLabe.length > 2) {
+        if (currentDateLabe.search('班') > -1) {
+          this.isWeekDie = true;
+        } else if (currentDateLabe.search('周') > -1) {
+          this.isWeekend = true;
+        } else {
+          this.isHoliday = true;
+        }
+      }
       this.currentRecordStaff = row;
-      this.currentRecordDay = column.label;
+      this.currentRecordDay = column.label.length > 2 ? column.label.match(/[0-9]+/)[0] : column.label;
     },
     /**
      * 将当前选择的月份考勤数据渲染到表格中
      */
-    handleTableData() {
+    handleTableData () {
       // 获取当前月份，对应的当前的分页的当前页
       let currentMonth = this.currentPage;
       let tableData = [];
@@ -253,13 +240,12 @@ export default {
     /**
      * 打开对话框执行考勤操作
      */
-    handleAttendanceClick() {
+    handleAttendanceClick () {
       this.dialogFormVisible = true;
     },
-    handleAttendanceData(attendanceData) {
+    handleAttendanceData (attendanceData) {
       // 获取当前考勤人员的数据，并根据考勤结果更改
       let changeStaff = this.currentRecordStaff.staff;
-      console.log(changeStaff);
       // 修改考勤数据
       let changeAttendFlag = false;
       changeStaff.attendRecord.forEach((staffAttend, index) => {
@@ -268,7 +254,6 @@ export default {
           staffAttend.month == this.currentPage &&
           staffAttend.day == this.currentRecordDay
         ) {
-          console.log(staffAttend.year, staffAttend.month, staffAttend.day);
           changeStaff.attendRecord[index].attendance = attendanceData;
           changeStaff.attendRecord[index].year = this.date.year;
           changeStaff.attendRecord[index].month = this.currentPage;
@@ -299,11 +284,31 @@ export default {
           this.tableData[index].attendance = tableAttendance;
         }
       });
+    },
+    handleExportExcel() {
+      // 导出到execl
+
+      // 由于设置了固定了，数据渲染的时候会渲染出两组相同数据，故首先需要去除
+      let tableDom = this.$refs['table'].$el.cloneNode(true);
+      tableDom.removeChild(tableDom.querySelector('.el-table__fixed'))
+      // 从表单中获取数据
+      let table = XLSX.utils.table_to_book(tableDom);
+      // get binary string as output
+      let tableOut = XLSX.write(table ,{bookType: 'xlsx', bookSST: true, type: 'array'});
+
+      //设置文件名
+      let execlName = `${this.date.year}年${this.currentPage}月考勤.xlsx`;
+      // 保存文件
+      try {
+        FileSaver.saveAs(new Blob([tableOut]), execlName, { type: 'application/octet-stream' });
+      } catch (e) {
+        console.log(e, wbout);
+      }
+      return tableOut;
     }
   },
-  mounted() {
+  mounted () {
     // 加载当前日期
-    console.log(adjustDays);
     let currentDate = new Date().toLocaleDateString().split("/");
     this.date.year = currentDate[0];
     this.date.month = currentDate[1];
@@ -315,58 +320,72 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-  .staff-attendance {
-    .attendance-title {
-      position: relative;
-      height: 48px;
-      .words-title {
-        font-size: 18px;
-        .words-title-year {
-          color: #141ea1;
-        }
-        .words-title-month {
-          color: #f70a59;
-        }
+.staff-attendance {
+  position: relative;
+  .attendance-title {
+    position: relative;
+    height: 48px;
+    .words-title {
+      font-size: 18px;
+      .words-title-year {
+        color: #141ea1;
       }
-      .attendance-pages {
-        position: absolute;
-        right: 20px;
-        top: 15px;
+      .words-title-month {
+        color: #f70a59;
       }
     }
-    /deep/ .cell {
-      overflow: none;
-      text-align: center;
-      .cell-bg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100px;
-        height: 48px;
-        // background-color: rgba(245, 245, 245, .8);
-        line-height: 48px;
-      }
-      .holidbg {
-        background-color: rgba(112, 168, 168, 0.6);
-      }
-      .weekbg {
-        background-color: rgba(163, 185, 81, 0.6);
-      }
-      .weekdiebg {
-        background-color: rgba(218, 77, 147, 0.6);
-      }
-      .edit-attendance {
-        position: absolute;
-        top: -16px;
-        right: 0;
-        .el-button {
-          padding: 2px 5px;
-          border-top: none;
-          border-top-left-radius: 0;
-          border-top-right-radius: 0;
-          border-bottom-right-radius: 0;
-        }
+    .attendance-pages {
+      position: absolute;
+      right: 20px;
+      top: 15px;
+    }
+  }
+  /deep/ .cell {
+    overflow: none;
+    text-align: center;
+    .cell-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100px;
+      height: 48px;
+      // background-color: rgba(245, 245, 245, .8);
+      line-height: 48px;
+    }
+    .holidbg {
+      background-color: rgba(112, 168, 168, 0.6);
+    }
+    .weekbg {
+      background-color: rgba(163, 185, 81, 0.6);
+    }
+    .weekdiebg {
+      background-color: rgba(218, 77, 147, 0.6);
+    }
+    .edit-attendance {
+      position: absolute;
+      top: -16px;
+      right: 0;
+      .el-button {
+        padding: 2px 5px;
+        border-top: none;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
       }
     }
   }
+  .handle-table {
+    float: right;
+    margin-top: 20px;
+    .export-button {
+      font-family: "Microsoft YaHei","微软雅黑",Arial,sans-serif;
+      font-weight: 600;
+      color: #4b4747;
+      width: 60px;
+      height: 32px;
+      background-color: #67C23A;
+      border-radius: 5px;
+    }
+  }
+}
 </style>

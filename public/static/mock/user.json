@@ -1,5 +1,17 @@
-[
-  { "id": 0, "name": "wq", "password": "12345", "region": "manager" },
-  { "id": 1, "name": "rjj", "password": "12345", "region": "manager" },
-  { "id": 2, "name": "wqq", "password": "wqq", "region": "manager" }
-]
+[{
+  "name": "机架工位1",
+  "tasks": [{
+    "name": "准直器装配",
+    "parts": [{
+        "name": "导轨",
+        "code": "P000732",
+        "number": 3
+      },
+      {
+        "name": "铅板",
+        "code": "P000799",
+        "number": 1
+      }
+    ]
+  }]
+}]

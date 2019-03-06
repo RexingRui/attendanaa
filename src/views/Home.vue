@@ -68,7 +68,6 @@ export default {
         let staff = myStorage.get("staff" + i);
         if (staff) {
           staffDatas.push(staff);
-          console.log(staffDatas);
         }
       }
       this.$store.dispatch("initialStaffData", { staffDatas: staffDatas });

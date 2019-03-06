@@ -1,5 +1,4 @@
 import WebStorage from "web-storage-cache";
-import jsonFile from "jsonfile";
 import FileSaver from "file-saver";
 let myStorage = new WebStorage();
 
@@ -48,7 +47,6 @@ export default {
   // 初始化员工数量
   initialStaffNum({ commit }, payload) {
     new Promise((resolve, reject) => {
-      console.log("add");
       myStorage.add("staffNum", payload.staffNum);
       resolve(payload.staffNum);
     }).then(value => {
