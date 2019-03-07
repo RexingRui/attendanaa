@@ -6,13 +6,13 @@
         <div class="home-title">Scheduler</div>
       </div>
       <div class="home-header-right">
-        <el-dropdown>
+        <el-dropdown @command="handleCommand">
           <span class="el-dropdown-link">
             User
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>修改密码</el-dropdown-item>
+            <el-dropdown-item command="修改密码">修改密码</el-dropdown-item>
             <el-dropdown-item divided>登出</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -26,6 +26,9 @@
           <component :is="currentPage"></component>
       </div>
     </div>
+    <div class="password">
+      <change-password v-model="showPasswordDialog"></change-password>
+    </div>
   </div>
 </template>
 
@@ -35,13 +38,18 @@ import HomeSide from "@/components/HomeSide.vue";
 import StaffInformation from "@/components/staffInformation.vue";
 import WebStorage from "web-storage-cache";
 import staffAttendance from "@/components/staffAttendance.vue";
+import changePassword from "@/components/changePassword.vue"
 
 export default {
   name: "home",
   components: {
     HomeSide,
     StaffInformation,
-    staffAttendance
+    staffAttendance,
+    changePassword
+  },
+  data() {
+    showPasswordDialog: false
   },
   computed: {
     currentPage() {
@@ -71,6 +79,14 @@ export default {
         }
       }
       this.$store.dispatch("initialStaffData", { staffDatas: staffDatas });
+    },
+    /**
+     * 打开修改密码对话框
+     */
+    handleCommand(command) {
+      if (command == "修改密码") {
+        this.showPasswordDialog = true;
+      }
     }
   },
   mounted() {

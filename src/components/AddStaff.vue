@@ -102,40 +102,59 @@ export default {
     handleSureDialog () {
       this.$refs["form"].validate(vaild => {
         if (vaild) {
-          // if (this.openMode == 'edit') {
-          //   this.$store.dispatch("changeStaffData", {
-          //     staffData: {
-          //       id: this.staffInfo.id,
-          //       name: this.form.name,
-          //     }
-          //   })
-          // }
-          // 获取员工数量
-          let myStorage = new WebStorage();
-          let deleteNum = myStorage.get('deleteNum') ? myStorage.get('deleteNum') : 0;
-          let staffNum = this.$store.state.staffNum + deleteNum;
-          // 添加员工信息
-          this.$store.dispatch("changeStaffData", {
-            staffData: {
-              id: staffNum,
-              name: this.form.name,
-              gender: this.form.gender,
-              phone: this.form.phone,
-              email: this.form.email,
-              date: this.form.date.toLocaleDateString(),
-              select: false,
-              attendRecord: [{ year: '', month: '', day: '', attendance: { state: '', date: [], reason: '' } }]
-            }, flag: 'add'
-          });
-          // 分发员工信息
-          this.$store.dispatch("changeStaffNum", { staffNum: this.$store.state.staffNum + 1 });
-          // 注册成功消息提示框
-          this.$message({
-            type: "success",
-            message: "成功注册信息",
-            showClose: true,
-            duration: 1000
-          });
+          if (this.openMode == 'edit') {
+            // 修改员工信息
+
+            // 对日期做处理 => 由于时修改员工信息，在弹出对话框时填入的是日期格式string没有toLocaleDateString方法
+            // this.form.date = this.form.date.toLocaleDateString ? this.form.date.toLocaleDateString() : this.form.date;
+            this.$store.dispatch("changeStaffData", {
+              staffData: {
+                id: this.staffInfo.id,
+                name: this.form.name,
+                phone: this.form.phone,
+                email: this.form.email,
+                gender: this.form.gender,
+                date: this.form.date.toLocaleDateString(),
+                select: false,
+                attendRecord: this.staffInfo.attendRecord
+              }, flag: 'change'
+            });
+            // 修改成功消息提示框
+            this.$message({
+              type: "success",
+              message: "成功修改信息",
+              showClose: true,
+              duration: 1000
+            });
+          } else {
+            // 新增员工信息
+            // 获取员工数量
+            let myStorage = new WebStorage();
+            let deleteNum = myStorage.get('deleteNum') ? myStorage.get('deleteNum') : 0;
+            let staffNum = this.$store.state.staffNum + deleteNum;
+            // 添加员工信息
+            this.$store.dispatch("changeStaffData", {
+              staffData: {
+                id: staffNum,
+                name: this.form.name,
+                gender: this.form.gender,
+                phone: this.form.phone,
+                email: this.form.email,
+                date: this.form.date.toLocaleDateString(),
+                select: false,
+                attendRecord: [{ year: '', month: '', day: '', attendance: { state: '', date: [], reason: '' } }]
+              }, flag: 'add'
+            });
+            // 分发员工信息
+            this.$store.dispatch("changeStaffNum", { staffNum: this.$store.state.staffNum + 1 });
+            // 注册成功消息提示框
+            this.$message({
+              type: "success",
+              message: "成功注册信息",
+              showClose: true,
+              duration: 1000
+            });
+          }
           // 关闭注册框
           this.dialogFormVisible = false;
           this.$emit("record");
@@ -145,6 +164,7 @@ export default {
     },
     handleOpenDialog () {
       // 判断时新增还是修改
+      
       if (this.openMode == 'add') {
         this.form.name = '';
         this.form.email = '';
@@ -156,6 +176,7 @@ export default {
         this.form.email = this.staffInfo.email;
         this.form.phone = this.staffInfo.phone;
         this.form.gender = this.staffInfo.gender;
+        this.form.date = new Date(this.staffInfo.date);
       }
     }
   },

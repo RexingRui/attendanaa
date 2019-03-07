@@ -26,25 +26,32 @@ export default {
     state.staffNum = staffNum;
   },
 
-  [INITIAL_STAFF_DATA] (state, staffDatas) {
-    state.staffDatas = [];
+  [INITIAL_STAFF_DATA](state, staffDatas) {
     state.staffDatas = staffDatas;
   },
 
-  [CHANGE_STAFF_DATA] (state, payload) {
+  [CHANGE_STAFF_DATA](state, payload) {
     if (payload.flag == "change") {
-      console.log('change');
+      // 替换员工信息 1.基本资料更改 2.考勤信息更改
       state.staffDatas.forEach((value, index) => {
         if (value.id == payload.staffData.id) {
           state.staffDatas.splice(index, 1, payload.staffData)
         }
       });
-    } else {
+    } else if (payload.flag == "add") {
       state.staffDatas.push(payload.staffData);
+    } else if (payload.flag == "remove") {
+      if (payload.deleteIndex) {
+        state.staffDatas = state.staffDatas.filter(staff => {
+          return !payload.deleteIndex.some(x => {
+            return x == staff.id;
+          })
+        })
+      }
     }
   },
 
-  [CHANGE_CURRENT_PAGE] (state, pageIndex) {
+  [CHANGE_CURRENT_PAGE](state, pageIndex) {
     state.pageIndex = pageIndex;
   },
 

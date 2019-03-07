@@ -4,7 +4,7 @@
       ref="vuetable"
       :fields="fields"
       :api-mode="false"
-      :data="localData"
+      :data="tableData"
       :css="css.table"
       @vuetable:cell-clicked="handleTableClick"
     >
@@ -27,7 +27,7 @@
               <div class="input-search">
                 <el-input
                   placeholder="请输入姓名"
-                  v-model="inputValue"
+                  v-model="searchValue"
                   class="input-with-select"
                   size="small"
                 >
@@ -40,7 +40,12 @@
         <vuetable-row-header></vuetable-row-header>
       </template>
     </vuetable>
-    <add-staff v-model="addStaffVisible" @record="handleRecordStaff" :staffInfo='currentStaffInfo' :openMode="openMode"></add-staff>
+    <add-staff
+      v-model="addStaffVisible"
+      @record="handleRecordStaff"
+      :staffInfo="currentStaffInfo"
+      :openMode="openMode"
+    ></add-staff>
   </div>
 </template>
 <script>
@@ -83,7 +88,7 @@ export default {
         {
           name: "gender",
           title: '<i class="fa fa-intersex fa-lg"></i> 性别',
-          formatter: value => (value === "M" ? "Male" : "Female"),
+          formatter: value => (value === "m" ? "Male" : "Female"),
           width: "2.6rem"
         },
         {
@@ -105,12 +110,18 @@ export default {
       css: VuetableCss,
       addStaffVisible: false,
       checked: [],
-      localData: [],
-      inputValue: '',
+      searchValue: '',
       selectStaffIndex: [],
       currentStaffInfo: {},
-      openMode: 'add'
+      openMode: 'add',
+      tableData: []
     };
+  },
+  watch: {
+    searchValue (val) {
+      let searchName = val.trim()
+      _.debounce(this.handleSearchStaff(searchName), 100);
+    }
   },
   methods: {
     /**
@@ -119,13 +130,8 @@ export default {
      */
     getSelectStaff (message) {
       let deleteIndex = [];
-      this.localData.forEach((value, index, array) => {
+      this.tableData.forEach((value, index, array) => {
         if (value.select == true) {
-          if (message == '删除') {
-            this.localData = this.localData.filter(item => {
-              return item.id != value.id;
-            });
-          }
           deleteIndex.push(value.id);
         }
       });
@@ -144,12 +150,12 @@ export default {
     handleClickEditStaff () {
       this.getSelectStaff('修改');
       // 选择一个的状态下可修改
-      if (this.selectStaffIndex.length == 1 ) {
+      if (this.selectStaffIndex.length == 1) {
         // 打开对话框为修改模式
         this.openMode = 'edit';
         this.addStaffVisible = true;
       }
-      
+
     },
     handleClickAddStaff () {
       // 打开对话框为修改模式
@@ -157,8 +163,7 @@ export default {
       this.addStaffVisible = true;
     },
     handleClickRemoveStaff () {
-      this.getSelectStaff('删除');
-      console.log('删除');
+      this.getSelectStaff();
       let myStorage = new WebStorage();
       let deleteNum = myStorage.get("deleteNum")
         ? myStorage.get("deleteNum")
@@ -168,28 +173,52 @@ export default {
         this.selectStaffIndex.length + myStorage.get("deleteNum")
       );
       let currentStaffNum = this.$store.state.staffNum - this.selectStaffIndex.length;
+      // 修改员工数量
       this.$store.dispatch("changeStaffNum", { staffNum: currentStaffNum });
-      this.$store.dispatch("initialStaffData", {
-        staffDatas: this.localData,
-        deleteIndex: this.selectStaffIndex
+      // 删除选择的员工信息
+      this.$store.dispatch("changeStaffData", {
+        deleteIndex: this.selectStaffIndex,
+        flag: 'remove'
       });
+      setTimeout((x) => {
+        this.tableData = this.localData;
+      }, 100);
     },
     handleTableClick (item) {
       this.currentStaffInfo = item.data;
+      console.log(item.data);
       // 处理是否选中复选框
       if (item.field.name == "select") {
         item.data.select = !item.data.select;
       }
     },
     handleRecordStaff () {
-      setTimeout(() => {
-        this.localData = this.$store.state.staffDatas;
-      }, 100);    }
+      // 对话框确认添加/修改回调
+      this.tableData = this.localData;
+    },
+    /**
+     * 在输入框搜索员工时，处理方法
+     * @param [string] staffName 输入的搜索框的姓名
+     */
+    handleSearchStaff (staffName) {
+      let searchData = this.tableData.filter(value => {
+         return value.name.indexOf(staffName) > -1;
+      })
+      this.tableData = searchData ? searchData : this.localData;
+      if (staffName == "") {
+        this.tableData = this.localData;
+      }
+    }
+
+  },
+  computed: {
+    localData (){
+      return this.$store.state.staffDatas;
+    }
+
   },
   mounted () {
-    setTimeout(() => {
-      this.localData = this.$store.state.staffDatas;
-    }, 100);
+    this.tableData = this.localData;
   }
 };
 </script>

@@ -9,6 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.min'
 import 'font-awesome/css/font-awesome.css'
 import "./assets/styles/reset.css"
+import _ from "lodash"
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)

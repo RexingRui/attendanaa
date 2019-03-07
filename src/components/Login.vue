@@ -162,7 +162,7 @@ export default {
         title: "提示",
         message: "请单击右上角按钮读取账号信息",
         position: "top-left",
-        duration: 2000
+        duration: 3000
       });
     } else {
       this.$store.dispatch("initialUserNum", { userNum: userNumFromStorage });

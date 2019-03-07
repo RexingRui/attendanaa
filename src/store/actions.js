@@ -64,12 +64,7 @@ export default {
   },
   // 初始化员工信息
   initialStaffData({ commit }, payload) {
-    new Promise((resolve, reject) => {
-      if (payload.deleteIndex) {
-        payload.deleteIndex.forEach(value => {
-          myStorage.delete("staff" + value);
-        });
-      }
+    new Promise((resolve, reject) => {    
       resolve(payload.staffDatas);
     }).then(value => {
       commit("initialStaffData", value);
@@ -81,10 +76,17 @@ export default {
       // 判断是添加员工信息还是更改
       if (payload.flag == 'add') {
         myStorage.set("staff" + payload.staffData.id, payload.staffData);
-      } else {
+      } else if (payload.flag == 'change') {
         myStorage.replace("staff" + payload.staffData.id, payload.staffData);
+      } else if (payload.flag == 'remove') {
+        if (payload.deleteIndex) {
+          // localstorage中删除staff数据
+          console.log(payload.deleteIndex);
+          payload.deleteIndex.forEach(value => {
+            myStorage.delete("staff" + value);
+          });
+        }
       }
-
       resolve(payload);
     }).then(value => {
       commit("changeStaffData", value);

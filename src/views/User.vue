@@ -29,25 +29,24 @@ export default {
     handleChange(comName) {
       this.view = comName;
     },
-    getData() {
-      axios
-        .get("/static/mock/user.json")
-        .then(this.getDataSuccess)
-        .catch(error => {
-          console.log(error);
-        });
-    },
-    getDataSuccess(res) {
-      if (res) {
-        let myStorage = new WebStorage();
-        let data = res.data;
-        this.userNum = data.length;
-        console.log(data);
-        data.forEach(value => {
-          myStorage.set("user" + value.id, value);
-        });
-      }
-    },
+    // getData() {
+    //   axios
+    //     .get("/static/mock/user.json")
+    //     .then(this.getDataSuccess)
+    //     .catch(error => {
+    //       console.log(error);
+    //     });
+    // },
+    // getDataSuccess(res) {
+    //   if (res) {
+    //     let myStorage = new WebStorage();
+    //     let data = res.data;
+    //     this.userNum = data.length;
+    //     data.forEach(value => {
+    //       myStorage.set("user" + value.id, value);
+    //     });
+    //   }
+    // },
     downloadObjectAsJson(exportObj, exportName) {
       var dataStr =
         "data:text/json;charset=utf-8," +
@@ -62,7 +61,7 @@ export default {
     }
   },
   mounted() {
-    this.getData();
+    // this.getData();
   }
 };
 </script>
