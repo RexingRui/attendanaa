@@ -10,6 +10,7 @@ export default new Vuex.Store({
   state: {
     user: {userNum: 0, userData: []},
     loginUser: {},
+    loginState: false,
     staffNum: 0,
     staffDatas: [],
     deleteId: 0,

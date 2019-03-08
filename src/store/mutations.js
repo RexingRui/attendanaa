@@ -7,7 +7,8 @@ import {
   CHANGE_STAFF_DATA,
   CHANGE_CURRENT_PAGE,
   DO_ATTENDANCE,
-  UPDATE_LOGIN_USER
+  UPDATE_LOGIN_USER,
+  CHANGE_LOGIN_STATE
 } from "@/common/mutation-types.js";
 
 export default {
@@ -65,5 +66,9 @@ export default {
 
   [UPDATE_LOGIN_USER](state, payload) {
     state.loginUser = payload.loginUser;
+  },
+
+  [CHANGE_LOGIN_STATE](state, payload) {
+    
   }
 };

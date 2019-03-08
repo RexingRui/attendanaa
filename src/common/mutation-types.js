@@ -8,6 +8,7 @@ const SAVE_DELETE_ID = 'saveDeleteId';
 const CHANGE_CURRENT_PAGE = 'changeCurrentPage';
 const DO_ATTENDANCE = 'doAttendance';
 const UPDATE_LOGIN_USER = 'updateLoginUser';
+const CHANGE_LOGIN_STATE = 'changeLoginState'
 
 
 export {
@@ -20,5 +21,6 @@ export {
   SAVE_DELETE_ID,
   CHANGE_CURRENT_PAGE,
   DO_ATTENDANCE,
-  UPDATE_LOGIN_USER
+  UPDATE_LOGIN_USER,
+  CHANGE_LOGIN_STATE
 }
