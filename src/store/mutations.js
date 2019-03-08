@@ -6,16 +6,20 @@ import {
   INITIAL_STAFF_DATA,
   CHANGE_STAFF_DATA,
   CHANGE_CURRENT_PAGE,
-  DOATTENDANCE
+  DO_ATTENDANCE,
+  UPDATE_LOGIN_USER
 } from "@/common/mutation-types.js";
 
 export default {
-  [INITIAL_USER_NUM](state, userNum) {
-    state.userNum = userNum;
+  [INITIAL_USER_NUM](state, payload) {
+    state.user.userNum = payload.userNum;
+    state.user.userData = payload.userData;
   },
 
-  [CHANGE_USER_NUM](state, userNum) {
-    state.userNum = userNum + 1;
+  [CHANGE_USER_NUM](state, payload) {
+    state.user.userNum = payload.userNum + 1;
+    state.user.userData = payload.userData;
+
   },
 
   [INITIAL_STAFF_NUM](state, staffNum) {
@@ -55,7 +59,11 @@ export default {
     state.pageIndex = pageIndex;
   },
 
-  [DOATTENDANCE](state, staffAttendance) {
+  [DO_ATTENDANCE](state, staffAttendance) {
     state.currentStaffAttend = staffAttendance;
+  },
+
+  [UPDATE_LOGIN_USER](state, payload) {
+    state.loginUser = payload.loginUser;
   }
 };

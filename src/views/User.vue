@@ -1,7 +1,7 @@
 <template>
   <div class="user">
     <transition name="component-fade" mode="out-in">
-      <component :is="view" @change="handleChange"></component>
+      <component :is="view" @change="handleChange" @login="handleToLogin"></component>
     </transition>
   </div>
 </template>
@@ -29,6 +29,11 @@ export default {
     handleChange(comName) {
       this.view = comName;
     },
+    // 注册页面通过单击返回登陆页面按钮返回
+    handleToLogin(login) {
+      this.view = login;
+    }
+    // 通过axios获取登录信息
     // getData() {
     //   axios
     //     .get("/static/mock/user.json")
@@ -47,18 +52,18 @@ export default {
     //     });
     //   }
     // },
-    downloadObjectAsJson(exportObj, exportName) {
-      var dataStr =
-        "data:text/json;charset=utf-8," +
-        encodeURIComponent(JSON.stringify(exportObj));
-      var downloadAnchorNode = document.createElement("a");
-      downloadAnchorNode.setAttribute("href", dataStr);
-      downloadAnchorNode.setAttribute("download", exportName + ".json");
-      document.body.appendChild(downloadAnchorNode); // required for firefox
+    // downloadObjectAsJson(exportObj, exportName) {
+    //   var dataStr =
+    //     "data:text/json;charset=utf-8," +
+    //     encodeURIComponent(JSON.stringify(exportObj));
+    //   var downloadAnchorNode = document.createElement("a");
+    //   downloadAnchorNode.setAttribute("href", dataStr);
+    //   downloadAnchorNode.setAttribute("download", exportName + ".json");
+    //   document.body.appendChild(downloadAnchorNode); // required for firefox
 
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
-    }
+    //   downloadAnchorNode.click();
+    //   downloadAnchorNode.remove();
+    // }
   },
   mounted() {
     // this.getData();

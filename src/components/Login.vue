@@ -70,21 +70,24 @@ export default {
       userStorage: {}
     };
   },
+  computed: {
+    user () {
+      return this.$store.state.user
+    }
+  },
   methods: {
     onSubmit(form) {
       this.$refs[form].validate(vaild => {
         if (vaild) {
           //  登陆数据验证，账号和密码的匹配度
-          let myStorage = new WebStorage();
-          let userNum = this.$store.state.userNum;
           let flag = false;
-          for (let i = 0; i < userNum; i++) {
-            let user = myStorage.get("user" + i);
+          this.user.userData.forEach(user => {
             if (
               user.name == this.form.name &&
               user.password == this.form.password &&
               user.region == this.form.region
             ) {
+              this.$store.dispatch('updateLoginUser', {loginUser: user, flag: 'login'})
               // 登陆成功message框
               this.$message({
                 showClose: true,
@@ -94,9 +97,8 @@ export default {
               });
               flag = true;
               this.$router.push({ name: "home" });
-              break;
             }
-          }
+          })
           if (!flag) {
             // 验证错误Notification框
             this.$notify.error({

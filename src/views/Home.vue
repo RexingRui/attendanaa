@@ -39,6 +39,7 @@ import StaffInformation from "@/components/staffInformation.vue";
 import WebStorage from "web-storage-cache";
 import staffAttendance from "@/components/staffAttendance.vue";
 import changePassword from "@/components/changePassword.vue"
+let myStorage = new WebStorage();
 
 export default {
   name: "home",
@@ -49,11 +50,14 @@ export default {
     changePassword
   },
   data() {
-    showPasswordDialog: false
+    return {showPasswordDialog: false}
   },
   computed: {
     currentPage() {
       return this.$store.state.pageIndex;
+    },
+    loginUser() {
+      return this.$store.state.loginUser;
     }
   },
   methods: {
@@ -62,7 +66,7 @@ export default {
      */
     getStaffData() {
       // 获取员工数量，初始化
-      let myStorage = new WebStorage();
+      
       let staffNum = myStorage.get("staffNum") ? myStorage.get("staffNum") : 0;
       this.$store.dispatch("initialStaffNum", { staffNum: staffNum });
       // 获取员工信息,初始化
@@ -91,7 +95,18 @@ export default {
   },
   mounted() {
     this.getStaffData();
+    myStorage.set('test', 'try', {exp : 10});
+    setTimeout((x) => {
+      console.log(myStorage.get('test'));
+    }, 2000);
 
+  },
+  beforeRouteEnter(to, from, next) {
+    if (myStorage.get('loginUser')) {
+      next();
+    } else {
+    next({ path: '/' });
+    }
   }
 };
 </script>

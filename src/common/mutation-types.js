@@ -6,8 +6,8 @@ const INITIAL_STAFF_DATA = 'initialStaffData';
 const CHANGE_STAFF_DATA = 'changeStaffData';
 const SAVE_DELETE_ID = 'saveDeleteId';
 const CHANGE_CURRENT_PAGE = 'changeCurrentPage';
-const DOATTENDANCE = 'doAttendance';
-
+const DO_ATTENDANCE = 'doAttendance';
+const UPDATE_LOGIN_USER = 'updateLoginUser';
 
 
 export {
@@ -19,5 +19,6 @@ export {
   CHANGE_STAFF_DATA,
   SAVE_DELETE_ID,
   CHANGE_CURRENT_PAGE,
-  DOATTENDANCE
+  DO_ATTENDANCE,
+  UPDATE_LOGIN_USER
 }

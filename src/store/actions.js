@@ -3,28 +3,63 @@ import FileSaver from "file-saver";
 let myStorage = new WebStorage();
 
 export default {
+  // 登陆账号信息更新
+  updateLoginUser({ commit }, payload) {
+    new Promise((resolve, reject) => {
+      let loginUser = myStorage.get('loginUser');
+      if (payload.flag == 'login') {
+        // 首次登陆
+        myStorage.add('loginUser', payload.loginUser);
+      } else if (payload.flag == 'password') {
+        // 修改密码
+        loginUser.password = payload.userPassword;
+        myStorage.replace('loginUser', loginUser);
+        myStorage.replace('user' + loginUser.id, loginUser);
+        payload.loginUser = myStorage.get('loginUser');
+      }
+      resolve(payload);
+    }).then(value => {
+      commit('updateLoginUser', value);
+    })
+  },
   // 初始化账号信息
-  initialUserNum({ commit }, payload) {
+  initialUserNum({
+    commit
+  }, payload) {
     new Promise((resolve, reject) => {
       if (payload.userData) {
+        // 本地存储没有数据从文件中读取数据
         myStorage.add("userNum", payload.userNum);
         payload.userData.forEach(el => {
           myStorage.set("user" + el.id, el);
         });
       } else {
+        // 本地文件中有数据
         myStorage.replace("userNum", payload.userNum);
+        // 将本地的数据存至vuex
+        payload.userData = [];
+        for (let i = 0; i < payload.userNum; i++) {
+          payload.userData.push(myStorage.get('user' + i));
+        }
       }
-      resolve(payload.userNum);
+      resolve(payload);
     }).then(value => {
       commit("initialUserNum", value);
     });
   },
   // 增加账号
-  changeUserNum({ commit }, payload) {
+  changeUserNum({
+    commit
+  }, payload) {
     new Promise((resolve, reject) => {
       // 存入localStorage
       let userNum = payload.userNum + 1;
-      myStorage.replace("userNum", userNum);
+      let userNumStorage= myStorage.get(String(userNum));
+      if (userNumStorage) {
+        myStorage.replace("userNum", userNum);
+      } else {
+        myStorage.set("userNum", userNum)
+      }
       myStorage.set("user" + payload.userNum, payload.userData);
       // 存入本地json文件
       let userAllData = [];
@@ -39,13 +74,15 @@ export default {
         FileSaver.saveAs(file);
       }, 2000);
 
-      resolve(payload.userNum);
+      resolve(payload);
     }).then(value => {
       commit("changeUserNum", value);
     });
   },
   // 初始化员工数量
-  initialStaffNum({ commit }, payload) {
+  initialStaffNum({
+    commit
+  }, payload) {
     new Promise((resolve, reject) => {
       myStorage.add("staffNum", payload.staffNum);
       resolve(payload.staffNum);
@@ -54,7 +91,9 @@ export default {
     });
   },
   // 更改员工数量
-  changeStaffNum({ commit }, payload) {
+  changeStaffNum({
+    commit
+  }, payload) {
     new Promise((resolve, reject) => {
       myStorage.replace("staffNum", payload.staffNum);
       resolve(payload.staffNum);
@@ -63,15 +102,19 @@ export default {
     });
   },
   // 初始化员工信息
-  initialStaffData({ commit }, payload) {
-    new Promise((resolve, reject) => {    
+  initialStaffData({
+    commit
+  }, payload) {
+    new Promise((resolve, reject) => {
       resolve(payload.staffDatas);
     }).then(value => {
       commit("initialStaffData", value);
     });
   },
   // 更改员工信息
-  changeStaffData({ commit }, payload) {
+  changeStaffData({
+    commit
+  }, payload) {
     new Promise((resolve, reject) => {
       // 判断是添加员工信息还是更改
       if (payload.flag == 'add') {
@@ -93,16 +136,20 @@ export default {
     });
   },
   // 更改当前显示的页面
-  changeCurrentPage({ commit }, payload) {
+  changeCurrentPage({
+    commit
+  }, payload) {
     commit("changeCurrentPage", payload.pageIndex);
   },
 
   // 更新当前员工考勤数据
-  doAttendance( { commit }, payload) {
+  doAttendance({
+    commit
+  }, payload) {
     new Promise(resolve => {
       myStorage.set('currentStaffAttd', payload.staffAttendance);
       resolve(payload.staffAttendance);
-    }).then(value =>{
+    }).then(value => {
       commit('doAttendance', value);
     })
   }

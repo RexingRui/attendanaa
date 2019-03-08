@@ -8,7 +8,8 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    userNum: 0,
+    user: {userNum: 0, userData: []},
+    loginUser: {},
     staffNum: 0,
     staffDatas: [],
     deleteId: 0,

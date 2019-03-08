@@ -1,6 +1,6 @@
 <template>
-  <div class="login">
-    <div class="login-wrap">
+  <div class="register">
+    <div class="register-wrap">
       <el-form ref="form" :model="form" :rules="rules" label-width="70px">
         <el-form-item label="账号" prop="name">
           <el-input v-model="form.name" size="medium" placeholder="请输入姓名" clearable></el-input>
@@ -20,6 +20,9 @@
         </el-form-item>
       </el-form>
     </div>
+  <div class="back-login">
+    <el-button type="primary" @click="handleBackLogin">返回登陆</el-button>
+  </div>
   </div>
 </template>
 <script>
@@ -53,19 +56,22 @@ export default {
             trigger: "blur"
           }
         ]
-      },
-      userStorage: {}
+      }
     };
+  },
+  computed: {
+    user() {
+      return this.$store.state.user;
+    }
   },
   methods: {
     onSubmit(form) {
       this.$refs[form].validate(vaild => {
         if (vaild) {
-          let userNum = this.$store.state.userNum;
           this.$store.dispatch("changeUserNum", {
-            userNum: userNum,
+            userNum: this.user.userNum,
             userData: {
-              id: userNum,
+              id: this.user.userNum,
               name: this.form.name,
               password: this.form.password,
               region: this.form.region
@@ -94,18 +100,13 @@ export default {
      * 添加表单验证规则
      */
     addRules() {
-      // 读取所有的帐号名
-      let userNum = this.$store.state.userNum;
-      let userNames = [];
-      for (let i = 0; i < userNum; i++) {
-        userNames.push(this.userStorage.get("user" + i).name);
-      }
       // 账号名重复验证规则
+      let _this = this;
       this.rules.name.push({
         validator(rule, value, callback) {
           let errors = [];
-          let userNameError = userNames.find(item => {
-            return item == value;
+          let userNameError = _this.user.userData.some(user => {
+            return user.name == value;
           });
           if (userNameError) {
             errors.push("该账号已存在");
@@ -114,18 +115,20 @@ export default {
         },
         trigger: "blur"
       });
+    },
+    handleBackLogin() {
+      this.$emit('login', 'login')
     }
   },
   mounted() {
     // 从localStorage中获取用户数据
-    this.userStorage = new WebStorage();
     this.addRules();
   }
 };
 </script>
 <style lang="less" scoped>
-  .login {
-    .login-wrap {
+  .register {
+    .register-wrap {
       padding-top: 0.48rem;
       box-sizing: border-box;
       width: 8rem;
@@ -140,6 +143,11 @@ export default {
         cursor: pointer;
         margin-left: 0.05rem;
       }
+    }
+    .back-login {
+      position: fixed;
+      top: 50px;
+      right: 50px;
     }
   }
 </style>

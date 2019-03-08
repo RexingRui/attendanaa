@@ -114,13 +114,13 @@ export default {
       selectStaffIndex: [],
       currentStaffInfo: {},
       openMode: 'add',
-      tableData: []
+      tableData: [],
+      debounceSearchStaff: null
     };
   },
   watch: {
     searchValue (val) {
-      let searchName = val.trim()
-      _.debounce(this.handleSearchStaff(searchName), 100);
+      this.debounceSearchStaff();
     }
   },
   methods: {
@@ -200,25 +200,29 @@ export default {
      * 在输入框搜索员工时，处理方法
      * @param [string] staffName 输入的搜索框的姓名
      */
-    handleSearchStaff (staffName) {
+    handleSearchStaff () {
       let searchData = this.tableData.filter(value => {
-         return value.name.indexOf(staffName) > -1;
+        return value.name.indexOf(this.searchValue.trim()) > -1;
       })
       this.tableData = searchData ? searchData : this.localData;
-      if (staffName == "") {
+      if (this.searchValue == "") {
         this.tableData = this.localData;
       }
     }
 
   },
   computed: {
-    localData (){
+    localData () {
       return this.$store.state.staffDatas;
     }
 
   },
   mounted () {
     this.tableData = this.localData;
+  },
+  created () {
+    // 创建函数去抖
+    this.debounceSearchStaff = _.debounce(this.handleSearchStaff, 200);
   }
 };
 </script>
