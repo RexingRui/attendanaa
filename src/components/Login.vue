@@ -71,8 +71,8 @@ export default {
     };
   },
   computed: {
-    user () {
-      return this.$store.state.user
+    user() {
+      return this.$store.state.user;
     }
   },
   methods: {
@@ -87,7 +87,12 @@ export default {
               user.password == this.form.password &&
               user.region == this.form.region
             ) {
-              this.$store.dispatch('updateLoginUser', {loginUser: user, flag: 'login'})
+              this.$store.dispatch("updateLoginUser", {
+                loginUser: user,
+                flag: "login"
+              });
+              // 存储登陆状态
+              this.$store.dispatch("changeLoginState", { loginState: true, flag: 'login' });
               // 登陆成功message框
               this.$message({
                 showClose: true,
@@ -98,7 +103,7 @@ export default {
               flag = true;
               this.$router.push({ name: "home" });
             }
-          })
+          });
           if (!flag) {
             // 验证错误Notification框
             this.$notify.error({
@@ -173,33 +178,33 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-  .login {
-    .login-wrap {
-      padding-top: 0.48rem;
-      box-sizing: border-box;
-      width: 8rem;
-      height: 6.8rem;
-      background-color: #ebe6e6;
-      border-radius: 0.32rem;
-      /deep/ .el-form-item {
-        margin-bottom: 0;
-        .el-form-item__error {
-          top: 60%;
-        }
-      }
-      /deep/ .el-input {
-        width: 6rem;
-      }
-      .el-icon-view {
-        color: #161414;
-        cursor: pointer;
-        margin-left: 0.05rem;
-      }
-      .file-upload {
-        position: fixed;
-        top: 0.68rem;
-        right: 1rem;
+.login {
+  .login-wrap {
+    padding-top: 0.48rem;
+    box-sizing: border-box;
+    width: 8rem;
+    height: 6.8rem;
+    background-color: #ebe6e6;
+    border-radius: 0.32rem;
+    /deep/ .el-form-item {
+      margin-bottom: 0;
+      .el-form-item__error {
+        top: 60%;
       }
     }
+    /deep/ .el-input {
+      width: 6rem;
+    }
+    .el-icon-view {
+      color: #161414;
+      cursor: pointer;
+      margin-left: 0.05rem;
+    }
+    .file-upload {
+      position: fixed;
+      top: 0.68rem;
+      right: 1rem;
+    }
   }
+}
 </style>

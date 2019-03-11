@@ -12,6 +12,8 @@ import WebStorage from "web-storage-cache";
 import axios from "axios";
 import moveFile from "@/common/move.js";
 
+let mySessionSt = new WebStorage({storage: 'sessionStorage'});
+
 export default {
   name: "user",
   components: {
@@ -65,26 +67,31 @@ export default {
     //   downloadAnchorNode.remove();
     // }
   },
-  mounted() {
-    // this.getData();
+  mounted() {},
+  beforeRouteEnter(to, from, next) {
+    if (mySessionSt.get("loginState")) {
+      next({ path: "home"});
+    } else {
+      next();
+    }
   }
 };
 </script>
 <style lang="less" scoped>
-  .user {
-    width: 100%;
-    height: 100vh;
-    background-color: rgba(61, 85, 100, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    .component-fade-enter-active,
-    .component-fade-leave-active {
-      transition: opacity 0.3s ease;
-    }
-    .component-fade-enter, .component-fade-leave-to
-    /* .component-fade-leave-active for below version 2.1.8 */ {
-      opacity: 0;
-    }
+.user {
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(61, 85, 100, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .component-fade-enter-active,
+  .component-fade-leave-active {
+    transition: opacity 0.3s ease;
   }
+  .component-fade-enter, .component-fade-leave-to
+    /* .component-fade-leave-active for below version 2.1.8 */ {
+    opacity: 0;
+  }
+}
 </style>

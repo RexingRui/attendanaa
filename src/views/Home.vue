@@ -13,7 +13,7 @@
           </span>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="修改密码">修改密码</el-dropdown-item>
-            <el-dropdown-item divided>登出</el-dropdown-item>
+            <el-dropdown-item divided command="登出">登出</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -38,8 +38,11 @@ import HomeSide from "@/components/HomeSide.vue";
 import StaffInformation from "@/components/staffInformation.vue";
 import WebStorage from "web-storage-cache";
 import staffAttendance from "@/components/staffAttendance.vue";
-import changePassword from "@/components/changePassword.vue"
+import changePassword from "@/components/changePassword.vue";
+import holidaysInput from "@/components/holidaysInput";
+
 let myStorage = new WebStorage();
+let mySessionSt = new WebStorage({ storage: 'sessionStorage'});
 
 export default {
   name: "home",
@@ -47,7 +50,8 @@ export default {
     HomeSide,
     StaffInformation,
     staffAttendance,
-    changePassword
+    changePassword,
+    holidaysInput
   },
   data() {
     return {showPasswordDialog: false}
@@ -58,6 +62,9 @@ export default {
     },
     loginUser() {
       return this.$store.state.loginUser;
+    },
+    loginState() {
+      return this.$store.state.loginState
     }
   },
   methods: {
@@ -90,6 +97,27 @@ export default {
     handleCommand(command) {
       if (command == "修改密码") {
         this.showPasswordDialog = true;
+      } else if (command == "登出") {
+        this.$confirm('确定退出当前登陆状态', '提示', {
+          confirmButtonText: '确定',
+          cancleButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$store.dispatch('changeLoginState', {loginState: false, flag: 'logout'});
+          this.$store.dispatch('updateLoginUser', {loginUser: this.loginUser, flag: 'logout'});
+          this.$router.push({path: '/'})
+          this.$message({
+            type:'success',
+            message: '退出登陆',
+            duration: 1500
+          });
+        }).catch(() => {
+          this.$message({
+            type:'info',
+            message: '取消登出',
+            duration: 1500
+          })
+        })
       }
     }
   },
@@ -101,8 +129,10 @@ export default {
     }, 2000);
 
   },
+  // 组件路由钩子，防止直接输入url进入考勤页面
+  // 不能使用this，所以直接从sessionStorage中获取值
   beforeRouteEnter(to, from, next) {
-    if (myStorage.get('loginUser')) {
+    if ( mySessionSt.get('loginState')) {
       next();
     } else {
     next({ path: '/' });

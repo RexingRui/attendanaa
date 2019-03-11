@@ -68,7 +68,7 @@ export default {
     state.loginUser = payload.loginUser;
   },
 
-  [CHANGE_LOGIN_STATE](state, payload) {
-    
+  [CHANGE_LOGIN_STATE](state, loginState) {
+    state.loginState = loginState;
   }
 };

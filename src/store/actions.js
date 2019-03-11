@@ -1,21 +1,32 @@
 import WebStorage from "web-storage-cache";
 import FileSaver from "file-saver";
+// 存储账号信息以及员工信息
 let myStorage = new WebStorage();
+// 存储登陆状态
+let mySessionSt = new WebStorage({
+  storage: "sessionStorage",
+  exp: 84600 // 84600 一天
+})
 
 export default {
   // 登陆账号信息更新
-  updateLoginUser({ commit }, payload) {
+  updateLoginUser({
+    commit
+  }, payload) {
     new Promise((resolve, reject) => {
-      let loginUser = myStorage.get('loginUser');
+      let loginUser = mySessionSt.get('loginUser');
       if (payload.flag == 'login') {
         // 首次登陆
-        myStorage.add('loginUser', payload.loginUser);
+        mySessionSt.add('loginUser', payload.loginUser);
       } else if (payload.flag == 'password') {
         // 修改密码
         loginUser.password = payload.userPassword;
-        myStorage.replace('loginUser', loginUser);
-        myStorage.replace('user' + loginUser.id, loginUser);
-        payload.loginUser = myStorage.get('loginUser');
+        mySessionSt.replace('loginUser', loginUser);
+        mySessionSt.replace('user' + loginUser.id, loginUser);
+        payload.loginUser = mySessionSt.get('loginUser');
+      } else if (payload.flag == 'logout') {
+        mySessionSt.delete('loginUser');
+        payload.loginUser = {};
       }
       resolve(payload);
     }).then(value => {
@@ -54,7 +65,7 @@ export default {
     new Promise((resolve, reject) => {
       // 存入localStorage
       let userNum = payload.userNum + 1;
-      let userNumStorage= myStorage.get(String(userNum));
+      let userNumStorage = myStorage.get(String(userNum));
       if (userNumStorage) {
         myStorage.replace("userNum", userNum);
       } else {
@@ -151,6 +162,22 @@ export default {
       resolve(payload.staffAttendance);
     }).then(value => {
       commit('doAttendance', value);
+    })
+  },
+
+  // 更改登陆状态
+  changeLoginState({
+    commit
+  }, payload) {
+    new Promise(resolve => {
+      if (payload.flag == 'login') {
+        mySessionSt.set('loginState', payload.loginState);
+      } else if (payload.flag == 'logout') {
+        mySessionSt.delete('loginState', payload.loginState)
+      }
+      resolve(payload.loginState);
+    }).then(value => {
+      commit('changeLoginState', value);
     })
   }
 };
