@@ -8,7 +8,8 @@ import {
   CHANGE_CURRENT_PAGE,
   DO_ATTENDANCE,
   UPDATE_LOGIN_USER,
-  CHANGE_LOGIN_STATE
+  CHANGE_LOGIN_STATE,
+  GET_DATEDATA_OFYEAR
 } from "@/common/mutation-types.js";
 
 export default {
@@ -70,5 +71,9 @@ export default {
 
   [CHANGE_LOGIN_STATE](state, loginState) {
     state.loginState = loginState;
+  },
+
+  [GET_DATEDATA_OFYEAR](state, dateDataOfYear) {
+    state.dateDataOfYear = dateDataOfYear;
   }
 };

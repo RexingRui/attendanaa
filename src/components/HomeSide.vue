@@ -1,10 +1,6 @@
 <template>
   <div class="menu-home-side">
-    <el-menu
-      default-active="one"
-      class="el-menu-vertical-demo"
-      @select= "handleMenuSelect"
-    >
+    <el-menu default-active="one" class="el-menu-vertical-demo" @select="handleMenuSelect">
       <el-submenu index="one">
         <template slot="title">
           <i class="el-icon-location"></i>
@@ -45,12 +41,25 @@
   </div>
 </template>
 <script>
+import WebStorage from "web-storage-cache";
+let myStorage = new WebStorage();
+
 export default {
   name: "homeSide",
   methods: {
     handleMenuSelect(index) {
       if (index) {
-        this.$store.dispatch('changeCurrentPage', {pageIndex: index});
+        if (index == "staffAttendance" && !myStorage.get('dateDataOfYear')) {
+          this.$alert("请先录入节假日信息", "提示", {
+            confirmButtonText: "确定"
+          }).then(() => {
+            this.$store.dispatch("changeCurrentPage", {
+              pageIndex: "holidaysInput"
+            });
+          });
+        } else {
+          this.$store.dispatch("changeCurrentPage", { pageIndex: index });
+        }
       }
     }
   }
@@ -58,4 +67,3 @@ export default {
 </script>
 <style lang="less" scoped>
 </style>
-

@@ -64,7 +64,14 @@ export default {
       return this.$store.state.loginUser;
     },
     loginState() {
-      return this.$store.state.loginState
+      return this.$store.state.loginUser;
+    }
+  },
+  watch: {
+    loginState(val) {
+      if (!val) {
+        this.$router.push({path: '/'})
+      }
     }
   },
   methods: {

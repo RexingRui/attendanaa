@@ -179,5 +179,17 @@ export default {
     }).then(value => {
       commit('changeLoginState', value);
     })
+  },
+
+  // 获取今年的节日数据 
+  getDateDataOfYear({
+    commit
+  }, payload) {
+    new Promise(reslove => {
+      myStorage.set('dateDataOfYear', payload.dateDataOfYear);
+      reslove(payload.dateDataOfYear)
+    }).then(value => {
+      commit('getDateDataOfYear', value)
+    })
   }
 };

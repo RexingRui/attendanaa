@@ -8,7 +8,8 @@ const SAVE_DELETE_ID = 'saveDeleteId';
 const CHANGE_CURRENT_PAGE = 'changeCurrentPage';
 const DO_ATTENDANCE = 'doAttendance';
 const UPDATE_LOGIN_USER = 'updateLoginUser';
-const CHANGE_LOGIN_STATE = 'changeLoginState'
+const CHANGE_LOGIN_STATE = 'changeLoginState';
+const GET_DATEDATA_OFYEAR = 'getDateDataOfYear';
 
 
 export {
@@ -22,5 +23,6 @@ export {
   CHANGE_CURRENT_PAGE,
   DO_ATTENDANCE,
   UPDATE_LOGIN_USER,
-  CHANGE_LOGIN_STATE
+  CHANGE_LOGIN_STATE,
+  GET_DATEDATA_OFYEAR
 }

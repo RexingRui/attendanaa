@@ -52,7 +52,7 @@
       <el-table-column label="总计" width="100"></el-table-column>
     </el-table>
     <div class="handle-table">
-      <input type="button" value="导出" class='export-button' @click="handleExportExcel">
+      <input type="button" value="导出" class="export-button" @click="handleExportExcel">
     </div>
     <attendance-dialog
       v-model="dialogFormVisible"
@@ -61,23 +61,23 @@
       :isWeekend="isWeekend"
       :isWeekDie="isWeekDie"
     ></attendance-dialog>
-    
   </div>
 </template>
 <script>
 import attendanceDialog from "@/components/attendanceDialog";
-import WebStorage from "web-storage-cache";
+import webStorage from "web-storage-cache";
 import adjustDays from "@/common/holiday.js";
 // 导出excle文件
-import FileSaver from 'file-saver'
-import XLSX from 'xlsx'
+import FileSaver from "file-saver";
+import XLSX from "xlsx";
 
+let myStorage = new webStorage();
 export default {
   name: "staffAttendance",
   components: {
     attendanceDialog
   },
-  data () {
+  data() {
     return {
       isHoliday: false,
       isWeekend: false,
@@ -87,11 +87,11 @@ export default {
       currentRecordStaff: {},
       currentRecordDay: "",
       tableData: [],
-      dialogFormVisible: false,
+      dialogFormVisible: false
     };
   },
   computed: {
-    monthMatchDays () {
+    monthMatchDays() {
       let monthMatchDays = {
         1: 31,
         2: 28,
@@ -111,16 +111,31 @@ export default {
       }
       return monthMatchDays;
     },
-    dateData () {
+    adjustDays() {
+      // if (this.$store.state.dateDateOfYear.year) {
+      //   console.log('asdad');
+      //   return  this.$store.state.dateDateOfYear;
+      // } {
+        return myStorage.get("dateDataOfYear");
+      // }
+    },
+    dateData() {
       let dateNum = [];
       // 当前月的天数
       let month = this.currentPage;
       let currentSelectMonthNum = this.monthMatchDays[month];
       // 当前月的假期、周末、调假
-      let currentMonthH = adjustDays.holidays[month];
-      let currentMontW = adjustDays.weekend[month];
-      let currentMonthWD = adjustDays.weekDie[month];
-      let holidayName = "";
+      let currentMonthH = this.adjustDays.holiday.filter(value => {
+        return value.month == month;
+      });
+      let currentMontW = this.adjustDays.weekend.filter(value => {
+        return value.month == month;
+      });
+      let currentMonthWD = this.adjustDays.weekdie.filter(value => {
+        return value.month == month;
+      });
+
+      // 遍历当前月的每一天，标识假期与周末
       for (let i = 1; i < currentSelectMonthNum + 1; i++) {
         let dateObj = {
           id: i,
@@ -130,44 +145,39 @@ export default {
           isWeekDie: false
         };
         // 判断今日是否是节假日
-        let isHolidays = false;
         currentMonthH.forEach(value => {
-          isHolidays = value.days.some(day => {
-            if (i == day) {
-              holidayName = value.holiday;
-            }
-            return i == day;
-          });
+          if (value.day == i) {
+            dateObj.name = i + value.name;
+            dateObj.isHoliday = true;
+          }
         });
-        if (isHolidays) {
-          dateObj.name = i + holidayName;
-          dateObj.isHoliday = true;
-        }
+
         // 判断今日是否周末
-        let isWeekends = currentMontW.some(day => {
-          return i == day;
+        let isWeekends = currentMontW.some(value => {
+          return value.day == i;
         });
-        dateObj.name = isWeekends ? i + '周末' : dateObj.name;
+        dateObj.name = isWeekends ? i + "周末" : dateObj.name;
         dateObj.isWeekend = isWeekends ? true : false;
+
         // 判断今日是否调假日
-        let isWeekendDie = currentMonthWD.some(day => {
-          return i == day;
+        let isWeekendDie = currentMonthWD.some(value => {
+          return value.day == i;
         });
         dateObj.isWeekDie = isWeekendDie ? true : false;
-        dateObj.name = isWeekendDie ? i + '调班' : dateObj.name;
+        dateObj.name = isWeekendDie ? i + "调班" : dateObj.name;
         dateNum.push(dateObj);
       }
       return dateNum;
     },
-    staffDatas () {
+    staffDatas() {
       return this.$store.state.staffDatas;
     }
   },
   methods: {
-    handleSizeChange (val) {
+    handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
     },
-    handleCurrentChange (val) {
+    handleCurrentChange(val) {
       // 切换页码。即更改月份时的回调
       this.handleTableData();
     },
@@ -178,28 +188,31 @@ export default {
      * @param [object] cell 当前元素dom
      * @param [object] event 事件
      */
-    handleCellClick (row, column, cell, event) {
+    handleCellClick(row, column, cell, event) {
       // 判断当前日期是不是节假期/周末/调班/工作日
       this.isWeekend = false;
       this.isHoliday = false;
       this.weekDie = false;
       let currentDateLabe = column.label;
       if (currentDateLabe.length > 2) {
-        if (currentDateLabe.search('班') > -1) {
+        if (currentDateLabe.search("班") > -1) {
           this.isWeekDie = true;
-        } else if (currentDateLabe.search('周') > -1) {
+        } else if (currentDateLabe.search("周") > -1) {
           this.isWeekend = true;
         } else {
           this.isHoliday = true;
         }
       }
       this.currentRecordStaff = row;
-      this.currentRecordDay = column.label.length > 2 ? column.label.match(/[0-9]+/)[0] : column.label;
+      this.currentRecordDay =
+        column.label.length > 2
+          ? column.label.match(/[0-9]+/)[0]
+          : column.label;
     },
     /**
      * 将当前选择的月份考勤数据渲染到表格中
      */
-    handleTableData () {
+    handleTableData() {
       // 获取当前月份，对应的当前的分页的当前页
       let currentMonth = this.currentPage;
       let tableData = [];
@@ -241,10 +254,10 @@ export default {
     /**
      * 打开对话框执行考勤操作
      */
-    handleAttendanceClick () {
+    handleAttendanceClick() {
       this.dialogFormVisible = true;
     },
-    handleAttendanceData (attendanceData) {
+    handleAttendanceData(attendanceData) {
       // 获取当前考勤人员的数据，并根据考勤结果更改
       let changeStaff = this.currentRecordStaff.staff;
       // 修改考勤数据
@@ -290,25 +303,31 @@ export default {
       // 导出到execl
 
       // 由于设置了固定了，数据渲染的时候会渲染出两组相同数据，故首先需要去除
-      let tableDom = this.$refs['table'].$el.cloneNode(true);
-      tableDom.removeChild(tableDom.querySelector('.el-table__fixed'))
+      let tableDom = this.$refs["table"].$el.cloneNode(true);
+      tableDom.removeChild(tableDom.querySelector(".el-table__fixed"));
       // 从表单中获取数据
       let table = XLSX.utils.table_to_book(tableDom);
       // get binary string as output
-      let tableOut = XLSX.write(table ,{bookType: 'xlsx', bookSST: true, type: 'array'});
+      let tableOut = XLSX.write(table, {
+        bookType: "xlsx",
+        bookSST: true,
+        type: "array"
+      });
 
       //设置文件名
       let execlName = `${this.date.year}年${this.currentPage}月考勤.xlsx`;
       // 保存文件
       try {
-        FileSaver.saveAs(new Blob([tableOut]), execlName, { type: 'application/octet-stream' });
+        FileSaver.saveAs(new Blob([tableOut]), execlName, {
+          type: "application/octet-stream"
+        });
       } catch (e) {
         console.log(e, wbout);
       }
       return tableOut;
     }
   },
-  mounted () {
+  mounted() {
     // 加载当前日期
     let currentDate = new Date().toLocaleDateString().split("/");
     this.date.year = currentDate[0];
@@ -379,12 +398,12 @@ export default {
     float: right;
     margin-top: 20px;
     .export-button {
-      font-family: "Microsoft YaHei","微软雅黑",Arial,sans-serif;
+      font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
       font-weight: 600;
       color: #4b4747;
       width: 60px;
       height: 32px;
-      background-color: #67C23A;
+      background-color: #67c23a;
       border-radius: 5px;
     }
   }
