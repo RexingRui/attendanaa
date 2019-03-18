@@ -39,6 +39,7 @@
 <script>
 import WebStorage from "web-storage-cache";
 import readData from "@/components/readData.vue";
+import FileSaver from "file-saver";
 
 export default {
   name: "login",

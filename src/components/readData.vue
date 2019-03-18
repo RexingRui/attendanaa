@@ -37,7 +37,7 @@ export default {
     line-height: 40px;
     border-radius: 5px;
     cursor: pointer;
-    color: #e1e1e1;
+    color: #f0e5e5;
     .select-input {
       width: 80px;
       height: 40px;

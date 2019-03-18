@@ -62,7 +62,7 @@ export default {
     VuetableRowHeader,
     AddStaff
   },
-  data () {
+  data() {
     return {
       fields: [
         {
@@ -78,6 +78,12 @@ export default {
             value == false
               ? '<input type="checkbox" v-model="checked">'
               : '<input type="checkbox" checked=true v-model="checked">'
+        },
+        {
+          name: "attendId",
+          title: '<i class="fa fa-address-book-o fa-lg"></i> 考勤号',
+          titleClass: "center",
+          width: "2.5rem"
         },
         {
           name: "name",
@@ -110,16 +116,16 @@ export default {
       css: VuetableCss,
       addStaffVisible: false,
       checked: [],
-      searchValue: '',
+      searchValue: "",
       selectStaffIndex: [],
       currentStaffInfo: {},
-      openMode: 'add',
+      openMode: "add",
       tableData: [],
       debounceSearchStaff: null
     };
   },
   watch: {
-    searchValue (val) {
+    searchValue(val) {
       this.debounceSearchStaff();
     }
   },
@@ -128,7 +134,7 @@ export default {
      * 获取所选择的staff
      * @param [string] message 执行什么操作删除还是修改
      */
-    getSelectStaff (message) {
+    getSelectStaff(message) {
       let deleteIndex = [];
       this.tableData.forEach((value, index, array) => {
         if (value.select == true) {
@@ -138,31 +144,30 @@ export default {
       this.selectStaffIndex = deleteIndex;
       // 如果没有选择用户，或者在修改的情况下多选,弹出提示
       if (deleteIndex.length == 0) {
-        this.$alert(`请勾选需要${message}员工`, '提示', {
-          confirmButtonText: 'ok'
+        this.$alert(`请勾选需要${message}员工`, "提示", {
+          confirmButtonText: "ok"
         });
-      } else if (deleteIndex.length > 1 && message == '修改') {
-        this.$alert(`单次只能修改一个员工数据`, '提示', {
-          confirmButtonText: 'ok'
-        })
+      } else if (deleteIndex.length > 1 && message == "修改") {
+        this.$alert(`单次只能修改一个员工数据`, "提示", {
+          confirmButtonText: "ok"
+        });
       }
     },
-    handleClickEditStaff () {
-      this.getSelectStaff('修改');
+    handleClickEditStaff() {
+      this.getSelectStaff("修改");
       // 选择一个的状态下可修改
       if (this.selectStaffIndex.length == 1) {
         // 打开对话框为修改模式
-        this.openMode = 'edit';
+        this.openMode = "edit";
         this.addStaffVisible = true;
       }
-
     },
-    handleClickAddStaff () {
+    handleClickAddStaff() {
       // 打开对话框为修改模式
-      this.openMode = 'add';
+      this.openMode = "add";
       this.addStaffVisible = true;
     },
-    handleClickRemoveStaff () {
+    handleClickRemoveStaff() {
       this.getSelectStaff();
       let myStorage = new WebStorage();
       let deleteNum = myStorage.get("deleteNum")
@@ -172,19 +177,20 @@ export default {
         "deleteNum",
         this.selectStaffIndex.length + myStorage.get("deleteNum")
       );
-      let currentStaffNum = this.$store.state.staffNum - this.selectStaffIndex.length;
+      let currentStaffNum =
+        this.$store.state.staffNum - this.selectStaffIndex.length;
       // 修改员工数量
       this.$store.dispatch("changeStaffNum", { staffNum: currentStaffNum });
       // 删除选择的员工信息
       this.$store.dispatch("changeStaffData", {
         deleteIndex: this.selectStaffIndex,
-        flag: 'remove'
+        flag: "remove"
       });
-      setTimeout((x) => {
+      setTimeout(x => {
         this.tableData = this.localData;
       }, 100);
     },
-    handleTableClick (item) {
+    handleTableClick(item) {
       this.currentStaffInfo = item.data;
       console.log(item.data);
       // 处理是否选中复选框
@@ -192,7 +198,7 @@ export default {
         item.data.select = !item.data.select;
       }
     },
-    handleRecordStaff () {
+    handleRecordStaff() {
       // 对话框确认添加/修改回调
       this.tableData = this.localData;
     },
@@ -200,27 +206,25 @@ export default {
      * 在输入框搜索员工时，处理方法
      * @param [string] staffName 输入的搜索框的姓名
      */
-    handleSearchStaff () {
+    handleSearchStaff() {
       let searchData = this.tableData.filter(value => {
         return value.name.indexOf(this.searchValue.trim()) > -1;
-      })
+      });
       this.tableData = searchData ? searchData : this.localData;
       if (this.searchValue == "") {
         this.tableData = this.localData;
       }
     }
-
   },
   computed: {
-    localData () {
+    localData() {
       return this.$store.state.staffDatas;
     }
-
   },
-  mounted () {
+  mounted() {
     this.tableData = this.localData;
   },
-  created () {
+  created() {
     // 创建函数去抖
     this.debounceSearchStaff = _.debounce(this.handleSearchStaff, 200);
   }

@@ -5,6 +5,9 @@
         <el-form-item label="姓名" :label-width="formLabelWidth" prop="name">
           <el-input v-model="form.name" clearable></el-input>
         </el-form-item>
+        <el-form-item label="账号" :label-width="formLabelWidth" prop="attendId">
+          <el-input v-model="form.attendId" clearable></el-input>
+        </el-form-item>
         <el-form-item label="性别" :label-width="formLabelWidth" prop="gender">
           <el-select v-model="form.gender" placeholder="请选择性别">
             <el-option label="男" value="m"></el-option>
@@ -55,6 +58,7 @@ export default {
         gender: "",
         email: "",
         phone: "",
+        attendId: ""
       },
       rules: {
         name: [
@@ -65,6 +69,11 @@ export default {
           required: true,
           message: "请选择性别",
           trigger: "visible-change"
+        },
+        attendId: {
+          required: true,
+          message: "请输入考勤账号",
+          trigger: "blur"
         },
         phone: [
           { required: true, message: "请输入电话号码", trigger: "blur" },
@@ -114,6 +123,7 @@ export default {
                 phone: this.form.phone,
                 email: this.form.email,
                 gender: this.form.gender,
+                attendId: this.form.attendId,
                 date: this.form.date.toLocaleDateString(),
                 select: false,
                 attendRecord: this.staffInfo.attendRecord
@@ -139,6 +149,7 @@ export default {
                 name: this.form.name,
                 gender: this.form.gender,
                 phone: this.form.phone,
+                attendId: this.form.attendId,
                 email: this.form.email,
                 date: this.form.date.toLocaleDateString(),
                 select: false,
