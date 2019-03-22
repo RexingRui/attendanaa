@@ -1,6 +1,6 @@
 <template>
   <div class="read-data">
-    <input class="select-input" type="file" :accept="format" @change="handleInputChange" ref="file">
+    <input class="select-input" type="file" :accept="format" @change="handleInputChange($event)" ref="file">
     <slot :user="user"></slot>
     <slot name="hint"></slot>
   </div>
@@ -20,9 +20,10 @@ export default {
     }
   },
   methods: {
-    handleInputChange() {
+    handleInputChange(event) {
       let file = this.$refs.file.files[0]
       this.$emit("readdata", file);
+      event.target.value = '';
     }
   }
 };

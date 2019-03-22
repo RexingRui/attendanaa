@@ -60,6 +60,7 @@
       :isHoliday="isHoliday"
       :isWeekend="isWeekend"
       :isWeekDie="isWeekDie"
+      :currentAttendDate="currentAttendDate"
     ></attendance-dialog>
   </div>
 </template>
@@ -116,7 +117,7 @@ export default {
       //   console.log('asdad');
       //   return  this.$store.state.dateDateOfYear;
       // } {
-        return myStorage.get("dateDataOfYear");
+      return myStorage.get("dateDataOfYear");
       // }
     },
     dateData() {
@@ -171,6 +172,14 @@ export default {
     },
     staffDatas() {
       return this.$store.state.staffDatas;
+    },
+    attendanceData() {
+      return this.$store.state.attendanceData;
+    },
+    currentAttendDate() {
+      return (
+        this.date.year + "/" + this.currentPage + "/" + this.currentRecordDay
+      );
     }
   },
   methods: {
@@ -216,13 +225,14 @@ export default {
       // 获取当前月份，对应的当前的分页的当前页
       let currentMonth = this.currentPage;
       let tableData = [];
+
       // 遍历所有员工数据
       this.staffDatas.forEach((value, index, array) => {
         // 获取表单所需的数据
         let staffObj = {};
         // 第一列中填入姓名
         staffObj.name = value.name;
-        staffObj.id = value.id;
+        staffObj.attendId = value.attendId;
         // 将员工的信息放在staff属性
         let staffSelf = JSON.parse(JSON.stringify(value));
         staffObj.staff = staffSelf;
@@ -257,7 +267,11 @@ export default {
     handleAttendanceClick() {
       this.dialogFormVisible = true;
     },
-    handleAttendanceData(attendanceData) {
+    /**
+     * 客户端考勤操作
+     * @param {object} attendanceDataOfIndivid 执行当前考勤操作的个人数据
+     */
+    handleAttendanceData(attendanceDataOfIndivid) {
       // 获取当前考勤人员的数据，并根据考勤结果更改
       let changeStaff = this.currentRecordStaff.staff;
       // 修改考勤数据
@@ -268,7 +282,7 @@ export default {
           staffAttend.month == this.currentPage &&
           staffAttend.day == this.currentRecordDay
         ) {
-          changeStaff.attendRecord[index].attendance = attendanceData;
+          changeStaff.attendRecord[index].attendance = attendanceDataOfIndivid;
           changeStaff.attendRecord[index].year = this.date.year;
           changeStaff.attendRecord[index].month = this.currentPage;
           changeStaff.attendRecord[index].day = this.currentRecordDay;
@@ -278,7 +292,7 @@ export default {
       // 添加考勤数据
       if (!changeAttendFlag) {
         changeStaff.attendRecord.push({
-          attendance: attendanceData,
+          attendance: attendanceDataOfIndivid,
           year: this.date.year,
           month: this.currentPage,
           day: this.currentRecordDay
@@ -290,11 +304,11 @@ export default {
       });
       // 跟新table中的数据
       this.tableData.forEach((value, index) => {
-        if (value.id == changeStaff.id) {
+        if (value.attendId == changeStaff.attendId) {
           let tableAttendance = JSON.parse(
             JSON.stringify(this.tableData[index].attendance)
           );
-          tableAttendance[this.currentRecordDay] = attendanceData.state;
+          tableAttendance[this.currentRecordDay] = attendanceDataOfIndivid.state;
           this.tableData[index].attendance = tableAttendance;
         }
       });

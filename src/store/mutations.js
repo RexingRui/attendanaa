@@ -9,7 +9,8 @@ import {
   DO_ATTENDANCE,
   UPDATE_LOGIN_USER,
   CHANGE_LOGIN_STATE,
-  GET_DATEDATA_OFYEAR
+  GET_DATEDATA_OFYEAR,
+  ADD_ATTENDANCE_DATA
 } from "@/common/mutation-types.js";
 
 export default {
@@ -32,8 +33,40 @@ export default {
     state.staffNum = staffNum;
   },
 
-  [INITIAL_STAFF_DATA](state, staffDatas) {
-    state.staffDatas = staffDatas;
+  [INITIAL_STAFF_DATA](state, payload) {
+     let currentMonthAttend =payload.currentMonthAttend;
+    if (payload.flag === 'initial') {
+      state.staffDatas = payload.staffDatas;
+    } else if (payload.flag === 'input') {
+      state.staffDatas.forEach(item => {
+        // 取出当前员工的考勤数据
+        let currentStaffData = currentMonthAttend.filter(val => {
+          return item.attendId === val.attendId;
+        });
+        // 添加日期属性，key为日期，value为考勤的时间，如 '2019/1/1': 9:01, 目的是为了将同一天的考勤数据连接在一起
+        currentStaffData.forEach(val => {
+          if (val[val.attendDate]) {
+            va[val.attendDate] += '-' + val.attendTime;
+          } else {
+            val[val.attendDate] = val.attendTime;
+          }
+        });
+        // 将考勤数据添加至员工数据中
+        currentStaffData.forEach(val => {
+          let arrayDate = val.attendDate.split('/');
+          let year = arrayDate[0];
+          let month = arrayDate[1];
+          let day = arrayDate[2];
+
+          // 通过时间判断员工正常上班，迟到，早退等现象
+          
+        });
+
+         
+
+      })
+    }
+    
   },
 
   [CHANGE_STAFF_DATA](state, payload) {
@@ -75,5 +108,9 @@ export default {
 
   [GET_DATEDATA_OFYEAR](state, dateDataOfYear) {
     state.dateDataOfYear = dateDataOfYear;
+  },
+
+  [ADD_ATTENDANCE_DATA](state, currentMonthAttend) {
+    state.attendanceData.push(currentMonthAttend);
   }
 };

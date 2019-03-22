@@ -16,6 +16,38 @@ function getStaffData(myStorage) {
   };
 }
 
+/**
+ * 
+ * @param {array} arr 
+ */
+function uniqueTime(arr) {
+  // 先把不同的人的考勤数据分开
+  let id = '';
+  let date = '';
+  let arrHead = arr.fliter((val, index) => {
+    if (index !== 0) {
+      id = arr[index-1].attendId;
+      date = arr[index-1].attendDate;
+    }
+
+    return val.id !== id && val.attendDate !== date;
+  });
+
+  arr = arr.reverse();
+
+  let arrEnd = arr.fliter((val, index) => {
+    if (index !== 0) {
+      id = arr[index - 1].attendId;
+      date = arr[index - 1].attendDate;
+    }
+
+    return val.id !== id && val.attendDate !== date;
+  });
+
+  return arrHead.concat(arrEnd);
+
+}
+
 export default {
   getUserNum,
   getStaffData

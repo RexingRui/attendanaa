@@ -117,7 +117,11 @@ export default {
     commit
   }, payload) {
     new Promise((resolve, reject) => {
-      resolve(payload.staffDatas);
+      if(payload.flag === 'input') {
+        console.log('导入数据');
+      } 
+      resolve(payload);
+     
     }).then(value => {
       commit("initialStaffData", value);
     });
@@ -191,5 +195,25 @@ export default {
     }).then(value => {
       commit('getDateDataOfYear', value)
     })
+  },
+  // 添加考勤数据
+  addAttendanceData({
+      commit
+    }, payload) {
+    new Promise(reslove => {
+      let attendanceData = myStorage.get('attendanceData');
+      if ( attendanceData === null) {
+        myStorage.set('attendanceData', [payload.currentMonthAttend]);
+      } else {
+        attendanceData.push(payload.currentMonthAttend);
+        myStorage.replace('attendanceData', attendanceData);
+      }
+
+      reslove(payload.currentMonthAttend);
+    }).then(value => {
+      commit('addAttendanceData', value);
+    })
   }
+
 };
+

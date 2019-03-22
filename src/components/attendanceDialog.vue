@@ -56,6 +56,9 @@ export default {
     isWeekDie: {
       type: Boolean,
       default: false
+    },
+    currentAttendDate: {
+      type: String
     }
   },
   data () {
@@ -135,12 +138,22 @@ export default {
       this.dialogFormVisible = false;
     },
     handleSureClick () {
-      this.attendance.state = this.radioValue;
-      this.attendance.date = this.workTime;
-      this.attendance.reason = this.valueCategory;
-      this.$store.dispatch('doAttendance', { staffAttendance: this.attendance });
-      this.dialogFormVisible = false;
-      this.$emit('record', this.attendance);
+      // 判断考勤中选中的日期是不是当前日期
+      if (this.workTime[0].toLocaleDateString() === this.currentAttendDate) {
+        this.attendance.state = this.radioValue;
+        this.attendance.date = this.workTime;
+        this.attendance.reason = this.valueCategory;
+        this.$store.dispatch('doAttendance', { staffAttendance: this.attendance });
+        this.dialogFormVisible = false;
+        this.$emit('record', this.attendance);
+      } else {
+        this.$message({
+          showClose: true,
+          message: '考勤日期选择错误',
+          type: 'warning'
+        });
+      }
+
     },
     handleDialogOpen () {
       // 对话框打开回调处理函数，每次打开后清空对话框的值

@@ -98,7 +98,7 @@ export default {
           staffDatas.push(staff);
         }
       }
-      this.$store.dispatch("initialStaffData", { staffDatas: staffDatas });
+      this.$store.dispatch("initialStaffData", { staffDatas: staffDatas, flag: 'initial' });
     },
     /**
      * 打开修改密码对话框
@@ -132,10 +132,6 @@ export default {
   },
   mounted() {
     this.getStaffData();
-    myStorage.set('test', 'try', {exp : 10});
-    setTimeout((x) => {
-      console.log(myStorage.get('test'));
-    }, 2000);
 
   },
   // 组件路由钩子，防止直接输入url进入考勤页面
