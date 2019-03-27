@@ -153,7 +153,7 @@ export default {
                 email: this.form.email,
                 date: this.form.date.toLocaleDateString(),
                 select: false,
-                attendRecord: [{ year: '', month: '', day: '', attendance: { state: '', date: [], reason: '' } }]
+                attendRecord: []
               }, flag: 'add'
             });
             // 分发员工信息

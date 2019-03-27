@@ -98,7 +98,7 @@ export default {
           staffDatas.push(staff);
         }
       }
-      this.$store.dispatch("initialStaffData", { staffDatas: staffDatas, flag: 'initial' });
+      // this.$store.dispatch("initialStaffData", { staffDatas: staffDatas, flag: 'initial' });
     },
     /**
      * 打开修改密码对话框

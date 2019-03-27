@@ -1,3 +1,6 @@
+import WebStorage from "web-storage-cache";
+// 存储账号信息以及员工信息
+let myStorage = new WebStorage();
 import {
   INITIAL_USER_NUM,
   CHANGE_USER_NUM,
@@ -34,39 +37,85 @@ export default {
   },
 
   [INITIAL_STAFF_DATA](state, payload) {
-     let currentMonthAttend =payload.currentMonthAttend;
+    let currentMonthAttend = payload.currentMonthAttend;
     if (payload.flag === 'initial') {
       state.staffDatas = payload.staffDatas;
     } else if (payload.flag === 'input') {
+
       state.staffDatas.forEach(item => {
         // 取出当前员工的考勤数据
-        let currentStaffData = currentMonthAttend.filter(val => {
+        let currentStaffData = currentMonthAttend.data.filter(val => {
           return item.attendId === val.attendId;
         });
-        // 添加日期属性，key为日期，value为考勤的时间，如 '2019/1/1': 9:01, 目的是为了将同一天的考勤数据连接在一起
-        currentStaffData.forEach(val => {
-          if (val[val.attendDate]) {
-            va[val.attendDate] += '-' + val.attendTime;
-          } else {
-            val[val.attendDate] = val.attendTime;
+        // 根据日期数据进行排序，
+        currentStaffData.sort((a, b) => {
+          return parseInt(a.attendDate.split('/')[2]) - parseInt(b.attendDate.split('/')[2]);
+        });
+        // 同一日期的上下午考勤放在一起 {如果数据只有一次考勤记录则表示为9:30-9:30}
+        currentStaffData.forEach((val, index) => {
+          if (index > 0) {
+            if (val.attendDate === currentStaffData[index - 1].attendDate) {
+              currentStaffData[index - 1].attendTime += '-' + val.attendTime;
+              currentStaffData.splice(index, 1);
+            }
           }
         });
         // 将考勤数据添加至员工数据中
         currentStaffData.forEach(val => {
           let arrayDate = val.attendDate.split('/');
-          let year = arrayDate[0];
-          let month = arrayDate[1];
-          let day = arrayDate[2];
 
-          // 通过时间判断员工正常上班，迟到，早退等现象
-          
+          // 存储考勤日期
+          let currentAttendData = {
+            year: "",
+            month: "",
+            day: "",
+            attendance: {
+              state: "",
+              reason: "",
+              date: []
+            }
+          };
+          currentAttendData.year = arrayDate[0];
+          currentAttendData.month = arrayDate[1];
+          currentAttendData.day = arrayDate[2];
+          let attendanceTimeArray = val.attendTime.split('-');
+          // 通过时间判断迟到与早退现象
+          let startWorkTime = attendanceTimeArray[0].split(":");
+          let endWorkTime = attendanceTimeArray[1].split(":");
+          currentAttendData.attendance.date = [startWorkTime.join(":"), endWorkTime.join(":")];
+          // 正常打卡时的考勤
+          if (startWorkTime[0] !== endWorkTime[0]) {
+            let lateTime = new Date(parseInt(arrayDate[0]), parseInt(arrayDate[1]) - 1, parseInt(arrayDate[2]), parseInt(startWorkTime[0]), parseInt(startWorkTime[1])) -
+              new Date(parseInt(arrayDate[0]), parseInt(arrayDate[1]) - 1, parseInt(arrayDate[2]), 9, 0);
+            let leaveTime = new Date(parseInt(arrayDate[0]), parseInt(arrayDate[1]) - 1, parseInt(arrayDate[2]), parseInt(endWorkTime[0]), parseInt(endWorkTime[1])) -
+              new Date(parseInt(arrayDate[0]), parseInt(arrayDate[1]) - 1, parseInt(arrayDate[2]), 17, 30);
+
+            if (lateTime > 1800000) {
+              // 排除提前打卡的情况以及迟到时间小于半小时的情况
+              currentAttendData.attendance.state = "工作/迟到";
+              currentAttendData.attendance.reason = `迟到${Math.floor(lateTime / 60)}小时 ${lateTime % 60}分钟`;
+            } else if (leaveTime < -1800000) {
+              // 早退处理
+              currentAttendData.attendance.state = "工作/早退";
+              currentAttendData.attendance.reason = `早退${Math.floor(Math.abs(leaveTime) / 60)}小时 ${Math.abs(leaveTime) % 60}分钟`;
+            } else {
+              // 既不迟到也不早退
+              currentAttendData.attendance.state = "工作";
+            }
+          } else if (parseInt(endWorkTime[0]) < 13) {
+            // 只要上班时打了卡
+            currentAttendData.attendance.state = "打卡异常";
+            currentAttendData.attendance.reason = "下班未打卡";
+          } else if (parseInt(startWorkTime[0]) > 13) {
+            currentAttendData.attendance.state = "打卡异常";
+            currentAttendData.attendance.reason = "上班未打卡";
+          }
+          myStorage.replace("staff" + item.id, item);
+          item.attendRecord.push(currentAttendData);
         });
-
-         
-
-      })
+      });
     }
-    
+
   },
 
   [CHANGE_STAFF_DATA](state, payload) {
@@ -74,7 +123,7 @@ export default {
       // 替换员工信息 1.基本资料更改 2.考勤信息更改
       state.staffDatas.forEach((value, index) => {
         if (value.id == payload.staffData.id) {
-          state.staffDatas.splice(index, 1, payload.staffData)
+          state.staffDatas.splice(index, 1, payload.staffData);
         }
       });
     } else if (payload.flag == "add") {
@@ -114,3 +163,4 @@ export default {
     state.attendanceData.push(currentMonthAttend);
   }
 };
+

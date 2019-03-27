@@ -51,7 +51,9 @@ export default {
             staffAtendance.attendDate = dateArray.join("/");
             // 处理时间中有0的时候
             let timeArray = attendArray[3].split(" ")[1].split("/");
-            timeArray.forEach()
+            timeArray.forEach(item => {
+              item = item.replace(/^0/, "");
+            });
             staffAtendance.attendTime = attendArray[3].split(" ")[1];
             attendanceData.push(staffAtendance);
           });

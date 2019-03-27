@@ -38,7 +38,11 @@
       >
         <!-- 考勤图标 -->
         <template slot-scope="scope">
+          <el-popover trigger="hover" placement="bottom">
+          <p>姓名: {{ scope.row.name }}</p>
+        
           <div
+            slot="reference"
             class="cell-bg"
             :class="{holidbg: item.isHoliday, weekbg: item.isWeekend, weekdiebg: item.isWeekDie}"
           >
@@ -47,6 +51,7 @@
             </span>
             <span class="attendance-record">{{scope.row.attendance[item.id]}}</span>
           </div>
+          </el-popover>
         </template>
       </el-table-column>
       <el-table-column label="总计" width="100"></el-table-column>
@@ -182,6 +187,11 @@ export default {
       );
     }
   },
+  watch: {
+    staffDatas(val) {
+      console.log("改变了staffDatas");
+    }
+  },
   methods: {
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
@@ -227,6 +237,7 @@ export default {
       let tableData = [];
 
       // 遍历所有员工数据
+      console.log(1, this.staffDatas);
       this.staffDatas.forEach((value, index, array) => {
         // 获取表单所需的数据
         let staffObj = {};
@@ -234,8 +245,10 @@ export default {
         staffObj.name = value.name;
         staffObj.attendId = value.attendId;
         // 将员工的信息放在staff属性
-        let staffSelf = JSON.parse(JSON.stringify(value));
-        staffObj.staff = staffSelf;
+        // let staffSelf = JSON.parse(JSON.stringify(value));
+        // staffObj.staff = staffSelf;
+        staffObj.staff = value;
+
         // 拿出当前月的考勤数据
         let currentMonthData = value.attendRecord.filter(el => {
           if (el.month) {
@@ -259,6 +272,7 @@ export default {
         }
         tableData.push(staffObj);
       });
+      console.log(2, this.staffDatas);
       this.tableData = tableData;
     },
     /**
