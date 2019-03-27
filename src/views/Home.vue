@@ -82,7 +82,7 @@ export default {
      */
     getStaffData() {
       // 获取员工数量，初始化
-      
+
       let staffNum = myStorage.get("staffNum") ? myStorage.get("staffNum") : 0;
       this.$store.dispatch("initialStaffNum", { staffNum: staffNum });
       // 获取员工信息,初始化
@@ -98,7 +98,8 @@ export default {
           staffDatas.push(staff);
         }
       }
-      // this.$store.dispatch("initialStaffData", { staffDatas: staffDatas, flag: 'initial' });
+      console.log(3, staffDatas);
+      this.$store.dispatch("initialStaffData", { staffDatas: staffDatas, flag: 'initial' });
     },
     /**
      * 打开修改密码对话框
