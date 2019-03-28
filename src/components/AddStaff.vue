@@ -114,8 +114,7 @@ export default {
           if (this.openMode == 'edit') {
             // 修改员工信息
 
-            // 对日期做处理 => 由于时修改员工信息，在弹出对话框时填入的是日期格式string没有toLocaleDateString方法
-            // this.form.date = this.form.date.toLocaleDateString ? this.form.date.toLocaleDateString() : this.form.date;
+
             this.$store.dispatch("changeStaffData", {
               staffData: {
                 id: this.staffInfo.id,
@@ -187,6 +186,7 @@ export default {
         this.form.email = this.staffInfo.email;
         this.form.phone = this.staffInfo.phone;
         this.form.gender = this.staffInfo.gender;
+        this.form.attendId = this.staffInfo.attendId;
         this.form.date = new Date(this.staffInfo.date);
       }
     }

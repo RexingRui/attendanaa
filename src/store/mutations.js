@@ -92,12 +92,14 @@ export default {
 
             if (lateTime > 1800000) {
               // 排除提前打卡的情况以及迟到时间小于半小时的情况
+              let minutesOfLate = Math.floor(lateTime / 60000);
               currentAttendData.attendance.state = "工作/迟到";
-              currentAttendData.attendance.reason = `迟到${Math.floor(lateTime / 60)}小时 ${lateTime % 60}分钟`;
+              currentAttendData.attendance.reason = `迟到${Math.floor(minutesOfLate / 60)}小时 ${minutesOfLate % 60}分钟`;
             } else if (leaveTime < -1800000) {
               // 早退处理
+              let minutesOfLeave = Math.floor(leaveTime / 60000);
               currentAttendData.attendance.state = "工作/早退";
-              currentAttendData.attendance.reason = `早退${Math.floor(Math.abs(leaveTime) / 60)}小时 ${Math.abs(leaveTime) % 60}分钟`;
+              currentAttendData.attendance.reason = `早退${Math.floor(Math.abs(minutesOfLeave) / 60)}小时 ${Math.abs(minutesOfLeave) % 60}分钟`;
             } else {
               // 既不迟到也不早退
               currentAttendData.attendance.state = "工作";
@@ -110,8 +112,8 @@ export default {
             currentAttendData.attendance.state = "打卡异常";
             currentAttendData.attendance.reason = "上班未打卡";
           }
-          myStorage.replace("staff" + item.id, item);
           item.attendRecord.push(currentAttendData);
+          myStorage.replace("staff" + item.id, item);
         });
       });
     }
@@ -163,4 +165,3 @@ export default {
     state.attendanceData.push(currentMonthAttend);
   }
 };
-

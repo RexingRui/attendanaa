@@ -14,8 +14,8 @@
           <i class="el-icon-menu"></i>
           <span>排班管理</span>
         </template>
-        <el-menu-item index="holidaysInput">假期输入</el-menu-item>
-        <el-menu-item index="attendanceCategory" disabled>排班分类</el-menu-item>
+        <el-menu-item index="holidaysInput">假期录入</el-menu-item>
+        <el-menu-item index="attendanceCategory">休假录入</el-menu-item>
       </el-submenu>
       <el-menu-item index="staffAttendance">
         <i class="el-icon-document"></i>

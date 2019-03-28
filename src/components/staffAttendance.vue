@@ -38,23 +38,32 @@
       >
         <!-- 考勤图标 -->
         <template slot-scope="scope">
-          <el-popover trigger="hover" placement="bottom">
-          <p>姓名: {{ scope.row.name }}</p>
-        
-          <div
-            slot="reference"
-            class="cell-bg"
-            :class="{holidbg: item.isHoliday, weekbg: item.isWeekend, weekdiebg: item.isWeekDie}"
-          >
-            <span class="edit-attendance">
-              <el-button type="info" icon="el-icon-edit" size="mini" @click="handleAttendanceClick"></el-button>
-            </span>
-            <span class="attendance-record">{{scope.row.attendance[item.id]}}</span>
-          </div>
+          <el-popover trigger="click" placement="bottom">
+            <p>{{ scope.row.attendanceReason[item.id]}}</p>
+
+            <div
+              slot="reference"
+              class="cell-bg"
+              :class="{holidbg: item.isHoliday, weekbg: item.isWeekend, weekdiebg: item.isWeekDie}"
+            >
+              <span class="edit-attendance">
+                <el-button
+                  type="info"
+                  icon="el-icon-edit"
+                  size="mini"
+                  @click="handleAttendanceClick"
+                ></el-button>
+              </span>
+              <span class="attendance-record">{{scope.row.attendance[item.id]}}</span>
+            </div>
           </el-popover>
         </template>
       </el-table-column>
-      <el-table-column label="总计" width="100"></el-table-column>
+      <el-table-column label="总计" width="100">
+        <template slot-scope="scope">
+          <div>{{scope.row.numbersOfWorkdays}}</div>
+        </template>
+      </el-table-column>
     </el-table>
     <div class="handle-table">
       <input type="button" value="导出" class="export-button" @click="handleExportExcel">
@@ -237,7 +246,6 @@ export default {
       let tableData = [];
 
       // 遍历所有员工数据
-      console.log(1, this.staffDatas);
       this.staffDatas.forEach((value, index, array) => {
         // 获取表单所需的数据
         let staffObj = {};
@@ -245,9 +253,8 @@ export default {
         staffObj.name = value.name;
         staffObj.attendId = value.attendId;
         // 将员工的信息放在staff属性
-        // let staffSelf = JSON.parse(JSON.stringify(value));
-        // staffObj.staff = staffSelf;
-        staffObj.staff = value;
+        let staffSelf = JSON.parse(JSON.stringify(value));
+        staffObj.staff = staffSelf;
 
         // 拿出当前月的考勤数据
         let currentMonthData = value.attendRecord.filter(el => {
@@ -257,6 +264,8 @@ export default {
         });
         // 其他列填入考勤数据
         staffObj.attendance = [];
+        staffObj.attendanceReason = [];
+        staffObj.numbersOfWorkdays = 0;
         for (let i = 1; i < this.monthMatchDays[currentMonth] + 1; i++) {
           let currentAttendance = {};
           currentMonthData.forEach(value => {
@@ -265,14 +274,18 @@ export default {
             }
           });
           staffObj.attendance[0] = "";
+          staffObj.attendanceReason[0] = "";
           // 存入考勤数据
+          staffObj.attendanceReason[i] = currentAttendance.attendance
+            ? currentAttendance.attendance.reason
+            : "";
           staffObj.attendance[i] = currentAttendance.attendance
             ? currentAttendance.attendance.state
             : "";
+          staffObj.numbersOfWorkdays = staffObj.attendance[i] === "工作" ? staffObj.numbersOfWorkdays + 1 : staffObj.numbersOfWorkdays;
         }
         tableData.push(staffObj);
       });
-      console.log(2, this.staffDatas);
       this.tableData = tableData;
     },
     /**
@@ -297,9 +310,6 @@ export default {
           staffAttend.day == this.currentRecordDay
         ) {
           changeStaff.attendRecord[index].attendance = attendanceDataOfIndivid;
-          changeStaff.attendRecord[index].year = this.date.year;
-          changeStaff.attendRecord[index].month = this.currentPage;
-          changeStaff.attendRecord[index].day = this.currentRecordDay;
           changeAttendFlag = true;
         }
       });
@@ -317,15 +327,20 @@ export default {
         staffData: changeStaff
       });
       // 跟新table中的数据
-      this.tableData.forEach((value, index) => {
-        if (value.attendId == changeStaff.attendId) {
-          let tableAttendance = JSON.parse(
-            JSON.stringify(this.tableData[index].attendance)
-          );
-          tableAttendance[this.currentRecordDay] = attendanceDataOfIndivid.state;
-          this.tableData[index].attendance = tableAttendance;
-        }
-      });
+      // this.tableData.forEach((value, index) => {
+      //   if (value.attendId == changeStaff.attendId) {
+      //     let tableAttendance = JSON.parse(
+      //       JSON.stringify(this.tableData[index].attendance)
+      //     );
+      //     tableAttendance[this.currentRecordDay] =
+      //       attendanceDataOfIndivid.state;
+      //     this.tableData[index].attendance = tableAttendance;
+      //   }
+      // });
+      // 由于在vuex中的异步处理，在这需要添加异步，使vuex处理完后在执行后续程序
+      setTimeout(() => {
+        this.handleTableData()
+      }, 100);
     },
     handleExportExcel() {
       // 导出到execl

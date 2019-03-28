@@ -11,10 +11,10 @@
       <template slot="tableHeader">
         <template>
           <tr>
-            <th colspan="7" class="table-header-title-one">人员信息</th>
+            <th colspan="8" class="table-header-title-one">人员信息</th>
           </tr>
           <tr>
-            <th colspan="7" class="table-header-title-two">
+            <th colspan="8" class="table-header-title-two">
               <span @click="handleClickAddStaff">
                 <i class="fa fa-plus-circle fa-lg"></i> 新增
               </span>
@@ -73,7 +73,7 @@ export default {
         {
           name: "select",
           title: '<input type="checkbox" > 全选',
-          width: "2.4rem",
+          width: "2rem",
           formatter: value =>
             value == false
               ? '<input type="checkbox" v-model="checked">'
