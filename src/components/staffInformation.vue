@@ -68,12 +68,12 @@ export default {
         {
           name: "id",
           title: "",
-          width: "1rem"
+          width: ".7rem"
         },
         {
           name: "select",
           title: '<input type="checkbox" > 全选',
-          width: "2rem",
+          width: "2.2rem",
           formatter: value =>
             value == false
               ? '<input type="checkbox" v-model="checked">'
@@ -94,13 +94,13 @@ export default {
         {
           name: "gender",
           title: '<i class="fa fa-intersex fa-lg"></i> 性别',
-          formatter: value => (value === "m" ? "Male" : "Female"),
-          width: "2.6rem"
+          formatter: value => (value === "m" ? "男" : "女"),
+          width: "2.1rem"
         },
         {
           name: "phone",
           title: '<i class="fa fa-mobile fa-lg"></i> 电话',
-          width: "3.4rem"
+          width: "2.8rem"
         },
         {
           name: "email",
@@ -222,7 +222,9 @@ export default {
     }
   },
   mounted() {
-    this.tableData = this.localData;
+    setTimeout(() => {
+      this.tableData = this.localData;
+    }, 100);
   },
   created() {
     // 创建函数去抖
@@ -231,24 +233,24 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-.staff-infomation {
-  background-color: #f1f1f1;
-  /deep/ th,
-  /deep/ td {
-    padding: 0.18rem 0.5rem;
-  }
-  .table-header-title-one {
-    border-bottom: none;
-  }
-  .table-header-title-two {
-    span {
-      margin-right: 0.2rem;
-      cursor: pointer;
-      user-select: none;
+  .staff-infomation {
+    background-color: #f1f1f1;
+    /deep/ th,
+    /deep/ td {
+      padding: 0.18rem 0.5rem;
     }
-    .input-search {
-      display: inline-block;
+    .table-header-title-one {
+      border-bottom: none;
+    }
+    .table-header-title-two {
+      span {
+        margin-right: 0.2rem;
+        cursor: pointer;
+        user-select: none;
+      }
+      .input-search {
+        display: inline-block;
+      }
     }
   }
-}
 </style>

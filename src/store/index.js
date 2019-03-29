@@ -2,7 +2,8 @@
   import Vuex from 'vuex';
   import mutations from '@/store/mutations.js';
   import actions from '@/store/actions.js';
-  import vuexAlong from 'vue-along';
+  //可以暂时不用这个插件
+  // import vuexAlong from 'vuex-along';
 
   Vue.use(Vuex);
 
@@ -39,10 +40,9 @@
       attendanceData: []
     },
     getters: {
-
-    },
+},
     mutations,
     actions,
-    plugins: [vuexAlong]
+    // plugins: [vuexAlong]
 
   })
