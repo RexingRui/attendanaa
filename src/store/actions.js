@@ -22,7 +22,7 @@ export default {
         // 修改密码
         loginUser.password = payload.userPassword;
         mySessionSt.replace('loginUser', loginUser);
-        mySessionSt.replace('user' + loginUser.id, loginUser);
+        myStorage.replace('user' + loginUser.id, loginUser);
         payload.loginUser = mySessionSt.get('loginUser');
       } else if (payload.flag == 'logout') {
         mySessionSt.delete('loginUser');
@@ -34,7 +34,7 @@ export default {
     })
   },
   // 初始化账号信息
-  initialUserNum({
+  initialUser({
     commit
   }, payload) {
     new Promise((resolve, reject) => {
@@ -55,11 +55,11 @@ export default {
       }
       resolve(payload);
     }).then(value => {
-      commit("initialUserNum", value);
+      commit("initialUser", value);
     });
   },
   // 增加账号
-  changeUserNum({
+  changeUser({
     commit
   }, payload) {
     new Promise((resolve, reject) => {
@@ -87,7 +87,7 @@ export default {
 
       resolve(payload);
     }).then(value => {
-      commit("changeUserNum", value);
+      commit("changeUser", value);
     });
   },
   // 初始化员工数量
@@ -197,23 +197,23 @@ export default {
     })
   },
   // 添加考勤数据
-  addAttendanceData({
-      commit
-    }, payload) {
-    new Promise(reslove => {
-      let attendanceData = myStorage.get('attendanceData');
-      if ( attendanceData === null) {
-        myStorage.set('attendanceData', [payload.currentMonthAttend]);
-      } else {
-        attendanceData.push(payload.currentMonthAttend);
-        myStorage.replace('attendanceData', attendanceData);
-      }
+  // addAttendanceData({
+  //     commit
+  //   }, payload) {
+  //   new Promise(reslove => {
+  //     let attendanceData = myStorage.get('attendanceData');
+  //     if ( attendanceData === null) {
+  //       myStorage.set('attendanceData', [payload.currentMonthAttend]);
+  //     } else {
+  //       attendanceData.push(payload.currentMonthAttend);
+  //       myStorage.replace('attendanceData', attendanceData);
+  //     }
 
-      reslove(payload.currentMonthAttend);
-    }).then(value => {
-      commit('addAttendanceData', value);
-    })
-  }
+  //     reslove(payload.currentMonthAttend);
+  //   }).then(value => {
+  //     commit('addAttendanceData', value);
+  //   })
+  // }
 
 };
 

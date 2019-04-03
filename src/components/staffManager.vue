@@ -60,13 +60,13 @@ export default {
           let currentMonthAttend = this.uniqueTime(attendanceData);
           let currentYear = currentMonthAttend[0].attendDate.split("/")[0];
           let currentMonth = currentMonthAttend[0].attendDate.split("/")[1];
-          this.$store.dispatch("addAttendanceData", {
-            currentMonthAttend: {
-              year: currentYear,
-              month: currentMonth,
-              data: currentMonthAttend
-            }
-          });
+          // this.$store.dispatch("addAttendanceData", {
+          //   currentMonthAttend: {
+          //     year: currentYear,
+          //     month: currentMonth,
+          //     data: currentMonthAttend
+          //   }
+          // });
 
           this.$store.dispatch("initialStaffData", { currentMonthAttend: {
               year: currentYear,

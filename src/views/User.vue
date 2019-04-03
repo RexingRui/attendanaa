@@ -35,37 +35,6 @@ export default {
     handleToLogin(login) {
       this.view = login;
     }
-    // 通过axios获取登录信息
-    // getData() {
-    //   axios
-    //     .get("/static/mock/user.json")
-    //     .then(this.getDataSuccess)
-    //     .catch(error => {
-    //       console.log(error);
-    //     });
-    // },
-    // getDataSuccess(res) {
-    //   if (res) {
-    //     let myStorage = new WebStorage();
-    //     let data = res.data;
-    //     this.userNum = data.length;
-    //     data.forEach(value => {
-    //       myStorage.set("user" + value.id, value);
-    //     });
-    //   }
-    // },
-    // downloadObjectAsJson(exportObj, exportName) {
-    //   var dataStr =
-    //     "data:text/json;charset=utf-8," +
-    //     encodeURIComponent(JSON.stringify(exportObj));
-    //   var downloadAnchorNode = document.createElement("a");
-    //   downloadAnchorNode.setAttribute("href", dataStr);
-    //   downloadAnchorNode.setAttribute("download", exportName + ".json");
-    //   document.body.appendChild(downloadAnchorNode); // required for firefox
-
-    //   downloadAnchorNode.click();
-    //   downloadAnchorNode.remove();
-    // }
   },
   mounted() {},
   beforeRouteEnter(to, from, next) {

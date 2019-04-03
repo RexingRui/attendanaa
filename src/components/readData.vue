@@ -1,18 +1,13 @@
 <template>
   <div class="read-data">
     <input class="select-input" type="file" :accept="format" @change="handleInputChange($event)" ref="file">
-    <slot :user="user"></slot>
+    <slot></slot>
     <slot name="hint"></slot>
   </div>
 </template>
 <script>
 export default {
   name: "readData",
-  data() {
-    return  {
-      user: 1
-    }
-  },
   props: {
     format: {
       type: String,

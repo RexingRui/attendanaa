@@ -84,7 +84,6 @@ export default {
           });
           setTimeout(x => {
             this.dialogFormVisible = false;
-            this.$router.push({ name: "user" });
           }, 1000);
         }
       });
@@ -117,6 +116,9 @@ export default {
   },
   mounted() {
     this.addRules();
+    this.form.oldPassword = '';
+    this.form.newPassword = '';
+    this.sureInput = '';
   }
 };
 </script>

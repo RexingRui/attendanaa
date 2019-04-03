@@ -31,7 +31,7 @@
         </el-form-item>
       </el-form>
       <div class="file-upload">
-        <read-data @readdata="handleReadData">读取信息</read-data>
+        <read-data @readdata="handleReadData" format=".csv">读取信息</read-data>
       </div>
     </div>
   </div>
@@ -80,7 +80,7 @@ export default {
     onSubmit(form) {
       this.$refs[form].validate(vaild => {
         if (vaild) {
-          //  登陆数据验证，账号和密码的匹配度
+          //  登陆数据验证成功
           let flag = false;
           this.user.userData.forEach(user => {
             if (
@@ -88,6 +88,7 @@ export default {
               user.password == this.form.password &&
               user.region == this.form.region
             ) {
+              // 账号、密码匹配，分发数据到vuex
               this.$store.dispatch("updateLoginUser", {
                 loginUser: user,
                 flag: "login"
@@ -141,7 +142,7 @@ export default {
 
           // 数据存储至localStorage并dispatch到vuex
           let jsonData = JSON.parse(this.result);
-          _this.$store.dispatch("initialUserNum", {
+          _this.$store.dispatch("initialUser", {
             userNum: jsonData.length,
             userData: jsonData
           });
@@ -173,7 +174,7 @@ export default {
         duration: 3000
       });
     } else {
-      this.$store.dispatch("initialUserNum", { userNum: userNumFromStorage });
+      this.$store.dispatch("initialUser", { userNum: userNumFromStorage });
     }
   }
 };

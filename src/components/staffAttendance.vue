@@ -5,9 +5,8 @@
         <span class="words-title-year">{{date.year}}</span>年
         <span class="words-title-month">{{currentPage}}</span>月份考勤表
       </div>
-      <div class="attendance-pages">
+      <div class="attendance-pages" ref="pagination">
         <el-pagination
-          @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page.sync="currentPage"
           :page-size="31"
@@ -38,7 +37,7 @@
       >
         <!-- 考勤图标 -->
         <template slot-scope="scope">
-          <el-popover trigger="click" placement="bottom">
+          <el-popover trigger="focus" placement="bottom">
             <p>{{ scope.row.attendanceReason[item.id]}}</p>
 
             <div
@@ -127,13 +126,11 @@ export default {
       return monthMatchDays;
     },
     adjustDays() {
-      // if (this.$store.state.dateDateOfYear.year) {
-      //   console.log('asdad');
-      //   return  this.$store.state.dateDateOfYear;
-      // } {
       return myStorage.get("dateDataOfYear");
-      // }
     },
+    /**
+     * 表单的表头日期
+     */
     dateData() {
       let dateNum = [];
       // 当前月的天数
@@ -187,30 +184,24 @@ export default {
     staffDatas() {
       return this.$store.state.staffDatas;
     },
-    attendanceData() {
-      return this.$store.state.attendanceData;
-    },
+    // attendanceData() {
+    //   return this.$store.state.attendanceData;
+    // },
     currentAttendDate() {
       return (
         this.date.year + "/" + this.currentPage + "/" + this.currentRecordDay
       );
     }
   },
-  watch: {
-    staffDatas(val) {
-      console.log("改变了staffDatas");
-    }
-  },
   methods: {
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
-    },
+    /**
+     * 切换月份回调
+     */
     handleCurrentChange(val) {
-      // 切换页码。即更改月份时的回调
       this.handleTableData();
     },
     /**
-     * 表格单元单机的事件处理函数
+     * 表格单元单击事件处理函数
      * @param [object] row 当前行的数据
      * @param [object] column 当前列的数据
      * @param [object] cell 当前元素dom
@@ -252,7 +243,7 @@ export default {
         // 第一列中填入姓名
         staffObj.name = value.name;
         staffObj.attendId = value.attendId;
-        // 将员工的信息放在staff属性
+        // 将员工的信息设置staff属性
         let staffSelf = JSON.parse(JSON.stringify(value));
         staffObj.staff = staffSelf;
 
@@ -262,9 +253,11 @@ export default {
             return el.month == currentMonth;
           }
         });
-        // 其他列填入考勤数据
+        // 其他列填入考勤信息
         staffObj.attendance = [];
+        // 用于提示考情异常，迟到的信息
         staffObj.attendanceReason = [];
+        // 每月总计正常工作天数
         staffObj.numbersOfWorkdays = 0;
         for (let i = 1; i < this.monthMatchDays[currentMonth] + 1; i++) {
           let currentAttendance = {};
@@ -273,6 +266,7 @@ export default {
               currentAttendance = value;
             }
           });
+          // 数据第一项不填入信息
           staffObj.attendance[0] = "";
           staffObj.attendanceReason[0] = "";
           // 存入考勤数据
@@ -295,7 +289,7 @@ export default {
       this.dialogFormVisible = true;
     },
     /**
-     * 客户端考勤操作
+     * 手动执行考勤操作
      * @param {object} attendanceDataOfIndivid 执行当前考勤操作的个人数据
      */
     handleAttendanceData(attendanceDataOfIndivid) {
@@ -326,25 +320,16 @@ export default {
         flag: "change",
         staffData: changeStaff
       });
-      // 跟新table中的数据
-      // this.tableData.forEach((value, index) => {
-      //   if (value.attendId == changeStaff.attendId) {
-      //     let tableAttendance = JSON.parse(
-      //       JSON.stringify(this.tableData[index].attendance)
-      //     );
-      //     tableAttendance[this.currentRecordDay] =
-      //       attendanceDataOfIndivid.state;
-      //     this.tableData[index].attendance = tableAttendance;
-      //   }
-      // });
+
       // 由于在vuex中的异步处理，在这需要添加异步，使vuex处理完后在执行后续程序
       setTimeout(() => {
         this.handleTableData()
       }, 100);
     },
+    /**
+     * 导出到execl
+     */
     handleExportExcel() {
-      // 导出到execl
-
       // 由于设置了固定了，数据渲染的时候会渲染出两组相同数据，故首先需要去除
       let tableDom = this.$refs["table"].$el.cloneNode(true);
       tableDom.removeChild(tableDom.querySelector(".el-table__fixed"));
@@ -379,6 +364,12 @@ export default {
     this.currentPage = parseInt(this.date.month);
     // 渲染表中的数据
     this.handleTableData();
+
+    // 将分页中的“页”改为“月”
+    let domPage = this.$refs['pagination'].getElementsByClassName('el-pagination__jump')[0];
+    domPage.removeChild(domPage.lastChild);
+    let textLabel = document.createTextNode('月');
+    domPage.appendChild(textLabel);
   }
 };
 </script>

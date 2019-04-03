@@ -154,6 +154,9 @@ export default {
     };
   },
   methods: {
+    /**
+     * 添加假期信息
+     */
     handleHolidayAdd() {
       this.$refs["holidayForm"].validate(valid => {
         if (valid) {
@@ -173,6 +176,9 @@ export default {
         }
       });
     },
+    /**
+     * 添加调班的信息
+     */
     handleHolidayAdjust() {
       this.$refs["holidayForm"].validate(valid => {
         if (valid) {
@@ -192,19 +198,25 @@ export default {
         }
       });
     },
+    /**
+     * 重置表单数据
+     */
     handleResetRegister() {
-      // 重置表单
       this.holidayForm.holidayDateAd = "";
       this.holidayForm.holidayDate = "";
       this.holidayForm.holidayName = "";
       this.$refs["holidayForm"].clearValidate();
     },
+    // 删除已添加的数据
     handleHolidayDelete(index, tableData) {
       tableData.splice(index, 1);
     },
     handleHolidayAdDelete(index, tableData) {
       tableData.splice(index, 1);
     },
+    /**
+     *
+     */
     handleTableData() {
       let dateDataOfYear = {
         year: "",
@@ -278,7 +290,11 @@ export default {
         dateDataOfYear: dateDataOfYear
       });
     },
+    /**
+     * 上传假期与周末信息
+     */
     handleHolidayDataUp() {
+      // 判断是否为重复导入
       if (myStorage.get("dateDataOfYear")) {
         this.$confirm("需要重新导入假日信息么", "警告", {
           confirmButtonText: "确定",

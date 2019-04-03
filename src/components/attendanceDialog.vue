@@ -89,6 +89,9 @@ export default {
     dialogFormVisible (val) {
       this.$emit('input', val);
     },
+    /**
+     * 根据选择的工作、请假、休假显示不同的页面 
+     */
     radioValue (val) {
       switch (val) {
         case '请假':
@@ -156,8 +159,10 @@ export default {
       }
 
     },
+    /**
+     * 对话框打开回调处理函数，每次打开后清空对话框的值
+     */
     handleDialogOpen () {
-      // 对话框打开回调处理函数，每次打开后清空对话框的值
       this.radioValue = '';
       this.workTime = [];
       this.valueCategory = '';

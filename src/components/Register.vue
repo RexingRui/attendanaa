@@ -47,7 +47,7 @@ export default {
       rules: {
         name: [
           { required: true, message: "请输入账号", trigger: "blur" },
-          { min: 2, max: 5, message: "姓名格式错误", trigger: "blur" }
+          { min: 2, max: 10, message: "姓名格式错误", trigger: "blur" }
         ],
         password: [
           {
@@ -68,7 +68,8 @@ export default {
     onSubmit(form) {
       this.$refs[form].validate(vaild => {
         if (vaild) {
-          this.$store.dispatch("changeUserNum", {
+          // 验证成功，分发数据到vuex
+          this.$store.dispatch("changeUser", {
             userNum: this.user.userNum,
             userData: {
               id: this.user.userNum,

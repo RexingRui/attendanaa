@@ -1,5 +1,5 @@
-const INITIAL_USER_NUM = 'initialUserNum';
-const CHANGE_USER_NUM = 'changeUserNum';
+const INITIAL_USER = 'initialUser';
+const CHANGE_USER = 'changeUser';
 const INITIAL_STAFF_NUM = 'initialStaffNum';
 const CHANGE_STAFF_NUM = 'changeStaffNum';
 const INITIAL_STAFF_DATA = 'initialStaffData';
@@ -14,8 +14,8 @@ const ADD_ATTENDANCE_DATA = 'addAttendanceData';
 
 
 export {
-  INITIAL_USER_NUM,
-  CHANGE_USER_NUM,
+  INITIAL_USER,
+  CHANGE_USER,
   INITIAL_STAFF_NUM,
   CHANGE_STAFF_NUM,
   INITIAL_STAFF_DATA,

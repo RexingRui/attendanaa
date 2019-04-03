@@ -96,6 +96,11 @@ export default {
       enterDate: ""
     };
   },
+  computed: {
+    staffNum () {
+      return this.$store.state.staffNum;
+    }
+  },
   watch: {
     value (val) {
       this.dialogFormVisible = val;
@@ -111,10 +116,9 @@ export default {
     handleSureDialog () {
       this.$refs["form"].validate(vaild => {
         if (vaild) {
+          // 数据验证成功，判断时增加员工信息还是修改员工信息
           if (this.openMode == 'edit') {
             // 修改员工信息
-
-
             this.$store.dispatch("changeStaffData", {
               staffData: {
                 id: this.staffInfo.id,
@@ -140,7 +144,7 @@ export default {
             // 获取员工数量
             let myStorage = new WebStorage();
             let deleteNum = myStorage.get('deleteNum') ? myStorage.get('deleteNum') : 0;
-            let staffNum = this.$store.state.staffNum + deleteNum;
+            let staffNum = this.staffNum + deleteNum;
             // 添加员工信息
             this.$store.dispatch("changeStaffData", {
               staffData: {
@@ -156,7 +160,7 @@ export default {
               }, flag: 'add'
             });
             // 分发员工信息
-            this.$store.dispatch("changeStaffNum", { staffNum: this.$store.state.staffNum + 1 });
+            this.$store.dispatch("changeStaffNum", { staffNum: this.staffNum + 1 });
             // 注册成功消息提示框
             this.$message({
               type: "success",
@@ -173,8 +177,7 @@ export default {
       });
     },
     handleOpenDialog () {
-      // 判断时新增还是修改
-      
+      // 判断是新增还是修改   
       if (this.openMode == 'add') {
         this.form.name = '';
         this.form.email = '';

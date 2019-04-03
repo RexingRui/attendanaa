@@ -47,8 +47,10 @@ let myStorage = new WebStorage();
 export default {
   name: "homeSide",
   methods: {
+    // 选择不同标签显示不同界面
     handleMenuSelect(index) {
       if (index) {
+        // 考勤信息需要录入假期信息才能查看
         if (index == "staffAttendance" && !myStorage.get('dateDataOfYear')) {
           this.$alert("请先录入节假日信息", "提示", {
             confirmButtonText: "确定"

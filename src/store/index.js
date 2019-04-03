@@ -2,7 +2,6 @@
 import Vuex from 'vuex';
 import mutations from '@/store/mutations.js';
 import actions from '@/store/actions.js';
-import vuexAlong from 'vue-along';
 
 Vue.use(Vuex);
 
@@ -33,13 +32,8 @@ export default new Vuex.Store({
     // 某年的节假日与周末日期
     dateDataOfYear: {},
     // 考勤数据
-    attendanceData: []
-  },
-  getters: {
-
+    // attendanceData: []
   },
   mutations,
   actions,
-  plugins: [vuexAlong]
-
 })

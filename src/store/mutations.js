@@ -2,8 +2,8 @@ import WebStorage from "web-storage-cache";
 // 存储账号信息以及员工信息
 let myStorage = new WebStorage();
 import {
-  INITIAL_USER_NUM,
-  CHANGE_USER_NUM,
+  INITIAL_USER,
+  CHANGE_USER,
   INITIAL_STAFF_NUM,
   CHANGE_STAFF_NUM,
   INITIAL_STAFF_DATA,
@@ -17,12 +17,12 @@ import {
 } from "@/common/mutation-types.js";
 
 export default {
-  [INITIAL_USER_NUM](state, payload) {
+  [INITIAL_USER](state, payload) {
     state.user.userNum = payload.userNum;
     state.user.userData = payload.userData;
   },
 
-  [CHANGE_USER_NUM](state, payload) {
+  [CHANGE_USER](state, payload) {
     state.user.userNum = payload.userNum + 1;
     state.user.userData = payload.userData;
 
@@ -38,6 +38,7 @@ export default {
 
   [INITIAL_STAFF_DATA](state, payload) {
     let currentMonthAttend = payload.currentMonthAttend;
+    // 判断是导入数据/初始化数据
     if (payload.flag === 'initial') {
       state.staffDatas = payload.staffDatas;
     } else if (payload.flag === 'input') {
@@ -113,8 +114,8 @@ export default {
             currentAttendData.attendance.reason = "上班未打卡";
           }
           item.attendRecord.push(currentAttendData);
-          myStorage.replace("staff" + item.id, item);
         });
+        myStorage.replace("staff" + item.id, item);
       });
     }
 
@@ -151,6 +152,13 @@ export default {
 
   [UPDATE_LOGIN_USER](state, payload) {
     state.loginUser = payload.loginUser;
+    if (payload.flag === 'password') {
+      state.user.userData.forEach(val => {
+        if (val.id === payload.loginUser.id) {
+          val.password = payload.loginUser.password;
+        }
+      })
+    }
   },
 
   [CHANGE_LOGIN_STATE](state, loginState) {
@@ -161,7 +169,7 @@ export default {
     state.dateDataOfYear = dateDataOfYear;
   },
 
-  [ADD_ATTENDANCE_DATA](state, currentMonthAttend) {
-    state.attendanceData.push(currentMonthAttend);
-  }
+  // [ADD_ATTENDANCE_DATA](state, currentMonthAttend) {
+  //   state.attendanceData.push(currentMonthAttend);
+  // }
 };

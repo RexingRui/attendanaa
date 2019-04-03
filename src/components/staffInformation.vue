@@ -131,7 +131,7 @@ export default {
   },
   methods: {
     /**
-     * 获取所选择的staff
+     * 获取所勾选的staff
      * @param [string] message 执行什么操作删除还是修改
      */
     getSelectStaff(message) {
@@ -153,6 +153,10 @@ export default {
         });
       }
     },
+    
+    /**
+     * 编辑员工信息     
+     */
     handleClickEditStaff() {
       this.getSelectStaff("修改");
       // 选择一个的状态下可修改
@@ -162,13 +166,20 @@ export default {
         this.addStaffVisible = true;
       }
     },
+   /**
+    * 新增员工信息     
+    */
     handleClickAddStaff() {
       // 打开对话框为修改模式
       this.openMode = "add";
       this.addStaffVisible = true;
     },
+   /**
+    * 删除员工信息     
+    */
     handleClickRemoveStaff() {
       this.getSelectStaff();
+      // 已经删除员工的数量
       let myStorage = new WebStorage();
       let deleteNum = myStorage.get("deleteNum")
         ? myStorage.get("deleteNum")
@@ -186,25 +197,29 @@ export default {
         deleteIndex: this.selectStaffIndex,
         flag: "remove"
       });
+      // 删除后重新渲染表格
       setTimeout(x => {
         this.tableData = this.localData;
       }, 100);
     },
+    /**
+     * 表单单击事件处理函数
+     */
     handleTableClick(item) {
       this.currentStaffInfo = item.data;
-      console.log(item.data);
-      // 处理是否选中复选框
+      // 判断是否选中复选框
       if (item.field.name == "select") {
         item.data.select = !item.data.select;
       }
     },
+    /**
+     * 对话框确认添加/修改回调
+     */
     handleRecordStaff() {
-      // 对话框确认添加/修改回调
       this.tableData = this.localData;
     },
     /**
      * 在输入框搜索员工时，处理方法
-     * @param [string] staffName 输入的搜索框的姓名
      */
     handleSearchStaff() {
       let searchData = this.tableData.filter(value => {
@@ -222,7 +237,10 @@ export default {
     }
   },
   mounted() {
-    this.tableData = this.localData;
+    setTimeout(() => {
+      // localData来自vuex, tableData是表单中的数据
+      this.tableData = this.localData;
+    }, 100);
   },
   created() {
     // 创建函数去抖

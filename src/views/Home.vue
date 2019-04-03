@@ -98,7 +98,6 @@ export default {
           staffDatas.push(staff);
         }
       }
-      console.log(3, staffDatas);
       this.$store.dispatch("initialStaffData", { staffDatas: staffDatas, flag: 'initial' });
     },
     /**
