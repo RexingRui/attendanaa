@@ -147,7 +147,7 @@ export default {
         this.attendance.date = this.workTime;
         this.attendance.reason = this.valueCategory;
         // 这个数据放在vuex中并没有使用
-        this.$store.dispatch('doAttendance', { staffAttendance: this.attendance });
+        // this.$store.dispatch('doAttendance', { staffAttendance: this.attendance });
         this.dialogFormVisible = false;
         this.$emit('record', this.attendance);
       } else {

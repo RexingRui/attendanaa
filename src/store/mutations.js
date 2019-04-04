@@ -9,11 +9,9 @@ import {
   INITIAL_STAFF_DATA,
   CHANGE_STAFF_DATA,
   CHANGE_CURRENT_PAGE,
-  DO_ATTENDANCE,
   UPDATE_LOGIN_USER,
   CHANGE_LOGIN_STATE,
   GET_DATEDATA_OFYEAR,
-  ADD_ATTENDANCE_DATA
 } from "@/common/mutation-types.js";
 
 export default {
@@ -146,10 +144,6 @@ export default {
     state.pageIndex = pageIndex;
   },
 
-  [DO_ATTENDANCE](state, staffAttendance) {
-    state.currentStaffAttend = staffAttendance;
-  },
-
   [UPDATE_LOGIN_USER](state, payload) {
     state.loginUser = payload.loginUser;
     if (payload.flag === 'password') {
@@ -168,8 +162,4 @@ export default {
   [GET_DATEDATA_OFYEAR](state, dateDataOfYear) {
     state.dateDataOfYear = dateDataOfYear;
   },
-
-  // [ADD_ATTENDANCE_DATA](state, currentMonthAttend) {
-  //   state.attendanceData.push(currentMonthAttend);
-  // }
 };

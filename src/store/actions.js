@@ -157,18 +157,6 @@ export default {
     commit("changeCurrentPage", payload.pageIndex);
   },
 
-  // 更新当前员工考勤数据
-  doAttendance({
-    commit
-  }, payload) {
-    new Promise(resolve => {
-      myStorage.set('currentStaffAttd', payload.staffAttendance);
-      resolve(payload.staffAttendance);
-    }).then(value => {
-      commit('doAttendance', value);
-    })
-  },
-
   // 更改登陆状态
   changeLoginState({
     commit
@@ -195,25 +183,6 @@ export default {
     }).then(value => {
       commit('getDateDataOfYear', value)
     })
-  },
-  // 添加考勤数据
-  // addAttendanceData({
-  //     commit
-  //   }, payload) {
-  //   new Promise(reslove => {
-  //     let attendanceData = myStorage.get('attendanceData');
-  //     if ( attendanceData === null) {
-  //       myStorage.set('attendanceData', [payload.currentMonthAttend]);
-  //     } else {
-  //       attendanceData.push(payload.currentMonthAttend);
-  //       myStorage.replace('attendanceData', attendanceData);
-  //     }
-
-  //     reslove(payload.currentMonthAttend);
-  //   }).then(value => {
-  //     commit('addAttendanceData', value);
-  //   })
-  // }
-
+  }
 };
 

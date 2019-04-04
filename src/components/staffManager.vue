@@ -12,7 +12,11 @@ export default {
     readData
   },
   methods: {
-    handleReadData(file) {
+    /**
+     * 读入考勤数据
+     * @param {dom} file dom元素
+     */
+     handleReadData(file) {
       if (file) {
         let reader = new FileReader();
         reader.readAsText(file);
@@ -60,14 +64,7 @@ export default {
           let currentMonthAttend = this.uniqueTime(attendanceData);
           let currentYear = currentMonthAttend[0].attendDate.split("/")[0];
           let currentMonth = currentMonthAttend[0].attendDate.split("/")[1];
-          // this.$store.dispatch("addAttendanceData", {
-          //   currentMonthAttend: {
-          //     year: currentYear,
-          //     month: currentMonth,
-          //     data: currentMonthAttend
-          //   }
-          // });
-
+          // 分发数据
           this.$store.dispatch("initialStaffData", { currentMonthAttend: {
               year: currentYear,
               month: currentMonth,

@@ -202,10 +202,10 @@ export default {
     },
     /**
      * 表格单元单击事件处理函数
-     * @param [object] row 当前行的数据
-     * @param [object] column 当前列的数据
-     * @param [object] cell 当前元素dom
-     * @param [object] event 事件
+     * @param {object} row 当前行的数据
+     * @param {object} column 当前列的数据
+     * @param {object} cell 当前元素dom
+     * @param {object} event 事件
      */
     handleCellClick(row, column, cell, event) {
       // 判断当前日期是不是节假期/周末/调班/工作日
@@ -276,7 +276,10 @@ export default {
           staffObj.attendance[i] = currentAttendance.attendance
             ? currentAttendance.attendance.state
             : "";
-          staffObj.numbersOfWorkdays = staffObj.attendance[i] === "工作" ? staffObj.numbersOfWorkdays + 1 : staffObj.numbersOfWorkdays;
+          staffObj.numbersOfWorkdays =
+            staffObj.attendance[i] === "工作"
+              ? staffObj.numbersOfWorkdays + 1
+              : staffObj.numbersOfWorkdays;
         }
         tableData.push(staffObj);
       });
@@ -323,7 +326,7 @@ export default {
 
       // 由于在vuex中的异步处理，在这需要添加异步，使vuex处理完后在执行后续程序
       setTimeout(() => {
-        this.handleTableData()
+        this.handleTableData();
       }, 100);
     },
     /**
@@ -366,9 +369,11 @@ export default {
     this.handleTableData();
 
     // 将分页中的“页”改为“月”
-    let domPage = this.$refs['pagination'].getElementsByClassName('el-pagination__jump')[0];
+    let domPage = this.$refs["pagination"].getElementsByClassName(
+      "el-pagination__jump"
+    )[0];
     domPage.removeChild(domPage.lastChild);
-    let textLabel = document.createTextNode('月');
+    let textLabel = document.createTextNode("月");
     domPage.appendChild(textLabel);
   }
 };
