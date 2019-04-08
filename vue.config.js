@@ -1,3 +1,4 @@
+var webpack = require('webpack')
 module.exports = {
   devServer: {
     open: true,
@@ -8,6 +9,15 @@ module.exports = {
     //     pathRewrite: {"^/api": ""}
     //   }
     // }
+  },
+  configureWebpack: {
+    plugins: [
+      new webpack.ProvidePlugin({
+        $: 'jquery',
+        jQuery: 'jquery',
+        'window.jQuery': 'jquery'
+      })
+    ]
   },
   publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
 

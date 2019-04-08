@@ -41,6 +41,7 @@ import staffAttendance from "@/components/staffAttendance.vue";
 import changePassword from "@/components/changePassword.vue";
 import holidaysInput from "@/components/holidaysInput";
 import staffManager from "@/components/staffManager.vue";
+import attendanceAnalysis from "@/components/attendanceAnalysis.vue";
 
 let myStorage = new WebStorage();
 let mySessionSt = new WebStorage({ storage: 'sessionStorage'});
@@ -53,7 +54,8 @@ export default {
     staffAttendance,
     changePassword,
     holidaysInput,
-    staffManager
+    staffManager,
+    attendanceAnalysis
   },
   data() {
     return {showPasswordDialog: false}

@@ -26,7 +26,7 @@
           <i class="el-icon-setting"></i>
           <span>统计报表</span>
         </template>
-        <el-menu-item index="dataAnalysis">数据分析</el-menu-item>
+        <el-menu-item index="attendanceAnalysis">数据分析</el-menu-item>
         <el-menu-item index="exportReport" disabled>导出报表</el-menu-item>
       </el-submenu>
       <el-menu-item index="help">

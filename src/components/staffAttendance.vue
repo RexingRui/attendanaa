@@ -259,6 +259,7 @@ export default {
         staffObj.attendanceReason = [];
         // 每月总计正常工作天数
         staffObj.numbersOfWorkdays = 0;
+        
         for (let i = 1; i < this.monthMatchDays[currentMonth] + 1; i++) {
           let currentAttendance = {};
           currentMonthData.forEach(value => {
