@@ -15,7 +15,7 @@
           <span>排班管理</span>
         </template>
         <el-menu-item index="holidaysInput">假期录入</el-menu-item>
-        <el-menu-item index="attendanceCategory">休假录入</el-menu-item>
+        <el-menu-item index="standardInput">标准录入</el-menu-item>
       </el-submenu>
       <el-menu-item index="staffAttendance">
         <i class="el-icon-document"></i>
@@ -51,12 +51,23 @@ export default {
     handleMenuSelect(index) {
       if (index) {
         // 考勤信息需要录入假期信息才能查看
-        if (index == "staffAttendance" && !myStorage.get('dateDataOfYear')) {
+        if (index === "staffAttendance" && !myStorage.get("dateDataOfYear")) {
           this.$alert("请先录入节假日信息", "提示", {
             confirmButtonText: "确定"
           }).then(() => {
             this.$store.dispatch("changeCurrentPage", {
               pageIndex: "holidaysInput"
+            });
+          });
+        } else if (
+          index === "staffInformation" &&
+          !myStorage.get("standardData")
+        ) {
+          this.$alert("请先录入节考勤标准", "提示", {
+            confirmButtonText: "确定"
+          }).then(() => {
+            this.$store.dispatch("changeCurrentPage", {
+              pageIndex: "standardInput"
             });
           });
         } else {

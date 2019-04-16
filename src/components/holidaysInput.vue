@@ -214,10 +214,13 @@ export default {
     handleHolidayAdDelete(index, tableData) {
       tableData.splice(index, 1);
     },
-    /**
-     *
-     */
     handleTableData() {
+      
+    },
+    /**
+     * 处理当年的假期与周末
+     */
+    handleDateData() {
       let dateDataOfYear = {
         year: "",
         holiday: [],
@@ -303,13 +306,13 @@ export default {
         })
           .then(() => {
             myStorage.delete("dateDataOfYear");
-            this.handleTableData();
+            this.handleDateData();
           })
           .catch(() => {
             this.$message("取消重新导入");
           });
       } else {
-        this.handleTableData();
+        this.handleDateData();
       }
     }
   }

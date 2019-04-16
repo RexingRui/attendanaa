@@ -11,10 +11,10 @@
       <template slot="tableHeader">
         <template>
           <tr>
-            <th colspan="8" class="table-header-title-one">人员信息</th>
+            <th colspan="9" class="table-header-title-one">人员信息</th>
           </tr>
           <tr>
-            <th colspan="8" class="table-header-title-two">
+            <th colspan="9" class="table-header-title-two">
               <span @click="handleClickAddStaff">
                 <i class="fa fa-plus-circle fa-lg"></i> 新增
               </span>
@@ -109,8 +109,12 @@ export default {
         {
           name: "date",
           title: '<i class="fa fa-calendar fa-lg"></i> 入职日期',
-          sortField: "classes",
           width: "3.3rem"
+        },
+        {
+          name: "annualLeave",
+          title: '<i class="fa fa-automobile fa-lg"></i> 年假',
+          width: "2.2rem"
         }
       ],
       css: VuetableCss,

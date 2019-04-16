@@ -4,9 +4,8 @@
       <div class="radios">
         <el-radio v-model="radioValue" label="工作" border v-if="showRadio">工作</el-radio>
         <el-radio v-model="radioValue" label="请假" border v-if="showRadio">请假</el-radio>
-        <el-radio v-model="radioValue" label="休假" border v-if="showRadio">休假</el-radio>
         <el-radio v-model="radioValue" label="加班" border>加班</el-radio>
-        <el-radio v-model="radioValue" label="旷工" border v-if="showRadio">旷工</el-radio>
+        <el-radio v-model="radioValue" label="异常出勤" border v-if="showRadio">异常出勤</el-radio>
       </div>
       <div class="select-date">
         <span class="select-date-title">日期/时间:</span>
@@ -72,7 +71,7 @@ export default {
       leaveCategory: '',
       attendance: {
         state: '',
-        date: [],
+        punchInTime: [],
         reason: ''
       }
     }
@@ -99,22 +98,12 @@ export default {
           this.leaveCategory = '请假类型';
           this.options = [
             {
-              value: '事假',
-              label: '事假'
+              value: '婚假',
+              label: '婚假'
             },
             {
               value: '病假',
               label: '病假'
-            }
-          ];
-          break;
-        case '休假':
-          this.showSelectCategory = true;
-          this.leaveCategory = '休假类型';
-          this.options = [
-            {
-              value: '婚假',
-              label: '婚假'
             },
             {
               value: '年假',
@@ -144,12 +133,10 @@ export default {
       // 判断考勤中选中的日期是不是当前日期
       if (this.workTime[0].toLocaleDateString() === this.currentAttendDate) {
         this.attendance.state = this.radioValue;
-        this.attendance.date = this.workTime;
+        this.attendance.punchInTime = [this.workTime[0].getTime(), this.workTime[1].getTime()];
         this.attendance.reason = this.valueCategory;
-        // 这个数据放在vuex中并没有使用
-        // this.$store.dispatch('doAttendance', { staffAttendance: this.attendance });
         this.dialogFormVisible = false;
-        this.$emit('record', this.attendance);
+        this.$emit('record', this.attendance); 
       } else {
         this.$message({
           showClose: true,

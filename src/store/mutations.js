@@ -12,6 +12,7 @@ import {
   UPDATE_LOGIN_USER,
   CHANGE_LOGIN_STATE,
   GET_DATEDATA_OFYEAR,
+  CHANGE_STANDARD_DATA
 } from "@/common/mutation-types.js";
 
 export default {
@@ -39,9 +40,15 @@ export default {
     // 判断是导入数据/初始化数据
     if (payload.flag === 'initial') {
       state.staffDatas = payload.staffDatas;
-    } else if (payload.flag === 'input') {
-
+    } else if (payload.flag === 'load' || payload.flag === 'reload') {
+      state.loadData = currentMonthAttend;
       state.staffDatas.forEach(item => {
+        // 如果是重复导入需要删除之前的考勤记录
+        if (payload.flag === 'reload') {
+          item.attendRecord = item.attendRecord.filter(value => {
+            return value.month != currentMonthAttend.month;
+          })
+        }
         // 取出当前员工的考勤数据
         let currentStaffData = currentMonthAttend.data.filter(val => {
           return item.attendId === val.attendId;
@@ -61,60 +68,26 @@ export default {
         });
         // 将考勤数据添加至员工数据中
         currentStaffData.forEach(val => {
+          // 日期
           let arrayDate = val.attendDate.split('/');
-
-          // 存储考勤日期
-          let currentAttendData = {
-            year: "",
-            month: "",
-            day: "",
-            attendance: {
-              state: "",
-              reason: "",
-              date: []
-            }
-          };
-          currentAttendData.year = arrayDate[0];
-          currentAttendData.month = arrayDate[1];
-          currentAttendData.day = arrayDate[2];
-          let attendanceTimeArray = val.attendTime.split('-');
+          // 时间
+          let attendanceTimeArray = val.attendTime.split("-");
           // 通过时间判断迟到与早退现象
           let startWorkTime = attendanceTimeArray[0].split(":");
           let endWorkTime = attendanceTimeArray[1].split(":");
-          currentAttendData.attendance.date = [startWorkTime.join(":"), endWorkTime.join(":")];
-          // 正常打卡时的考勤
-          if (startWorkTime[0] !== endWorkTime[0]) {
-            let lateTime = new Date(parseInt(arrayDate[0]), parseInt(arrayDate[1]) - 1, parseInt(arrayDate[2]), parseInt(startWorkTime[0]), parseInt(startWorkTime[1])) -
-              new Date(parseInt(arrayDate[0]), parseInt(arrayDate[1]) - 1, parseInt(arrayDate[2]), 9, 0);
-            let leaveTime = new Date(parseInt(arrayDate[0]), parseInt(arrayDate[1]) - 1, parseInt(arrayDate[2]), parseInt(endWorkTime[0]), parseInt(endWorkTime[1])) -
-              new Date(parseInt(arrayDate[0]), parseInt(arrayDate[1]) - 1, parseInt(arrayDate[2]), 17, 30);
-
-            if (lateTime > 1800000) {
-              // 排除提前打卡的情况以及迟到时间小于半小时的情况
-              let minutesOfLate = Math.floor(lateTime / 60000);
-              currentAttendData.attendance.state = "工作/迟到";
-              currentAttendData.attendance.reason = `迟到${Math.floor(minutesOfLate / 60)}小时 ${minutesOfLate % 60}分钟`;
-            } else if (leaveTime < -1800000) {
-              // 早退处理
-              let minutesOfLeave = Math.floor(leaveTime / 60000);
-              currentAttendData.attendance.state = "工作/早退";
-              currentAttendData.attendance.reason = `早退${Math.floor(Math.abs(minutesOfLeave) / 60)}小时 ${Math.abs(minutesOfLeave) % 60}分钟`;
-            } else {
-              // 既不迟到也不早退
-              currentAttendData.attendance.state = "工作";
-            }
-          } else if (parseInt(endWorkTime[0]) < 13) {
-            // 只要上班时打了卡
-            currentAttendData.attendance.state = "打卡异常";
-            currentAttendData.attendance.reason = "下班未打卡";
-          } else if (parseInt(startWorkTime[0]) > 13) {
-            currentAttendData.attendance.state = "打卡异常";
-            currentAttendData.attendance.reason = "上班未打卡";
-          }
-          item.attendRecord.push(currentAttendData);
+          item.attendRecord.push({
+            year: arrayDate[0],
+            month: arrayDate[1],
+            day: arrayDate[2],
+            isEdit: 'load',
+            state: '',
+            reason: '',
+            punchInTime: [new Date(parseInt(arrayDate[0]), parseInt(arrayDate[1]) - 1, parseInt(arrayDate[2]), parseInt(startWorkTime[0]), parseInt(startWorkTime[1])).getTime(), new Date(parseInt(arrayDate[0]), parseInt(arrayDate[1]) - 1, parseInt(arrayDate[2]), parseInt(endWorkTime[0]), parseInt(endWorkTime[1])).getTime()]
+          });
         });
         myStorage.replace("staff" + item.id, item);
       });
+
     }
 
   },
@@ -162,4 +135,8 @@ export default {
   [GET_DATEDATA_OFYEAR](state, dateDataOfYear) {
     state.dateDataOfYear = dateDataOfYear;
   },
+
+  [CHANGE_STANDARD_DATA](state, standardData) {
+    state.standardData = standardData;
+  }
 };

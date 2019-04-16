@@ -20,6 +20,9 @@
         <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email">
           <el-input v-model="form.email" clearable></el-input>
         </el-form-item>
+        <el-form-item label="年假" :label-width="formLabelWidth" prop="annualLeave">
+          <el-input v-model="form.annualLeave" clearable></el-input>
+        </el-form-item>
         <el-form-item label="日期" :label-width="formLabelWidth">
           <el-date-picker v-model="form.date" type="date" placeholder="选择日期"></el-date-picker>
         </el-form-item>
@@ -47,10 +50,10 @@ export default {
     },
     openMode: {
       type: String,
-      default: 'add'
+      default: "add"
     }
   },
-  data () {
+  data() {
     return {
       form: {
         name: "",
@@ -78,7 +81,7 @@ export default {
         phone: [
           { required: true, message: "请输入电话号码", trigger: "blur" },
           {
-            validator (rule, value, callback) {
+            validator(rule, value, callback) {
               let errors = [];
               let phoneError = /^1[0-9]{10}$/.test(value);
               if (!phoneError) {
@@ -97,27 +100,30 @@ export default {
     };
   },
   computed: {
-    staffNum () {
+    staffNum() {
       return this.$store.state.staffNum;
+    },
+    standardData() {
+      return this.$store.state.standardData;
     }
   },
   watch: {
-    value (val) {
+    value(val) {
       this.dialogFormVisible = val;
     },
-    dialogFormVisible (val) {
+    dialogFormVisible(val) {
       this.$emit("input", val);
     }
   },
   methods: {
-    handleCancleDialog () {
+    handleCancleDialog() {
       this.dialogFormVisible = false;
     },
-    handleSureDialog () {
+    handleSureDialog() {
       this.$refs["form"].validate(vaild => {
         if (vaild) {
           // 数据验证成功，判断时增加员工信息还是修改员工信息
-          if (this.openMode == 'edit') {
+          if (this.openMode == "edit") {
             // 修改员工信息
             this.$store.dispatch("changeStaffData", {
               staffData: {
@@ -129,8 +135,10 @@ export default {
                 attendId: this.form.attendId,
                 date: this.form.date.toLocaleDateString(),
                 select: false,
-                attendRecord: this.staffInfo.attendRecord
-              }, flag: 'change'
+                attendRecord: this.staffInfo.attendRecord,
+                annualLeave: this.form.annualLeave
+              },
+              flag: "change"
             });
             // 修改成功消息提示框
             this.$message({
@@ -143,7 +151,9 @@ export default {
             // 新增员工信息
             // 获取员工数量
             let myStorage = new WebStorage();
-            let deleteNum = myStorage.get('deleteNum') ? myStorage.get('deleteNum') : 0;
+            let deleteNum = myStorage.get("deleteNum")
+              ? myStorage.get("deleteNum")
+              : 0;
             let staffNum = this.staffNum + deleteNum;
             // 添加员工信息
             this.$store.dispatch("changeStaffData", {
@@ -156,11 +166,15 @@ export default {
                 email: this.form.email,
                 date: this.form.date.toLocaleDateString(),
                 select: false,
-                attendRecord: []
-              }, flag: 'add'
+                attendRecord: [],
+                annualLeave: this.form.annualLeave
+              },
+              flag: "add"
             });
             // 分发员工信息
-            this.$store.dispatch("changeStaffNum", { staffNum: this.staffNum + 1 });
+            this.$store.dispatch("changeStaffNum", {
+              staffNum: this.staffNum + 1
+            });
             // 注册成功消息提示框
             this.$message({
               type: "success",
@@ -176,14 +190,16 @@ export default {
         }
       });
     },
-    handleOpenDialog () {
-      // 判断是新增还是修改   
-      if (this.openMode == 'add') {
-        this.form.name = '';
-        this.form.email = '';
-        this.form.date = '';
-        this.form.phone = '';
-        this.form.gender = 'm'
+    handleOpenDialog() {
+      // 判断是新增还是修改
+      if (this.openMode == "add") {
+        this.form.name = "";
+        this.form.email = "";
+        this.form.date = "";
+        this.form.phone = "";
+        this.form.gender = "m";
+        this.form.annualLeave = this.standardData.annualLeave;
+
       } else {
         this.form.name = this.staffInfo.name;
         this.form.email = this.staffInfo.email;
@@ -194,8 +210,7 @@ export default {
       }
     }
   },
-  mounted () {
-  }
+  mounted() {}
 };
 </script>
 <style lang="less" scoped>

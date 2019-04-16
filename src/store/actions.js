@@ -117,11 +117,10 @@ export default {
     commit
   }, payload) {
     new Promise((resolve, reject) => {
-      if(payload.flag === 'input') {
-        console.log('导入数据');
-      } 
+      if(payload.flag === 'load' || payload.flag === 'reload') {
+        myStorage.set('loadData', payload.currentMonthAttend);
+      }
       resolve(payload);
-     
     }).then(value => {
       commit("initialStaffData", value);
     });
@@ -183,6 +182,21 @@ export default {
     }).then(value => {
       commit('getDateDataOfYear', value)
     })
+  },
+
+  // 更改考勤标准数据
+  changeStandardData({
+    commit
+  }, payload) {
+    new Promise(reslove => {
+      if (payload.flag === 'initial') {
+        myStorage.set('standardData', payload.standardData);
+      } else {
+        myStorage.replace('standardData', payload.standardData);
+      }
+      reslove(payload.standardData);
+    }).then(value => {
+      commit('changeStandardData', value);
+    })
   }
 };
-

@@ -47,13 +47,16 @@
             >
               <span class="edit-attendance">
                 <el-button
-                  type="info"
+                  :type="scope.row.attendanceStyle[item.id]"
                   icon="el-icon-edit"
                   size="mini"
                   @click="handleAttendanceClick"
                 ></el-button>
               </span>
-              <span class="attendance-record">{{scope.row.attendance[item.id]}}</span>
+              <span
+                class="attendance-record"
+                :class="{abnormal: scope.row.attendanceState[item.id] !== '工作'}"
+              >{{scope.row.attendanceState[item.id]}}</span>
             </div>
           </el-popover>
         </template>
@@ -184,13 +187,13 @@ export default {
     staffDatas() {
       return this.$store.state.staffDatas;
     },
-    // attendanceData() {
-    //   return this.$store.state.attendanceData;
-    // },
     currentAttendDate() {
       return (
         this.date.year + "/" + this.currentPage + "/" + this.currentRecordDay
       );
+    },
+    loadData() {
+      return this.$store.state.loadData;
     }
   },
   methods: {
@@ -227,6 +230,7 @@ export default {
         column.label.length > 2
           ? column.label.match(/[0-9]+/)[0]
           : column.label;
+      console.log(row);
     },
     /**
      * 将当前选择的月份考勤数据渲染到表格中
@@ -254,12 +258,18 @@ export default {
           }
         });
         // 其他列填入考勤信息
-        staffObj.attendance = [];
+        staffObj.attendanceState = [];
         // 用于提示考情异常，迟到的信息
         staffObj.attendanceReason = [];
+        // 用于提示未修改的数据
+        staffObj.attendanceStyle = [];
         // 每月总计正常工作天数
         staffObj.numbersOfWorkdays = 0;
-        
+
+        // 数据第一项不填入信息
+        staffObj.attendanceState[0] = "";
+        staffObj.attendanceReason[0] = "";
+        staffObj.attendanceStyle[0] = false;
         for (let i = 1; i < this.monthMatchDays[currentMonth] + 1; i++) {
           let currentAttendance = {};
           currentMonthData.forEach(value => {
@@ -267,18 +277,21 @@ export default {
               currentAttendance = value;
             }
           });
-          // 数据第一项不填入信息
-          staffObj.attendance[0] = "";
-          staffObj.attendanceReason[0] = "";
-          // 存入考勤数据
-          staffObj.attendanceReason[i] = currentAttendance.attendance
-            ? currentAttendance.attendance.reason
+          if (currentAttendance.isEdit === 'load') {
+              staffObj.attendanceStyle[i] = 'info';
+          } else if (currentAttendance.isEdit === 'edit' || currentAttendance.isEdit === 'mannual') {
+              staffObj.attendanceStyle[i] = 'success';
+          } else {
+              staffObj.attendanceStyle[i] = '';
+          }
+          staffObj.attendanceReason[i] = currentAttendance.reason
+            ? currentAttendance.reason
             : "";
-          staffObj.attendance[i] = currentAttendance.attendance
-            ? currentAttendance.attendance.state
+          staffObj.attendanceState[i] = currentAttendance.state
+            ? currentAttendance.state
             : "";
           staffObj.numbersOfWorkdays =
-            staffObj.attendance[i] === "工作"
+            staffObj.attendanceState[i] === "工作"
               ? staffObj.numbersOfWorkdays + 1
               : staffObj.numbersOfWorkdays;
         }
@@ -307,17 +320,25 @@ export default {
           staffAttend.month == this.currentPage &&
           staffAttend.day == this.currentRecordDay
         ) {
-          changeStaff.attendRecord[index].attendance = attendanceDataOfIndivid;
+          changeStaff.attendRecord[index].punchInTime =
+            attendanceDataOfIndivid.punchInTime;
+          changeStaff.attendRecord[index].state = attendanceDataOfIndivid.state;
+          changeStaff.attendRecord[index].reason =
+            attendanceDataOfIndivid.reason;
+          changeStaff.attendRecord[index].isEdit = "edit";
           changeAttendFlag = true;
         }
       });
       // 添加考勤数据
       if (!changeAttendFlag) {
         changeStaff.attendRecord.push({
-          attendance: attendanceDataOfIndivid,
+          state: attendanceDataOfIndivid.state,
+          reason: attendanceDataOfIndivid.reason,
+          punchInTime: attendanceDataOfIndivid.punchInTime,
           year: this.date.year,
           month: this.currentPage,
-          day: this.currentRecordDay
+          day: this.currentRecordDay,
+          isEdit: "manual"
         });
       }
       this.$store.dispatch("changeStaffData", {
@@ -357,6 +378,89 @@ export default {
         console.log(e, wbout);
       }
       return tableOut;
+    },
+    /**
+     * 处理导入数据
+     */
+    handleLoadData() {
+      // 导入的数据需要根据指纹打卡时间做处理
+      let staffDatas = JSON.parse(JSON.stringify(this.staffDatas));
+      staffDatas.forEach(staff => {
+        staff.attendRecord.forEach(currentAttendance => {
+          if (currentAttendance.isEdit === "load") {
+            let workTime = currentAttendance.punchInTime;
+            // 上班记录时间
+            let startWorkTime = new Date(workTime[0]).getHours();
+            // 下班记录时间
+            let endWorkTime = new Date(workTime[1]).getHours();
+
+            // 正常打卡时的考勤
+            if (startWorkTime !== endWorkTime) {
+              let startWork = new Date(workTime[0]);
+              let endWork = new Date(workTime[1]);
+              let lateTime =
+                workTime[0] -
+                new Date(
+                  parseInt(startWork.getFullYear()),
+                  parseInt(startWork.getMonth()),
+                  parseInt(startWork.getDate()),
+                  9,
+                  0
+                );
+              let leaveTime =
+                workTime[1] -
+                new Date(
+                  parseInt(endWork.getFullYear()),
+                  parseInt(endWork.getMonth()),
+                  parseInt(endWork.getDate()),
+                  17,
+                  30
+                );
+
+              if (lateTime > 1800000) {
+                // 排除提前打卡的情况以及迟到时间小于半小时的情况
+                let minutesOfLate = Math.floor(lateTime / 60000);
+                currentAttendance.state = "异常"; // false
+                currentAttendance.reason = `迟到${Math.floor(
+                  minutesOfLate / 60
+                )}小时 ${minutesOfLate % 60}分钟`;
+              } else if (leaveTime < -1800000) {
+                // 早退处理
+                let minutesOfLeave = Math.floor(leaveTime / 60000);
+                currentAttendance.state = "异常";
+                currentAttendance.reason = `早退${Math.floor(
+                  Math.abs(minutesOfLeave) / 60
+                )}小时 ${Math.abs(minutesOfLeave) % 60}分钟`;
+              } else {
+                // 既不迟到也不早退
+                // 判断当天是不是周末或者节假日，若是按照加班处理
+
+                let holidays = this.adjustDays.holiday.concat(
+                  this.adjustDays.weekend
+                );
+                let isHoliday = holidays.some(val => {
+                  return (
+                    val.month == currentAttendance.month &&
+                    val.day == currentAttendance.day
+                  );
+                });
+                currentAttendance.state = isHoliday ? "加班" : "工作";
+              }
+            } else if (parseInt(endWorkTime) < 13) {
+              // 只要上班时打了卡
+              currentAttendance.state = "异常";
+              currentAttendance.reason = "下班未打卡";
+            } else if (parseInt(startWorkTime) > 13) {
+              currentAttendance.state = "异常";
+              currentAttendance.reason = "上班未打卡";
+            }
+          }
+        });
+      });
+      this.$store.dispatch("initialStaffData", {
+        flag: "initial",
+        staffDatas: staffDatas
+      });
     }
   },
   mounted() {
@@ -366,6 +470,8 @@ export default {
     this.date.month = currentDate[1];
     this.date.day = currentDate[2];
     this.currentPage = parseInt(this.date.month);
+    // 处理从文件中导入的考勤数据
+    this.handleLoadData();
     // 渲染表中的数据
     this.handleTableData();
 
@@ -432,6 +538,12 @@ export default {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
       }
+    }
+    .abnormal {
+      color: #f10b0b;
+    }
+    .style {
+      color: #2f3cf0;
     }
   }
   .handle-table {

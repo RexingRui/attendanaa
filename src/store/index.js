@@ -27,7 +27,10 @@ import actions from '@/store/actions.js';
       pageIndex: 'staffInformation',
       // 某年的节假日与周末日期
       dateDataOfYear: {},
-      // 考勤数据
+      // 标准数据
+      standardData: {annualLeave: 2, overtime: "18:30"},
+      // 由指纹打卡记录数据的导入
+      loadData: {}
     },
   mutations,
   actions,

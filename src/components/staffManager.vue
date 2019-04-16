@@ -11,12 +11,17 @@ export default {
   components: {
     readData
   },
+  computed: {
+    staffDatas() {
+      return this.$store.state.staffDatas;
+    }
+  },
   methods: {
     /**
      * 读入考勤数据
      * @param {dom} file dom元素
      */
-     handleReadData(file) {
+    handleReadData(file) {
       if (file) {
         let reader = new FileReader();
         reader.readAsText(file);
@@ -28,7 +33,7 @@ export default {
             message: "数据读取成功！",
             position: "top-left",
             type: "success",
-            duration: 1500
+            duration: 1000
           });
           // 处理读入数据
           let arrayData = reader.result.trim().split("\r\n");
@@ -64,13 +69,47 @@ export default {
           let currentMonthAttend = this.uniqueTime(attendanceData);
           let currentYear = currentMonthAttend[0].attendDate.split("/")[0];
           let currentMonth = currentMonthAttend[0].attendDate.split("/")[1];
-          // 分发数据
-          this.$store.dispatch("initialStaffData", { currentMonthAttend: {
-              year: currentYear,
-              month: currentMonth,
-              data: currentMonthAttend
-            },
-            flag: 'input'});
+          // 判断是否是重复导入
+          let reloadFlag = this.staffDatas.some(staff => {
+            return staff.attendRecord.some(val => {
+              return val.month === currentMonth;
+            });
+          });
+
+          if (reloadFlag) {
+            this.$confirm("当月数据已存在，是否再次导入", "提示", {
+              confirmButtonText: "再次导入",
+              cancleButtonText: "取消导入",
+              type: "warning"
+            })
+              .then(() => {
+                this.$store.dispatch("initialStaffData", {
+                  currentMonthAttend: {
+                    year: currentYear,
+                    month: currentMonth,
+                    data: currentMonthAttend
+                  },
+                  flag: "reload"
+                });
+              })
+              .catch(() => {
+                this.$message({
+                  type: "info",
+                  message: "取消导入",
+                  duration: 500
+                });
+              });
+          } else {
+            // 分发数据
+            this.$store.dispatch("initialStaffData", {
+              currentMonthAttend: {
+                year: currentYear,
+                month: currentMonth,
+                data: currentMonthAttend
+              },
+              flag: "load"
+            });
+          }
         };
       }
     },
