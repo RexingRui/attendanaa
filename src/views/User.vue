@@ -8,11 +8,9 @@
 <script>
 import Login from "@/components/Login.vue";
 import Register from "@/components/Register.vue";
-import WebStorage from "web-storage-cache";
 import axios from "axios";
 import moveFile from "@/common/move.js";
 
-let mySessionSt = new WebStorage({storage: 'sessionStorage'});
 
 export default {
   name: "user",

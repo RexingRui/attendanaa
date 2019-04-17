@@ -38,8 +38,9 @@ export default {
     commit
   }, payload) {
     new Promise((resolve, reject) => {
-      if (payload.userData) {
+      if (payload.userData && payload.userData) {
         // 本地存储没有数据从文件中读取数据
+        console.log(payload);
         myStorage.add("userNum", payload.userNum);
         payload.userData.forEach(el => {
           myStorage.set("user" + el.id, el);
@@ -95,7 +96,7 @@ export default {
     commit
   }, payload) {
     new Promise((resolve, reject) => {
-      myStorage.add("staffNum", payload.staffNum);
+      myStorage.set("staffNum", payload.staffNum);
       resolve(payload.staffNum);
     }).then(value => {
       commit("initialStaffNum", value);
@@ -111,6 +112,17 @@ export default {
     }).then(value => {
       commit("changeStaffNum", value);
     });
+  },
+  // 更改删除员工数量
+  changeDeleteNum({
+    commit
+  }, payload) {
+    new Promise((resolve, reject) => {
+      myStorage.set("deleteNum", payload.deleteNum);
+      resolve(payload.deleteNum);
+    }).then(value => {
+      commit('changeDeleteNum', value);
+    })
   },
   // 初始化员工信息
   initialStaffData({
@@ -138,7 +150,6 @@ export default {
       } else if (payload.flag == 'remove') {
         if (payload.deleteIndex) {
           // localstorage中删除staff数据
-          console.log(payload.deleteIndex);
           payload.deleteIndex.forEach(value => {
             myStorage.delete("staff" + value);
           });

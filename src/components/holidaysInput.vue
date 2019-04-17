@@ -153,6 +153,11 @@ export default {
       tableDataForHolidaysAd: []
     };
   },
+  computed: {
+    dateDataOfYear () {
+      return this.$store.getters.dateDataOfYear;
+    }
+  },
   methods: {
     /**
      * 添加假期信息
@@ -298,14 +303,14 @@ export default {
      */
     handleHolidayDataUp() {
       // 判断是否为重复导入
-      if (myStorage.get("dateDataOfYear")) {
+      if (this.dateDataOfYear) {
         this.$confirm("需要重新导入假日信息么", "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         })
           .then(() => {
-            myStorage.delete("dateDataOfYear");
+            this.$store.dispatch('', { dateDataOfYear: null })
             this.handleDateData();
           })
           .catch(() => {

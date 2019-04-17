@@ -93,7 +93,7 @@ beforeRouterEnter
     2. 导入考勤数据时, initialStaffData
     3. 手动考勤，changeStaffData
 
-- 被删除员工的id: deleteId -> changeStaffNum, changeStaffData
+- 被删除员工的数量: deleteNum -> changeDeleteNum
 
 - 主页中当前展示的页面: pageIndex -> changeCurrentPage,考勤界面需要录入假期信息才能查看
 

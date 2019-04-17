@@ -54,6 +54,7 @@ import VuetableCss from "@/assets/styles/vuetablecss.js";
 import VuetableRowHeader from "vuetable-2/src/components/VuetableRowHeader.vue";
 import AddStaff from "@/components/AddStaff.vue";
 import WebStorage from "web-storage-cache";
+import { mapState } from 'vuex';
 
 export default {
   name: "staffInformation",
@@ -128,6 +129,13 @@ export default {
       debounceSearchStaff: null
     };
   },
+  computed: {
+    ...mapState([
+      'staffDatas',
+      'staffNum',
+      'deleteNum'
+    ])
+  },
   watch: {
     searchValue(val) {
       this.debounceSearchStaff();
@@ -184,16 +192,18 @@ export default {
     handleClickRemoveStaff() {
       this.getSelectStaff();
       // 已经删除员工的数量
-      let myStorage = new WebStorage();
-      let deleteNum = myStorage.get("deleteNum")
-        ? myStorage.get("deleteNum")
-        : 0;
-      myStorage.set(
-        "deleteNum",
-        this.selectStaffIndex.length + myStorage.get("deleteNum")
-      );
+    //   let myStorage = new WebStorage();
+    //  let deleteNum = myStorage.get("deleteNum")
+    //     ? myStorage.get("deleteNum")
+    //     : 0; 
+    //   myStorage.set(
+    //     "deleteNum",
+    //     this.selectStaffIndex.length + myStorage.get("deleteNum")
+    //   );
+      this.$store.dispatch('changeDeleteNum', {deleteNum: this.deleteNum + this.selectStaffIndex})
+
       let currentStaffNum =
-        this.$store.state.staffNum - this.selectStaffIndex.length;
+        this.staffNum - this.selectStaffIndex.length;
       // 修改员工数量
       this.$store.dispatch("changeStaffNum", { staffNum: currentStaffNum });
       // 删除选择的员工信息
@@ -203,7 +213,7 @@ export default {
       });
       // 删除后重新渲染表格
       setTimeout(x => {
-        this.tableData = this.localData;
+        this.tableData = this.staffDatas;
       }, 100);
     },
     /**
@@ -220,7 +230,7 @@ export default {
      * 对话框确认添加/修改回调
      */
     handleRecordStaff() {
-      this.tableData = this.localData;
+      this.tableData = this.staffDatas;
     },
     /**
      * 在输入框搜索员工时，处理方法
@@ -229,20 +239,15 @@ export default {
       let searchData = this.tableData.filter(value => {
         return value.name.indexOf(this.searchValue.trim()) > -1;
       });
-      this.tableData = searchData ? searchData : this.localData;
+      this.tableData = searchData ? searchData : this.staffDatas;
       if (this.searchValue == "") {
-        this.tableData = this.localData;
+        this.tableData = this.staffDatas;
       }
-    }
-  },
-  computed: {
-    localData() {
-      return this.$store.state.staffDatas;
     }
   },
   mounted() {
     setTimeout(() => {
-      this.tableData = this.localData;
+      this.tableData = this.staffDatas;
     }, 100);
   },
   created() {

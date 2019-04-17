@@ -82,13 +82,11 @@
 </template>
 <script>
 import attendanceDialog from "@/components/attendanceDialog";
-import webStorage from "web-storage-cache";
-import adjustDays from "@/common/holiday.js";
 // 导出excle文件
 import FileSaver from "file-saver";
 import XLSX from "xlsx";
+import { mapState } from "vuex";
 
-let myStorage = new webStorage();
 export default {
   name: "staffAttendance",
   components: {
@@ -129,7 +127,7 @@ export default {
       return monthMatchDays;
     },
     adjustDays() {
-      return myStorage.get("dateDataOfYear");
+      return this.$store.getters.dateDataOfYear;
     },
     /**
      * 表单的表头日期
@@ -184,17 +182,15 @@ export default {
       }
       return dateNum;
     },
-    staffDatas() {
-      return this.$store.state.staffDatas;
-    },
     currentAttendDate() {
       return (
         this.date.year + "/" + this.currentPage + "/" + this.currentRecordDay
       );
     },
-    loadData() {
-      return this.$store.state.loadData;
-    }
+    ...mapState([
+      'staffDatas',
+      'loadData'
+    ])
   },
   methods: {
     /**
@@ -277,7 +273,7 @@ export default {
               currentAttendance = value;
             }
           });
-          if (currentAttendance.isEdit === 'load') {
+          if (currentAttendance.isEdit === 'loadEdit') {
               staffObj.attendanceStyle[i] = 'info';
           } else if (currentAttendance.isEdit === 'edit' || currentAttendance.isEdit === 'mannual') {
               staffObj.attendanceStyle[i] = 'success';
@@ -291,7 +287,7 @@ export default {
             ? currentAttendance.state
             : "";
           staffObj.numbersOfWorkdays =
-            staffObj.attendanceState[i] === "工作"
+            staffObj.attendanceState[i] === "工作" || staffObj.attendanceState[i] === "加班"
               ? staffObj.numbersOfWorkdays + 1
               : staffObj.numbersOfWorkdays;
         }
@@ -331,6 +327,14 @@ export default {
       });
       // 添加考勤数据
       if (!changeAttendFlag) {
+        // 假期与周末处理
+        let dateForm = 'workdays';
+        let currentDay = this.dateData[parseInt(this.currentRecordDay) - 1];
+        for (let item in currentDay) {
+          if (currentDay.hasOwnProperty(item) && currentDay[item] === true) {
+            dateForm = item.replace('is', '').toLowerCase();
+          }
+        }
         changeStaff.attendRecord.push({
           state: attendanceDataOfIndivid.state,
           reason: attendanceDataOfIndivid.reason,
@@ -338,7 +342,8 @@ export default {
           year: this.date.year,
           month: this.currentPage,
           day: this.currentRecordDay,
-          isEdit: "manual"
+          isEdit: "manual",
+          dateForm: dateForm
         });
       }
       this.$store.dispatch("changeStaffData", {
@@ -388,7 +393,22 @@ export default {
       staffDatas.forEach(staff => {
         staff.attendRecord.forEach(currentAttendance => {
           if (currentAttendance.isEdit === "load") {
-            let workTime = currentAttendance.punchInTime;
+            // 打卡时间
+            let workTime = currentAttendance.punchInTime;           
+            // 假期与周末处理
+            currentAttendance.dateForm = 'workdays';
+            let currentMonth = new Date(workTime[0]).getMonth() + 1;
+            let currentDate = new Date(workTime[0]).getDate();
+            for(let item in this.adjustDays) {
+              if (this.adjustDays.hasOwnProperty(item) && item !== 'year') {
+                this.adjustDays[item].forEach(value => {
+                  if (value.month == currentMonth && value.day == currentDate) {
+                    currentAttendance.dateForm = item;
+                  }
+                })
+              }
+            }
+          
             // 上班记录时间
             let startWorkTime = new Date(workTime[0]).getHours();
             // 下班记录时间
@@ -445,6 +465,10 @@ export default {
                   );
                 });
                 currentAttendance.state = isHoliday ? "加班" : "工作";
+                // 工日日加班处理
+                if (leaveTime > 1800000) {
+                  currentAttendance.state = "加班";
+                }
               }
             } else if (parseInt(endWorkTime) < 13) {
               // 只要上班时打了卡
@@ -454,6 +478,8 @@ export default {
               currentAttendance.state = "异常";
               currentAttendance.reason = "上班未打卡";
             }
+            // 对导入的数据处理过要进行标记
+            currentAttendance.isEdit = "loadEdit";
           }
         });
       });

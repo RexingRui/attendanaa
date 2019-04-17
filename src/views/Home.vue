@@ -23,7 +23,7 @@
         <home-side></home-side>
       </div>
       <div class="home-content">
-          <component :is="currentPage"></component>
+        <component :is="pageIndex"></component>
       </div>
     </div>
     <div class="password">
@@ -43,9 +43,11 @@ import holidaysInput from "@/components/holidaysInput";
 import staffManager from "@/components/staffManager.vue";
 import attendanceAnalysis from "@/components/attendanceAnalysis.vue";
 import standardInput from "@/components/standardInput.vue";
+import FileSaver from "file-saver";
+import { mapState, mapGetters } from "vuex";
 
 let myStorage = new WebStorage();
-let mySessionSt = new WebStorage({ storage: 'sessionStorage'});
+let mySessionSt = new WebStorage({ storage: "sessionStorage" });
 
 export default {
   name: "home",
@@ -60,23 +62,23 @@ export default {
     standardInput
   },
   data() {
-    return {showPasswordDialog: false}
+    return { showPasswordDialog: false };
   },
   computed: {
-    currentPage() {
-      return this.$store.state.pageIndex;
-    },
-    loginUser() {
-      return this.$store.state.loginUser;
-    },
-    loginState() {
-      return this.$store.state.loginUser;
-    }
+    ...mapState([
+      'pageIndex',
+      'loginUser',
+      'loginState',
+      'staffDatas'
+    ]),
+    ...mapGetters([
+      'dateDataOfYear'
+    ])
   },
   watch: {
     loginState(val) {
       if (!val) {
-        this.$router.push({path: '/'})
+        this.$router.push({ path: "/" });
       }
     }
   },
@@ -102,7 +104,10 @@ export default {
           staffDatas.push(staff);
         }
       }
-      this.$store.dispatch("initialStaffData", { staffDatas: staffDatas, flag: 'initial' });
+      this.$store.dispatch("initialStaffData", {
+        staffDatas: staffDatas,
+        flag: "initial"
+      });
     },
     /**
      * 打开修改密码对话框
@@ -111,90 +116,139 @@ export default {
       if (command == "修改密码") {
         this.showPasswordDialog = true;
       } else if (command == "登出") {
-        this.$confirm('确定退出当前登陆状态', '提示', {
-          confirmButtonText: '确定',
-          cancleButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$store.dispatch('changeLoginState', {loginState: false, flag: 'logout'});
-          this.$store.dispatch('updateLoginUser', {loginUser: this.loginUser, flag: 'logout'});
-          this.$router.push({path: '/'})
-          this.$message({
-            type:'success',
-            message: '退出登陆',
-            duration: 1500
-          });
-        }).catch(() => {
-          this.$message({
-            type:'info',
-            message: '取消登出',
-            duration: 1500
-          })
+        this.$confirm("确定退出当前登陆状态", "提示", {
+          confirmButtonText: "确定",
+          cancleButtonText: "取消",
+          type: "warning"
         })
+          .then(() => {
+            this.$store.dispatch("changeLoginState", {
+              loginState: false,
+              flag: "logout"
+            });
+            this.$store.dispatch("updateLoginUser", {
+              loginUser: this.loginUser,
+              flag: "logout"
+            });
+            this.$router.push({ path: "/" });
+            this.$message({
+              type: "success",
+              message: "退出登陆",
+              duration: 1500
+            });
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "取消登出",
+              duration: 1500
+            });
+          });
       }
     }
   },
   mounted() {
     this.getStaffData();
+    let that = this;
 
+    window.onbeforeunload = function(e) {
+      if (that.$route.name === "home") {
+        var confirmationMessage = "o/";
+        that
+          .$confirm("是否保存数据", "提示", {
+            confirmButtonText: "保存",
+            cancelButtonText: "取消",
+            type: "warning"
+          })
+          .then(() => {
+            // 保存数据
+            let dateDataOfYear = that.dateDataOfYear;
+            let deleteNum = that.deleteNum;
+            let staffNum = that.staffNum;
+            let standardData = that.standardData;
+            let staffDatas = that.staffDatas;
+            let jsonData = JSON.stringify({
+              dateDataOfYear,
+              deleteNum,
+              staffNum,
+              standardData,
+              staffDatas
+            });
+
+            let file = new File([jsonData], {
+              type: "text/plain;charset=utf-8"
+            });
+            setTimeout(() => {
+              FileSaver.saveAs(file);
+            }, 1000);
+          })
+          .catch(() => {
+            console.log("取消");
+          });
+        (e || window.event).returnValue = confirmationMessage; // Gecko and Trident
+        return confirmationMessage; // webkit
+      } else {
+        window.onbeforeunload = null;
+      }
+    };
   },
   // 组件路由钩子，防止直接输入url进入考勤页面
   // 不能使用this，所以直接从sessionStorage中获取值
   beforeRouteEnter(to, from, next) {
-    if ( mySessionSt.get('loginState')) {
+    if (mySessionSt.get("loginState")) {
       next();
     } else {
-    next({ path: '/' });
+      next({ path: "/" });
     }
   }
 };
 </script>
 <style lang="less" scoped>
-  .home-header {
+.home-header {
+  position: fixed;
+  z-index: 10;
+  height: 1.2rem;
+  width: 100%;
+  background-color: #4a648b;
+  color: #e1e1e1;
+  .home-header-left {
+    margin: 0.42rem 0 0 0.48rem;
+    .el-icon-edit-outline {
+      transform: scale(2);
+    }
+    .home-title {
+      margin: -0.34rem 0 0 0.5rem;
+      font-size: 0.4rem;
+    }
+  }
+  .home-header-right {
+    position: absolute;
+    top: 0.4rem;
+    right: 1rem;
+    .el-dropdown {
+      color: #e1e1e1;
+    }
+  }
+}
+.home-main {
+  z-index: 1;
+  width: 100%;
+  padding-top: 1.2rem;
+  min-height: 100vh;
+  background-color: #e9e9f0;
+  .home-side {
     position: fixed;
-    z-index: 10;
-    height: 1.2rem;
-    width: 100%;
-    background-color: #4a648b;
-    color: #e1e1e1;
-    .home-header-left {
-      margin: 0.42rem 0 0 0.48rem;
-      .el-icon-edit-outline {
-        transform: scale(2);
-      }
-      .home-title {
-        margin: -0.34rem 0 0 0.5rem;
-        font-size: 0.4rem;
-      }
-    }
-    .home-header-right {
-      position: absolute;
-      top: 0.4rem;
-      right: 1rem;
-      .el-dropdown {
-        color: #e1e1e1;
-      }
-    }
+    overflow-y: auto;
+    width: 5rem;
+    height: 100%;
   }
-  .home-main {
-    z-index: 1;
-    width: 100%;
-    padding-top: 1.2rem;
-    min-height: 100vh;
-    background-color: #e9e9f0;
-    .home-side {
-      position: fixed;
-      overflow-y: auto;
-      width: 5rem;
-      height: 100%;
-    }
-    .home-content {
-      padding: 0.5rem;
-      box-sizing: border-box;
-      margin-left: 5rem;
-      background-color: #fbfbfb;
-      min-height: calc(100vh - 1.2rem);
-    }
+  .home-content {
+    padding: 0.5rem;
+    box-sizing: border-box;
+    margin-left: 5rem;
+    background-color: #fbfbfb;
+    min-height: calc(100vh - 1.2rem);
   }
+}
 </style>
 

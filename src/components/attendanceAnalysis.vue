@@ -5,10 +5,11 @@
       <span>
         <el-button
           type="primary"
-          v-for="item in months"
-          :key="item.id"
-          @click="handleMonthsClick(item.id)"
-        >{{item.name}}</el-button>
+          v-for="item in monthsName"
+          :key="item"
+          @click="handleMonthsClick(item)"
+        >{{item}}</el-button>
+        <el-button type="success" v-on:click.once="handleRest">调休</el-button>
       </span>
     </div>
     <table id="table" data-height="460"></table>
@@ -20,18 +21,18 @@ export default {
   data() {
     return {
       activeName2: "first",
-      months: [],
       columns: [
         { field: "attendId", title: "考勤号" },
         { field: "name", title: "姓名" },
         { field: "work", title: "工作(d)" },
         { field: "overtime", title: "加班(h)" },
         { field: "leave", title: "请假(h)" },
-        { field: "annualLeave", title: "年假(d)" },
+        { field: "annualLeave", title: "年假(h)" },
         { field: "abnormal", title: "异常考勤" },
-        { field: "remarks", title: "备注" }
+        { field: "remarks", title: "备注" },
       ],
-      dataAnalysis: [],
+      monthsName: ["Jan", "Feb", "Mar", "April", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"],
+      containerOfTableData: {},
       tableData: []
     };
   },
@@ -51,82 +52,118 @@ export default {
      * @param {number} month 月份
      */
     handleMonthsClick(month) {
-      this.tableData = [];
-      this.dataAnalysis.forEach(item => {
-        let staffData = {
-          attendId: item.attendId,
-          name: item.name,
-          work: 0,
-          overtime: 0,
-          leave: 0,
-          annualLeave: item.annualLeave,
-          abnormal: 0,
-          remarks: ""
-        };
-        try {
-          item.staffDataAna[month].forEach(val => {
-            switch (val) {
-              case "工作":
-                staffData.work++;
-                break;
-              case "异常":
-                staffData.abnormal++;
-                break;
-              default:
-                if (val.indexOf("请假") > -1) {
-                  staffData.leave += parseFloat(val.replace("请假", ""));
-                } else if (val.indexOf("加班") > -1) {
-                  staffData.overtime += parseFloat(val.replace("加班", ""));
-                }
-                break;
-            }
-          });
-          this.tableData.push(staffData);
-        } catch {
-          console.log("该月没有数据");
-        }
-      });
+      this.tableData = this.containerOfTableData[month];
     },
     /**
      * 收集需要统计的数据
      */
     getAnalysisData() {
-      this.staffDatas.forEach(staff => {
+      // 从员工数据中统计考勤数据
+      let staffDatas = JSON.parse(JSON.stringify(this.staffDatas));
+      let dataAnalysis = [];
+      staffDatas.forEach(staff => {
         let staffDataAna = [];
-        staff.attendRecord.forEach(attendanceObj => {
-          if (!staffDataAna[attendanceObj.month]) {
-            staffDataAna[attendanceObj.month] = [];
+        staff.attendRecord.forEach(attendanceRecordItem => {
+          // 每个月的数据为一个数组，存储每日分析结果
+          if (!staffDataAna[attendanceRecordItem.month]) {
+            staffDataAna[attendanceRecordItem.month] = [];
           }
-          // 对请假和加班做处理，根据记录的时间统计加班/请假是半天还是一天
-          let addFlag = "";
+          //
+          // 对请假和加班做处理
+          let time =
+            attendanceRecordItem.punchInTime[1] -
+            attendanceRecordItem.punchInTime[0];
+          let overtimeHours = "";
           if (
-            attendanceObj.state === "加班" ||
-            attendanceObj.state === "请假"
+            attendanceRecordItem.state === "加班" &&
+            (attendanceRecordItem.dateForm === "holiday" ||
+              attendanceRecordItem.dateForm === "weekend")
           ) {
-            let time =
-              attendanceObj.punchInTime[1] -
-              attendanceObj.punchInTime[0];
-            // 减去吃饭时间0.5小时
-            addFlag = (time / 3600000).toFixed(1) - 0.5;
-            // 力度设为0.5个小时
-            let decimal = parseInt(("" + addFlag).split(".")[1]);
-            addFlag =
-              decimal > 5
-                ? parseInt(("" + addFlag).split(".")[0]) + 0.5
-                : parseInt(("" + addFlag).split(".")[0]);
+            // 周末或者节假日加班
+            overtimeHours = this.handleOvertime(time);
+          } else if (
+            attendanceRecordItem.state === "加班" &&
+            attendanceRecordItem.dateForm === "workdays"
+          ) {
+            // 工作日加班
+            overtimeHours = this.handleOvertime(time) - 8;
+            attendanceRecordItem.state = "工作";
+          } else if (attendanceRecordItem.state === "请假") {
+            overtimeHours = this.handleOvertime(time);
           }
-          staffDataAna[attendanceObj.month].push(
-            attendanceObj.state + addFlag
+          staffDataAna[attendanceRecordItem.month].push(
+            attendanceRecordItem.state + overtimeHours
           );
         });
 
-        this.dataAnalysis.push({
+        dataAnalysis.push({
           name: staff.name,
           attendId: staff.attendId,
           annualLeave: staff.annualLeave,
           staffDataAna: staffDataAna
         });
       });
+      // 将数据放在一个容器作为表格数据的父集
+      this.monthsName.forEach(val => {
+        this.containerOfTableData[val] = [];
+      });
+
+      dataAnalysis.forEach(item => {
+        for (let i = 1; i <= 12; i++) {
+        let staffData = {
+          attendId: item.attendId,
+          name: item.name,
+          work: 0,
+          overtime: 0,
+          leave: 0,
+          annualLeave: parseInt(item.annualLeave),
+          abnormal: 0,
+          remarks: ""
+        };
+        
+          try {
+            item.staffDataAna[i].forEach(val => {
+              switch (val) {
+                case "工作":
+                  staffData.work++;
+                  break;
+                case "异常":
+                  staffData.abnormal++;
+                  break;
+                default:
+                  if (val.indexOf("请假") > -1) {
+                    staffData.leave += parseFloat(val.replace("请假", ""));
+                    staffData.work++;
+                  } else if (val.indexOf("加班") > -1) {
+                    staffData.overtime += parseFloat(val.replace("加班", ""));
+                  } else if (val.indexOf("工作") > -1) {
+                    staffData.work++;
+                    staffData.overtime += parseFloat(val.replace("工作", ""));
+                  }
+                  break;
+              }
+            });
+            this.containerOfTableData[this.monthsName[i-1]].push(staffData);
+          } catch {
+            console.log("该月没有数据");
+          }
+        }
+      });
+    },
+    /**
+     * 处理加班时间
+     * @param {number} time 工作时间
+     */
+    handleOvertime(time) {
+      // 减去吃饭时间0.5小时
+      let overtimeHours = (time / 3600000).toFixed(1) - 0.5;
+      // 力度设为0.5个小时
+      let decimal = parseInt(("" + overtimeHours).split(".")[1]);
+      overtimeHours =
+        decimal > 5
+          ? parseInt(("" + overtimeHours).split(".")[0]) + 0.5
+          : parseInt(("" + overtimeHours).split(".")[0]);
+      return overtimeHours;
     },
     /**
      * 渲染表格
@@ -135,7 +172,7 @@ export default {
     handleTableData(flag) {
       let $table = $("#table");
       if (flag === "initial") {
-        this.handleMonthsClick(1);
+        this.handleMonthsClick('Jan');
         $table.bootstrapTable({ columns: this.columns, data: this.tableData });
       } else {
         $table.bootstrapTable("refreshOptions", {
@@ -143,44 +180,63 @@ export default {
           data: this.tableData
         });
       }
-    }
+    },
+    handleRest() {
+      // 优先根据加班时间来调休
+      this.tableData.forEach(item => {
+        if (item.overtime >= item.leave) {
+          item.overtime -= item.leave;
+          item.leave = 0;
+        } else {
+          item.leave -= item.overtime;
+          item.overtime = 0;
+          // 使用年假来调休
+          if (item.leave > 0) {
+            if (item.annualLeave >= item.leave) {
+              item.annualLeave -= item.leave;
+              item.leave = 0;
+              item.restDays = item.leave;
+            } else {
+              item.leave -= item.annualLeave;
+              item.annualLeave = 0;
+              item.restDays = item.annualLeave;
+            }
+
+            // 分发数据
+            let staffData = this.staffDatas.find(value => {
+              return value.attendId === item.attendId;
+            });
+            staffData.annualLeave = item.annualLeave;
+            if (staffData) {
+              this.$store.dispatch("changeStaffData", {
+                staffData: staffData,
+                flag: "change"
+              });
+            }
+          }
+        }
+      });
+      this.handleTableData("refesh");
+    },
   },
   mounted() {
-    let numberOfChiese = [
-      "一",
-      "二",
-      "三",
-      "四",
-      "五",
-      "六",
-      "七",
-      "八",
-      "九",
-      "十",
-      "十一",
-      "十二"
-    ];
-    for (let i = 1; i <= 12; i++) {
-      let monthField = { id: i, name: numberOfChiese[i - 1] + "月" };
-      this.months.push(monthField);
-    }
     this.getAnalysisData();
     this.handleTableData("initial");
   }
 };
 </script>
 <style lang="less" scoped>
-  .attendance-analysis {
-    .title {
-      font-size: .4rem;
-      font-weight: 550;
-      height: 1rem;
-      line-height: 1rem;
-    }
-    .month-buttons {
-      display: flex;
-      margin-bottom: .65rem;
-    }
+.attendance-analysis {
+  .title {
+    font-size: 0.4rem;
+    font-weight: 550;
+    height: 1rem;
+    line-height: 1rem;
   }
+  .month-buttons {
+    display: flex;
+    margin-bottom: 0.65rem;
+  }
+}
 </style>
 

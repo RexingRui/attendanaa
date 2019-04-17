@@ -12,7 +12,8 @@ import {
   UPDATE_LOGIN_USER,
   CHANGE_LOGIN_STATE,
   GET_DATEDATA_OFYEAR,
-  CHANGE_STANDARD_DATA
+  CHANGE_STANDARD_DATA,
+  CHANGE_DELETE_NUM
 } from "@/common/mutation-types.js";
 
 export default {
@@ -33,6 +34,10 @@ export default {
 
   [CHANGE_STAFF_NUM](state, staffNum) {
     state.staffNum = staffNum;
+  },
+
+  [CHANGE_DELETE_NUM](state, deleteNum) {
+    state.deleteNum = deleteNum;
   },
 
   [INITIAL_STAFF_DATA](state, payload) {

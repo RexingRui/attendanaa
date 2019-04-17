@@ -26,8 +26,6 @@
   </div>
 </template>
 <script>
-import WebStorage from "web-storage-cache";
-import { resolve } from "q";
 
 export default {
   name: "register",

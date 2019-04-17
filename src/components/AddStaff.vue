@@ -35,7 +35,8 @@
   </div>
 </template>
 <script>
-import WebStorage from "web-storage-cache";
+// import WebStorage from "web-storage-cache";
+import { mapState } from "vuex";
 
 export default {
   name: "addStaff",
@@ -100,12 +101,10 @@ export default {
     };
   },
   computed: {
-    staffNum() {
-      return this.$store.state.staffNum;
-    },
-    standardData() {
-      return this.$store.state.standardData;
-    }
+    ...mapState([
+      'staffNum',
+      'deleteNum'
+    ])
   },
   watch: {
     value(val) {
@@ -150,11 +149,12 @@ export default {
           } else {
             // 新增员工信息
             // 获取员工数量
-            let myStorage = new WebStorage();
-            let deleteNum = myStorage.get("deleteNum")
-              ? myStorage.get("deleteNum")
-              : 0;
-            let staffNum = this.staffNum + deleteNum;
+            // let myStorage = new WebStorage();
+            // let deleteNum = myStorage.get("deleteNum")
+            //   ? myStorage.get("deleteNum")
+            //   : 0;
+
+            let staffNum = this.staffNum + this.deleteNum;
             // 添加员工信息
             this.$store.dispatch("changeStaffData", {
               staffData: {
@@ -198,8 +198,6 @@ export default {
         this.form.date = "";
         this.form.phone = "";
         this.form.gender = "m";
-        this.form.annualLeave = this.standardData.annualLeave;
-
       } else {
         this.form.name = this.staffInfo.name;
         this.form.email = this.staffInfo.email;

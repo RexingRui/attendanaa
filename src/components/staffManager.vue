@@ -1,10 +1,26 @@
 <template>
   <div class="staff-manager">
-    <read-data @readdata="handleReadData" format=".csv">导入数据</read-data>
+    <div class="read-data">
+      <read-data
+        class="attendance-data read-data-item"
+        @readAttendanceData="handleAttendanceData"
+        :readData="'readAttendanceData'"
+        format=".csv"
+      >考勤数据</read-data>
+      <read-data
+        class="history-data read-data-item"
+        @readHistoryData="handleHistoryData"
+        :readData="'readHistoryData'"
+        format=".json"
+      >历史数据</read-data>
+    </div>
   </div>
 </template>
 <script>
 import readData from "@/components/readData.vue";
+import WebStorage from "web-storage-cache";
+
+let  myStorage = new WebStorage();
 
 export default {
   name: "staffManager",
@@ -21,7 +37,7 @@ export default {
      * 读入考勤数据
      * @param {dom} file dom元素
      */
-    handleReadData(file) {
+    handleAttendanceData(file) {
       if (file) {
         let reader = new FileReader();
         reader.readAsText(file);
@@ -114,6 +130,52 @@ export default {
       }
     },
     /**
+     * 读入历史数据
+     *
+     */
+    handleHistoryData(file) {
+      if (file) {
+        let reader = new FileReader();
+        reader.readAsText(file);
+        let that = this;
+        reader.onload = function() {
+          that.$notify({
+            title: "成功",
+            message: "数据读取成功",
+            position: "top-left",
+            type: "success",
+            duration: 1500
+          });
+
+          let data = JSON.parse(this.result);
+          // 分发数据
+          if (data) {
+            // 员工数量
+            that.$store.dispatch("initialStaffNum", {
+              staffNum: data.staffNum || 0
+            });
+            // 已经删除的员工数量
+            myStorage.set("deleteNum", data.deleteNum || 0);
+            // 员工信息
+            that.$store.dispatch("initialStaffData", {
+              flag: "initial",
+              staffDatas: data.staffDatas
+            });
+            // 存入本地
+            data.staffDatas.forEach(staff => {
+              myStorage.set("staff" + staff.id, staff);
+            });
+            // 假期数据
+            that.$store.dispatch("getDateDataOfYear", {
+              dateDataOfYear: data.dateDataOfYear
+            });
+            // 标准数据
+            that.$store.dispatch('changeStandardData', {flag: 'initial', standardData: data.standardData});
+          }
+        };
+      }
+    },
+    /**
      * 去除当天考勤多余的数据，保留第一次和最后一次
      * @param {array} arr
      * @return {array}
@@ -148,3 +210,14 @@ export default {
   }
 };
 </script>
+<style lang="less" scoped>
+.staff-manager {
+  .read-data {
+    // display: flex;
+    .read-data-item {
+      margin-left: 1rem;
+      display: inline-block;
+    }
+  }
+}
+</style>

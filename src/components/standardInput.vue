@@ -33,10 +33,15 @@ export default {
       startTime: new Date(2016, 9, 10, 18, 30), 
     };
   },
+  computed: {
+    standardData () {
+      return this.$store.getters.standardData;
+    }
+  },
   methods: {
     handleStandardInput() {
       let minutes = ('' + this.startTime.getMinutes()).length < 2 ? '0' + this.startTime.getMinutes() : this.startTime.getMinutes();
-      if (myStorage.get('standardData')) {
+      if (this.standardData) {
         this.$confirm('考勤标准数据已存在，需要重新导入么', '警告', {
           confirmButtonText: '确认',
           cancelButtonText: '取消',
