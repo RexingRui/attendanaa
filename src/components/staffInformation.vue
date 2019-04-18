@@ -191,16 +191,7 @@ export default {
     */
     handleClickRemoveStaff() {
       this.getSelectStaff();
-      // 已经删除员工的数量
-    //   let myStorage = new WebStorage();
-    //  let deleteNum = myStorage.get("deleteNum")
-    //     ? myStorage.get("deleteNum")
-    //     : 0; 
-    //   myStorage.set(
-    //     "deleteNum",
-    //     this.selectStaffIndex.length + myStorage.get("deleteNum")
-    //   );
-      this.$store.dispatch('changeDeleteNum', {deleteNum: this.deleteNum + this.selectStaffIndex})
+      this.$store.dispatch('changeDeleteNum', {deleteNum: this.deleteNum + this.selectStaffIndex.length})
 
       let currentStaffNum =
         this.staffNum - this.selectStaffIndex.length;

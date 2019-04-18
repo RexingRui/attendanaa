@@ -31,7 +31,9 @@ import getters from '@/store/getters.js';
       // 标准数据
       standardData: {annualLeave: 40, overtime: "17:30"},
       // 由指纹打卡记录数据的导入
-      loadData: {}
+      loadData: {},
+      // 考勤统计后数据
+      attendanceAnalysisData: {}
     },
   getters,
   mutations,

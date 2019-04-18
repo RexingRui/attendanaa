@@ -3,18 +3,25 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import User from './views/User.vue'
 import NotFoundComponent from './views/NotFoundComponent.vue'
-// import Test from './views/Test.vue'
 
 Vue.use(Router)
 
 export default new Router({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes: [
-    {
+  routes: [{
       path: '/home',
       name: 'home',
       component: Home,
+    },
+    {
+      path: '/home/:id',
+      component: Home,
+      children: [{
+        path: '',
+        name: 'staff',
+        component: () => import('./views/Staff.vue')
+      }, ]
     },
     {
       path: '/',

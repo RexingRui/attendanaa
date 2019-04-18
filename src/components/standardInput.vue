@@ -3,7 +3,7 @@
     <div class="form-input">
       <el-form label-width="80px" ref="holidayForm">
         <el-form-item label="年假标准" prop="annualLeave">
-          <el-slider v-model="daysOfAnnual" :format-tooltip="formatAnnualLeave" :min="2" :max="30"></el-slider>
+          <el-slider v-model="daysOfAnnual" :format-tooltip="formatAnnualLeave" :min="16" :max="80"></el-slider>
         </el-form-item>
         <el-form-item label="加班起始" prop="overtime">
           <el-time-picker
@@ -29,7 +29,7 @@ export default {
   name: "standardInput",
   data() {
     return {
-      daysOfAnnual: 5,
+      daysOfAnnual: 40,
       startTime: new Date(2016, 9, 10, 18, 30), 
     };
   },
@@ -58,7 +58,7 @@ export default {
       }
     },
     formatAnnualLeave(val) {
-      return val + "天";
+      return val + "小时";
     }
   }
 };

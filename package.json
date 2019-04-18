@@ -9,19 +9,21 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "bootstrap": "^4.3.1",
+    "bootstrap-table": "^1.14.2",
+    "echarts": "^4.2.1",
     "element-ui": "^2.5.4",
     "file-saver": "^2.0.1",
+    "jquery": "^3.3.1",
     "jsonfile": "^5.0.0",
     "lodash": "^4.17.11",
     "vue": "^2.5.22",
+    "vue-echarts": "^4.0.1",
     "vue-router": "^3.0.1",
     "vuetable-2": "^2.0.0-beta.4",
     "vuex": "^3.1.0",
     "vuex-along": "^1.1.0",
-    "xlsx": "^0.14.1",
-    "jquery": "^3.3.1",
-    "bootstrap": "^4.3.1",
-    "bootstrap-table": "^1.14.2"
+    "xlsx": "^0.14.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.4.0",

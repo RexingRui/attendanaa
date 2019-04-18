@@ -18,13 +18,16 @@
         </el-dropdown>
       </div>
     </div>
-    <div class="home-main">
+    <div class="home-main" v-if="showAnalysis">
       <div class="home-side">
         <home-side></home-side>
       </div>
       <div class="home-content">
-        <component :is="pageIndex"></component>
+        <component :is="pageIndex" @analysis="handleAnalysisData"></component>
       </div>
+    </div>
+    <div class="home-staff" v-else>
+      <router-view></router-view>
     </div>
     <div class="password">
       <change-password v-model="showPasswordDialog"></change-password>
@@ -62,18 +65,11 @@ export default {
     standardInput
   },
   data() {
-    return { showPasswordDialog: false };
+    return { showPasswordDialog: false, showAnalysis: true };
   },
   computed: {
-    ...mapState([
-      'pageIndex',
-      'loginUser',
-      'loginState',
-      'staffDatas'
-    ]),
-    ...mapGetters([
-      'dateDataOfYear'
-    ])
+    ...mapState(["pageIndex", "loginUser", "loginState", "staffDatas"]),
+    ...mapGetters(["dateDataOfYear"])
   },
   watch: {
     loginState(val) {
@@ -145,15 +141,43 @@ export default {
             });
           });
       }
-    }
+    },
+    handleToolTip() {
+      if (this.staffDatas && this.staffDatas.length < 1) {
+        this.$confirm("注册员工信息，或者读入历史数据", "提示", {
+          confirmButtonText: "注册员工信息",
+          cancelButtonText: "导入历史数据",
+          type: "warning"
+        })
+          .then(() => {
+            this.$store.dispatch("changeCurrentPage", {
+              pageIndex: "staffInformation"
+            });
+          })
+          .catch(() => {
+            this.$store.dispatch("changeCurrentPage", {
+              pageIndex: "staffManager"
+            });
+          });
+      }
+    },
+    handleAnalysisData(attendanceId) {
+      this.showAnalysis = attendanceId != '0' ? false : true;
+      this.$router.push({ name: "staff", params: { id: parseInt(attendanceId) } })
+      myStorage.set('attenanceId', attendanceId);
+    } 
   },
   mounted() {
     this.getStaffData();
     let that = this;
-
+    setTimeout(() => {
+      this.handleToolTip();
+    }, 100);
+    // 关闭页面或在浏览器提示保存数据
     window.onbeforeunload = function(e) {
-      if (that.$route.name === "home") {
+      if (that.$route.path.indexOf("home") > -1 && that.$route.name !== "staff") {
         var confirmationMessage = "o/";
+        console.log( that.$route.name);
         that
           .$confirm("是否保存数据", "提示", {
             confirmButtonText: "保存",
@@ -191,12 +215,18 @@ export default {
         window.onbeforeunload = null;
       }
     };
+
+    
+    this.showAnalysis = myStorage.get('attendanceId') != 0 ? false : true
+    
   },
   // 组件路由钩子，防止直接输入url进入考勤页面
   // 不能使用this，所以直接从sessionStorage中获取值
   beforeRouteEnter(to, from, next) {
     if (mySessionSt.get("loginState")) {
-      next();
+      next(vm => {
+        vm.showAnalysis = true;
+      });
     } else {
       next({ path: "/" });
     }

@@ -12,7 +12,6 @@ module.exports = {
   },
   configureWebpack: {
     plugins: [
-      new webpack.optimize.CommonsChunkPlugin('common.js'),
       new webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery',
@@ -21,5 +20,8 @@ module.exports = {
     ]
   },
   publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
-
+  transpileDependencies: [
+    /\/node_modules\/vue-echarts\//,
+    /\/node_modules\/resize-detector\//
+  ]
 };

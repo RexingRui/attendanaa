@@ -18,81 +18,89 @@
 export default {
   name: "attendanceAnalysis",
   data() {
+    function operateFormatter() {
+      return '<i class="fa fa-pie-chart fa-lg"></i>';
+    }
     return {
       activeName2: "first",
       columns: [
-        [
-          {
-            field: "attendId",
-            title: "考勤号",
-            rowspan: 2,
-            align: "center",
-            valign: "middle",
-          },
-          {
-            field: "name",
-            title: "姓名",
-            rowspan: 2,
-            align: "center",
-            valign: "middle"
-          },
-          {
-            field: "work",
-            title: "工作(d)",
-            rowspan: 2,
-            align: "center",
-            valign: "middle"
-          },
-          {
-            field: "overtime",
-            title: "加班(h)",
-            rowspan: 2,
-            align: "center",
-            valign: "middle"
-          },
-          {
-            field: "leave",
-            title: "请假(h)",
-            rowspan: 2,
-            align: "center",
-            valign: "middle"
-          },
-          {
-            field: "annualLeave",
-            title: "年假(h)",
-            colspan: 2,
-            align: "center",
-            valign: "middle"
-          },
-          {
-            field: "abnormal",
-            title: "异常考勤",
-            rowspan: 2,
-            align: "center",
-            valign: "middle"
-          },
-          {
-            field: "remarks",
-            title: "备注",
-            rowspan: 2,
-            align: "center",
-            valign: "middle"
+        {
+          field: "analysis",
+          formatter: operateFormatter,
+          align: "center",
+          valign: "middle",
+          width: 40,
+          cellStyle: {
+            css: {
+              color: "blue",
+              padding: "20px",
+              cursor: "pointer"
+            }
           }
-        ],
-        [
-          {
-            field: "leaveBefore",
-            title: "月前",
-            align: "center",
-            valign: "middle"
-          },
-          {
-            field: "leaveAfter",
-            title: "月后",
-            align: "center",
-            valign: "middle"
+        },
+        {
+          field: "attendId",
+          title: "考勤号",
+          align: "center",
+          valign: "middle"
+        },
+        {
+          field: "name",
+          title: "姓名",
+          align: "center",
+          valign: "middle"
+        },
+        {
+          field: "work",
+          title: "工作(d)",
+          align: "center",
+          valign: "middle"
+        },
+        {
+          field: "overtime",
+          title: "加班(h)",
+          align: "center",
+          valign: "middle",
+          cellStyle: {
+            css: {
+              color: "blue",
+              padding: "20px"
+            }
           }
-        ]
+        },
+        {
+          field: "leave",
+          title: "请假(h)",
+          align: "center",
+          valign: "middle",
+          cellStyle: {
+            css: {
+              color: "red",
+              padding: "20px"
+            }
+          }
+        },
+        {
+          field: "annualLeave",
+          title: "年假(h)",
+
+          align: "center",
+          valign: "middle"
+        },
+        {
+          field: "abnormal",
+          title: "异常考勤",
+
+          align: "center",
+          valign: "middle"
+        },
+        {
+          field: "remarks",
+          title: "备注",
+
+          align: "center",
+          valign: "middle"
+        }
       ],
 
       monthsName: [
@@ -226,6 +234,10 @@ export default {
           }
         }
       });
+
+      this.$store.dispatch("updateAnalysisData", {
+        attendanceAnalysisData: this.containerOfTableData
+      });
     },
     /**
      * 处理加班时间
@@ -250,12 +262,15 @@ export default {
       let $table = $("#table");
       if (flag === "initial") {
         this.handleMonthsClick("Jan");
-        $table.bootstrapTable({ columns: this.columns, data: this.tableData });
-      } else {
-        $table.bootstrapTable("refreshOptions", {
+        $table.bootstrapTable({
           columns: this.columns,
           data: this.tableData,
-          rowStyle: this.rowStyle
+          rowStyle: this.rowStyle,
+          theadClasses: "thead-light"
+        });
+      } else {
+        $table.bootstrapTable("refreshOptions", {
+          data: this.tableData
         });
       }
     },
@@ -297,16 +312,23 @@ export default {
       this.handleTableData("refesh");
     },
     rowStyle(row, index) {
-    return {
-      css: {
-        color: 'blue'
-      }
+      return {
+        css: {
+          padding: "20px"
+        }
+      };
     }
-  }
   },
   mounted() {
+    let that = this;
     this.getAnalysisData();
     this.handleTableData("initial");
+    $("#table").on("click-cell.bs.table", function(field, value, row, $element) {
+      console.log($element, value);
+      if (value === "analysis" && $element) {
+        that.$emit('analysis', $element.attendId);
+      }
+    });
   }
 };
 </script>
@@ -322,6 +344,8 @@ export default {
     display: flex;
     margin-bottom: 0.65rem;
   }
+  /deep/ thead th .th-inner {
+    padding: 20px !important;
+  }
 }
 </style>
-

@@ -209,5 +209,19 @@ export default {
     }).then(value => {
       commit('changeStandardData', value);
     })
+  },
+
+  // 更新考勤统计数据
+  updateAnalysisData({commit}, payload) {
+    new Promise(reslove => {
+      if (myStorage.get('attendanceAnalysisData')) {
+        myStorage.replace('attendanceAnalysisData', payload.attendanceAnalysisData);
+      } else {
+        myStorage.set('attendanceAnalysisData', payload.attendanceAnalysisData);
+      }
+      reslove(payload.attendanceAnalysisData);
+    }).then(value => {
+      commit('updateAnalysisData', value);
+    })
   }
 };

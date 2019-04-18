@@ -10,6 +10,7 @@ const UPDATE_LOGIN_USER = 'updateLoginUser';
 const CHANGE_LOGIN_STATE = 'changeLoginState';
 const GET_DATEDATA_OFYEAR = 'getDateDataOfYear';
 const CHANGE_STANDARD_DATA = 'changeStandardData';
+const UPDATE_ANALYSIS_DATA = 'updateAnalysisData'
 
 
 export {
@@ -24,5 +25,6 @@ export {
   UPDATE_LOGIN_USER,
   CHANGE_LOGIN_STATE,
   GET_DATEDATA_OFYEAR,
-  CHANGE_STANDARD_DATA
+  CHANGE_STANDARD_DATA,
+  UPDATE_ANALYSIS_DATA
 }

@@ -13,7 +13,8 @@ import {
   CHANGE_LOGIN_STATE,
   GET_DATEDATA_OFYEAR,
   CHANGE_STANDARD_DATA,
-  CHANGE_DELETE_NUM
+  CHANGE_DELETE_NUM,
+  UPDATE_ANALYSIS_DATA,
 } from "@/common/mutation-types.js";
 
 export default {
@@ -143,5 +144,9 @@ export default {
 
   [CHANGE_STANDARD_DATA](state, standardData) {
     state.standardData = standardData;
+  },
+
+  [UPDATE_ANALYSIS_DATA](state, attendanceAnalysisData) {
+    state.attendanceAnalysisData = attendanceAnalysisData;
   }
 };

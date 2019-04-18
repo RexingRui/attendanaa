@@ -31,7 +31,7 @@
         </el-form-item>
       </el-form>
       <div class="file-upload">
-        <read-data @readUserData="handleReadData" :readData="'readUserData'" format=".json">读取信息</read-data>
+        <read-data @readUserData="handleReadData" :readData="'readUserData'" format=".json">读取账号</read-data>
       </div>
     </div>
   </div>
