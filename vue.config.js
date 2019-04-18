@@ -12,6 +12,7 @@ module.exports = {
   },
   configureWebpack: {
     plugins: [
+      new webpack.optimize.CommonsChunkPlugin('common.js'),
       new webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery',

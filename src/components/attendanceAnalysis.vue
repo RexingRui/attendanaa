@@ -9,7 +9,6 @@
           :key="item"
           @click="handleMonthsClick(item)"
         >{{item}}</el-button>
-        <el-button type="success" v-on:click.once="handleRest">调休</el-button>
       </span>
     </div>
     <table id="table" data-height="460"></table>
@@ -22,16 +21,94 @@ export default {
     return {
       activeName2: "first",
       columns: [
-        { field: "attendId", title: "考勤号" },
-        { field: "name", title: "姓名" },
-        { field: "work", title: "工作(d)" },
-        { field: "overtime", title: "加班(h)" },
-        { field: "leave", title: "请假(h)" },
-        { field: "annualLeave", title: "年假(h)" },
-        { field: "abnormal", title: "异常考勤" },
-        { field: "remarks", title: "备注" },
+        [
+          {
+            field: "attendId",
+            title: "考勤号",
+            rowspan: 2,
+            align: "center",
+            valign: "middle",
+          },
+          {
+            field: "name",
+            title: "姓名",
+            rowspan: 2,
+            align: "center",
+            valign: "middle"
+          },
+          {
+            field: "work",
+            title: "工作(d)",
+            rowspan: 2,
+            align: "center",
+            valign: "middle"
+          },
+          {
+            field: "overtime",
+            title: "加班(h)",
+            rowspan: 2,
+            align: "center",
+            valign: "middle"
+          },
+          {
+            field: "leave",
+            title: "请假(h)",
+            rowspan: 2,
+            align: "center",
+            valign: "middle"
+          },
+          {
+            field: "annualLeave",
+            title: "年假(h)",
+            colspan: 2,
+            align: "center",
+            valign: "middle"
+          },
+          {
+            field: "abnormal",
+            title: "异常考勤",
+            rowspan: 2,
+            align: "center",
+            valign: "middle"
+          },
+          {
+            field: "remarks",
+            title: "备注",
+            rowspan: 2,
+            align: "center",
+            valign: "middle"
+          }
+        ],
+        [
+          {
+            field: "leaveBefore",
+            title: "月前",
+            align: "center",
+            valign: "middle"
+          },
+          {
+            field: "leaveAfter",
+            title: "月后",
+            align: "center",
+            valign: "middle"
+          }
+        ]
       ],
-      monthsName: ["Jan", "Feb", "Mar", "April", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"],
+
+      monthsName: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "April",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sept",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
       containerOfTableData: {},
       tableData: []
     };
@@ -110,17 +187,17 @@ export default {
 
       dataAnalysis.forEach(item => {
         for (let i = 1; i <= 12; i++) {
-        let staffData = {
-          attendId: item.attendId,
-          name: item.name,
-          work: 0,
-          overtime: 0,
-          leave: 0,
-          annualLeave: parseInt(item.annualLeave),
-          abnormal: 0,
-          remarks: ""
-        };
-        
+          let staffData = {
+            attendId: item.attendId,
+            name: item.name,
+            work: 0,
+            overtime: 0,
+            leave: 0,
+            annualLeave: parseInt(item.annualLeave),
+            abnormal: 0,
+            remarks: ""
+          };
+
           try {
             item.staffDataAna[i].forEach(val => {
               switch (val) {
@@ -143,7 +220,7 @@ export default {
                   break;
               }
             });
-            this.containerOfTableData[this.monthsName[i-1]].push(staffData);
+            this.containerOfTableData[this.monthsName[i - 1]].push(staffData);
           } catch {
             console.log("该月没有数据");
           }
@@ -172,12 +249,13 @@ export default {
     handleTableData(flag) {
       let $table = $("#table");
       if (flag === "initial") {
-        this.handleMonthsClick('Jan');
+        this.handleMonthsClick("Jan");
         $table.bootstrapTable({ columns: this.columns, data: this.tableData });
       } else {
         $table.bootstrapTable("refreshOptions", {
           columns: this.columns,
-          data: this.tableData
+          data: this.tableData,
+          rowStyle: this.rowStyle
         });
       }
     },
@@ -218,6 +296,13 @@ export default {
       });
       this.handleTableData("refesh");
     },
+    rowStyle(row, index) {
+    return {
+      css: {
+        color: 'blue'
+      }
+    }
+  }
   },
   mounted() {
     this.getAnalysisData();
