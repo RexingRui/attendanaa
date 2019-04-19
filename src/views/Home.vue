@@ -126,6 +126,7 @@ export default {
               loginUser: this.loginUser,
               flag: "logout"
             });
+            myStorage.set("attendanceId", 0);
             this.$router.push({ path: "/" });
             this.$message({
               type: "success",
@@ -137,7 +138,7 @@ export default {
             this.$message({
               type: "info",
               message: "取消登出",
-              duration: 1500
+              duration: 1600
             });
           });
       }
@@ -162,10 +163,17 @@ export default {
       }
     },
     handleAnalysisData(attendanceId) {
-      this.showAnalysis = attendanceId != '0' ? false : true;
-      this.$router.push({ name: "staff", params: { id: parseInt(attendanceId) } })
-      myStorage.set('attenanceId', attendanceId);
-    } 
+      // this.showAnalysis = attendanceId != '0' ? false : true;
+      let routerData = this.$router.resolve({
+        name: "staff",
+        params: { id: parseInt(attendanceId) }
+      });
+      // this.$router.push({ name: "staff", params: { id: parseInt(attendanceId) } })
+      myStorage.set("attendanceId", attendanceId);
+      window.open(routerData.href, "_blank");
+      // this.showAnalysis = true;
+      console.log("执行了");
+    }
   },
   mounted() {
     this.getStaffData();
@@ -174,10 +182,11 @@ export default {
       this.handleToolTip();
     }, 100);
     // 关闭页面或在浏览器提示保存数据
+
     window.onbeforeunload = function(e) {
-      if (that.$route.path.indexOf("home") > -1 && that.$route.name !== "staff") {
+      if (that.$route.path.indexOf("home") > -1) {
         var confirmationMessage = "o/";
-        console.log( that.$route.name);
+        myStorage.set("attendanceId", 0);
         that
           .$confirm("是否保存数据", "提示", {
             confirmButtonText: "保存",
@@ -215,17 +224,15 @@ export default {
         window.onbeforeunload = null;
       }
     };
-
-    
-    this.showAnalysis = myStorage.get('attendanceId') != 0 ? false : true
-    
+    console.log("mounted执行了");
   },
   // 组件路由钩子，防止直接输入url进入考勤页面
   // 不能使用this，所以直接从sessionStorage中获取值
   beforeRouteEnter(to, from, next) {
     if (mySessionSt.get("loginState")) {
       next(vm => {
-        vm.showAnalysis = true;
+        console.log("钩子执行了");
+        vm.showAnalysis = myStorage.get("attendanceId") != 0 ? false : true;
       });
     } else {
       next({ path: "/" });

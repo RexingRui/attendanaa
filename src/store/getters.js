@@ -14,5 +14,11 @@ export default {
       state.standardData = myStorage.get('standardData');
     } 
     return state.standardData;
+  },
+  attendanceAnalysisData(state) {
+    if (!state.attendanceAnalysisData) {
+      state.attendanceAnalysisData = myStorage.get('attendanceAnalysisData');
+    }
+    return state.attendanceAnalysisData;
   }
 }

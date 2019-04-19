@@ -29,11 +29,11 @@ import getters from '@/store/getters.js';
       // 某年的节假日与周末日期
       dateDataOfYear: null,
       // 标准数据
-      standardData: {annualLeave: 40, overtime: "17:30"},
+      standardData: null,
       // 由指纹打卡记录数据的导入
       loadData: {},
       // 考勤统计后数据
-      attendanceAnalysisData: {}
+      attendanceAnalysisData: null
     },
   getters,
   mutations,

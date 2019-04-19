@@ -19,7 +19,7 @@ export default {
   name: "attendanceAnalysis",
   data() {
     function operateFormatter() {
-      return '<i class="fa fa-pie-chart fa-lg"></i>';
+      return '<i class="fa fa-pie-chart fa-lg" style="cursor: pointer"></i>';
     }
     return {
       activeName2: "first",
@@ -34,7 +34,7 @@ export default {
             css: {
               color: "blue",
               padding: "20px",
-              cursor: "pointer"
+              
             }
           }
         },

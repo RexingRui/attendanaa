@@ -219,9 +219,6 @@ export default {
     handleHolidayAdDelete(index, tableData) {
       tableData.splice(index, 1);
     },
-    handleTableData() {
-      
-    },
     /**
      * 处理当年的假期与周末
      */
