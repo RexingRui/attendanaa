@@ -154,7 +154,7 @@ export default {
     };
   },
   computed: {
-    dateDataOfYear () {
+    dateDataOfYear() {
       return this.$store.getters.dateDataOfYear;
     }
   },
@@ -307,7 +307,7 @@ export default {
           type: "warning"
         })
           .then(() => {
-            this.$store.dispatch('', { dateDataOfYear: null })
+            this.$store.dispatch("getDateDataOfYear", { dateDataOfYear: null });
             this.handleDateData();
           })
           .catch(() => {
@@ -316,7 +316,71 @@ export default {
       } else {
         this.handleDateData();
       }
+    },
+    loadTableData() {
+      let currentYear = new Date().getFullYear();
+      // 节假日
+      if (this.dateDataOfYear.holiday.length > 0) {
+        let holidayData = JSON.parse(
+          JSON.stringify(this.dateDataOfYear.holiday)
+        );
+
+        // 对数据进行排序
+        holidayData.sort((a, b) => {
+          return a.month - b.month;
+        });
+        // 合并同一节假日的数据
+        let container = {};
+        holidayData.forEach(holiday => {
+          if (!container[holiday.name]) {
+            container[holiday.name] = [];
+            container[holiday.name].push(holiday);
+          } else {
+            container[holiday.name].push(holiday);
+          }
+        });
+
+        console.log(container);
+        for (let item in container) {
+          let itemLength = container[item].length;
+          this.tableDataForHolidays.push({
+            holidayName: item,
+            holidayDateStart: [
+              currentYear,
+              container[item][0].month,
+              container[item][0].day
+            ].join("/"),
+            holidayDateEnd: [
+              currentYear,
+              container[item][itemLength - 1].month,
+              container[item][itemLength - 1].day
+            ].join("/"),
+            holidayNumber: itemLength
+          });
+        }
+      }
+      // 节假日需要调休的日期
+      if (this.dateDataOfYear.weekdie.length > 0) {
+        let weekdie = JSON.parse(JSON.stringify(this.dateDataOfYear.weekdie));
+        if (weekdie.length > 0) {
+          weekdie.sort((a, b) => {
+            return a.month - b.month;
+          });
+          weekdie.forEach(item => {
+            console.log(item);
+            this.tableDataForHolidaysAd.push({
+              holidayName: item.name,
+              holidayDateAdStart: [currentYear, item.month, item.day].join("/"),
+              holidayDateAdEnd: [currentYear, item.month, item.day].join("/"),
+              holidayAdNumber: 1
+            });
+          });
+        }
+      }
     }
+  },
+  mounted() {
+    this.loadTableData();
   }
 };
 </script>

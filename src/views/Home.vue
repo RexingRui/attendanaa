@@ -144,6 +144,7 @@ export default {
       }
     },
     handleToolTip() {
+      console.log(this.staffDatas);
       if (this.staffDatas && this.staffDatas.length < 1) {
         this.$confirm("注册员工信息，或者读入历史数据", "提示", {
           confirmButtonText: "注册员工信息",
@@ -233,6 +234,7 @@ export default {
       next(vm => {
         console.log("钩子执行了");
         vm.showAnalysis = myStorage.get("attendanceId") != 0 ? false : true;
+        // vm.handleToolTip()
       });
     } else {
       next({ path: "/" });
